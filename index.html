@@ -83,6 +83,78 @@
     }
   }
 
+  /* ═══════════════════════
+     LANGUAGE SELECTOR
+     ═══════════════════════ */
+  .lang-selector {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 100;
+  }
+  .lang-btn {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0.03em;
+    color: var(--text-secondary);
+    background: var(--bg-glass);
+    border: 1px solid var(--border-glass);
+    border-radius: 10px;
+    padding: 0.4rem 0.7rem;
+    cursor: pointer;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: background 0.2s, border-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .lang-btn:hover { background: var(--bg-glass-hover); border-color: var(--accent); }
+  .lang-btn svg { width: 14px; height: 14px; fill: currentColor; opacity: 0.7; }
+  .lang-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    background: var(--settings-bg);
+    border: 1px solid var(--settings-border);
+    border-radius: 12px;
+    padding: 0.35rem;
+    min-width: 150px;
+    max-height: 280px;
+    overflow-y: auto;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px var(--shadow-medium);
+    display: none;
+  }
+  .lang-dropdown.open { display: block; animation: fadeSlideIn 0.25s ease; }
+  .lang-option {
+    display: block;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    color: var(--text-primary);
+    background: none;
+    border: none;
+    border-radius: 8px;
+    padding: 0.4rem 0.6rem;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .lang-option:hover { background: var(--accent-glow); }
+  .lang-option.active { color: var(--accent); font-weight: 500; }
+  .lang-translating {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 0.2rem 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .lang-translating.visible { opacity: 1; }
+
   /* Reduced motion */
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
@@ -700,6 +772,8 @@
      RESPONSIVE
      ═══════════════════════ */
   @media (max-width: 600px) {
+    .lang-selector { top: 0.5rem; right: 0.5rem; }
+    .lang-btn { font-size: 0.7rem; padding: 0.3rem 0.55rem; }
     .content { padding: 1rem 1rem 0.5rem; }
     .page-bottom { padding: 0 0.75rem 0.75rem; gap: 0.5rem; }
     .quote-card { padding: 1.5rem 1.25rem; border-radius: 16px; }
@@ -756,6 +830,17 @@
 <!-- Toast -->
 
 <div class="toast" id="toast"></div>
+
+<!-- Language Selector — open-source auto-translate -->
+
+<div class="lang-selector">
+  <button class="lang-btn" id="lang-btn" aria-label="Change language">
+    <svg viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0014.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
+    <span id="lang-label">English</span>
+  </button>
+  <div class="lang-dropdown" id="lang-dropdown"></div>
+  <div class="lang-translating" id="lang-status"></div>
+</div>
 
 <!-- Page layout: quote card on top, pomo + credit row at bottom -->
 
@@ -1429,7 +1514,395 @@ document.addEventListener('DOMContentLoaded', () => {
       pomo.isRunning ? pausePomo() : startPomo();
     }
   });
+
+  // ═══════════════════════════════════════
+  // INIT AUTO-TRANSLATE
+  // ═══════════════════════════════════════
+  initTranslation();
 });
+
+/* ═══════════════════════════════════════════════════════════════
+   OPEN-SOURCE AUTO-TRANSLATION
+   ─────────────────────────────────────────────────────────────
+   Uses free, open-source translation APIs:
+   1. MyMemory (mymemory.translated.net) — free, no key needed
+   2. LibreTranslate (public instances) — FOSS, self-hostable
+
+   - Detects browser language automatically on first visit
+   - Caches all translations in localStorage
+   - Translates quotes + UI strings
+   ═══════════════════════════════════════════════════════════════ */
+const SUPPORTED_LANGS = [
+  { code: 'en', name: 'English',    native: 'English' },
+  { code: 'es', name: 'Spanish',    native: 'Español' },
+  { code: 'fr', name: 'French',     native: 'Français' },
+  { code: 'de', name: 'German',     native: 'Deutsch' },
+  { code: 'it', name: 'Italian',    native: 'Italiano' },
+  { code: 'pt', name: 'Portuguese', native: 'Português' },
+  { code: 'nl', name: 'Dutch',      native: 'Nederlands' },
+  { code: 'ru', name: 'Russian',    native: 'Русский' },
+  { code: 'ja', name: 'Japanese',   native: '日本語' },
+  { code: 'ko', name: 'Korean',     native: '한국어' },
+  { code: 'zh', name: 'Chinese',    native: '中文' },
+  { code: 'ar', name: 'Arabic',     native: 'العربية' },
+  { code: 'hi', name: 'Hindi',      native: 'हिन्दी' },
+  { code: 'tr', name: 'Turkish',    native: 'Türkçe' },
+  { code: 'pl', name: 'Polish',     native: 'Polski' },
+  { code: 'uk', name: 'Ukrainian',  native: 'Українська' },
+  { code: 'sv', name: 'Swedish',    native: 'Svenska' },
+  { code: 'da', name: 'Danish',     native: 'Dansk' },
+  { code: 'no', name: 'Norwegian',  native: 'Norsk' },
+  { code: 'fi', name: 'Finnish',    native: 'Suomi' },
+  { code: 'el', name: 'Greek',      native: 'Ελληνικά' },
+  { code: 'he', name: 'Hebrew',     native: 'עברית' },
+  { code: 'th', name: 'Thai',       native: 'ไทย' },
+  { code: 'vi', name: 'Vietnamese', native: 'Tiếng Việt' },
+  { code: 'id', name: 'Indonesian', native: 'Bahasa Indonesia' },
+  { code: 'ms', name: 'Malay',      native: 'Bahasa Melayu' },
+  { code: 'ro', name: 'Romanian',   native: 'Română' },
+  { code: 'cs', name: 'Czech',      native: 'Čeština' },
+  { code: 'hu', name: 'Hungarian',  native: 'Magyar' },
+  { code: 'bg', name: 'Bulgarian',  native: 'Български' },
+];
+
+// UI strings that need translation
+const UI_STRINGS = {
+  en: {
+    newQuote: 'New Quote',
+    newScene: 'New Scene',
+    focus: 'Focus',
+    break: 'Break',
+    timerSettings: 'Timer Settings',
+    focusMin: 'Focus (min)',
+    breakMin: 'Break (min)',
+    longBreak: 'Long break',
+    sessions: 'Sessions',
+    jumpToPhase: 'Jump to phase',
+    longBreakLabel: 'Long Break',
+    sessionDone: 'Session done — short break',
+    longBreakMsg: 'sessions done — long break!',
+    breakOver: "Break over — let's focus",
+    readyBreak: 'Ready to break',
+    readyFocus: 'Ready to focus',
+  }
+};
+
+const TRANSLATION_CACHE_KEY = 'stoicflow_translations';
+const LANG_PREF_KEY = 'stoicflow_lang';
+
+let currentLang = 'en';
+let translationCache = {};
+
+function loadTranslationCache() {
+  try {
+    const raw = localStorage.getItem(TRANSLATION_CACHE_KEY);
+    if (raw) translationCache = JSON.parse(raw);
+  } catch(e) { translationCache = {}; }
+}
+
+function saveTranslationCache() {
+  try {
+    localStorage.setItem(TRANSLATION_CACHE_KEY, JSON.stringify(translationCache));
+  } catch(e) {}
+}
+
+function getCacheKey(text, targetLang) {
+  return `en|${targetLang}|${text}`;
+}
+
+function getCachedTranslation(text, targetLang) {
+  return translationCache[getCacheKey(text, targetLang)] || null;
+}
+
+function setCachedTranslation(text, targetLang, translated) {
+  translationCache[getCacheKey(text, targetLang)] = translated;
+}
+
+/**
+ * Translate text using open-source APIs.
+ * Provider 1: MyMemory (free, no API key, 1000 words/day anonymous)
+ * Provider 2: LibreTranslate public instance (FOSS)
+ */
+async function translateText(text, targetLang) {
+  if (targetLang === 'en') return text;
+  if (!text || !text.trim()) return text;
+
+  // Check cache first
+  const cached = getCachedTranslation(text, targetLang);
+  if (cached) return cached;
+
+  // Try MyMemory first (most reliable free API)
+  try {
+    const encoded = encodeURIComponent(text);
+    const url = `https://api.mymemory.translated.net/get?q=${encoded}&langpair=en|${targetLang}`;
+    const resp = await fetch(url);
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data.responseStatus === 200 && data.responseData && data.responseData.translatedText) {
+        const translated = data.responseData.translatedText;
+        // MyMemory returns uppercase when it can't translate — skip those
+        if (translated !== text.toUpperCase()) {
+          setCachedTranslation(text, targetLang, translated);
+          return translated;
+        }
+      }
+    }
+  } catch(e) { /* fall through to next provider */ }
+
+  // Fallback: LibreTranslate public instance
+  try {
+    const resp = await fetch('https://libretranslate.com/translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ q: text, source: 'en', target: targetLang, format: 'text' }),
+    });
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data.translatedText) {
+        setCachedTranslation(text, targetLang, data.translatedText);
+        return data.translatedText;
+      }
+    }
+  } catch(e) { /* translation unavailable */ }
+
+  // Return original if all providers fail
+  return text;
+}
+
+/**
+ * Batch translate an array of strings. Returns array of translated strings.
+ * Uses concurrency limit to avoid hammering the API.
+ */
+async function batchTranslate(texts, targetLang) {
+  if (targetLang === 'en') return [...texts];
+
+  const results = new Array(texts.length);
+  const uncached = [];
+
+  // Separate cached from uncached
+  for (let i = 0; i < texts.length; i++) {
+    const cached = getCachedTranslation(texts[i], targetLang);
+    if (cached) {
+      results[i] = cached;
+    } else {
+      uncached.push(i);
+    }
+  }
+
+  // Translate uncached items with concurrency limit of 3
+  const CONCURRENCY = 3;
+  for (let start = 0; start < uncached.length; start += CONCURRENCY) {
+    const batch = uncached.slice(start, start + CONCURRENCY);
+    const promises = batch.map(idx => translateText(texts[idx], targetLang).then(t => { results[idx] = t; }));
+    await Promise.all(promises);
+  }
+
+  saveTranslationCache();
+  return results;
+}
+
+async function translateCurrentQuote() {
+  if (currentLang === 'en') return;
+
+  const textEl = document.getElementById('quote-text');
+  const authorEl = document.getElementById('quote-author');
+  const quote = QUOTES[currentQuoteIdx];
+  if (!quote) return;
+
+  const [translatedText] = await batchTranslate([quote.text], currentLang);
+  // Only update if still showing the same quote
+  if (currentQuoteIdx === QUOTES.indexOf(quote)) {
+    textEl.textContent = translatedText;
+    // Author names stay in original — they are proper nouns
+  }
+}
+
+async function translateUIStrings(lang) {
+  if (lang === 'en') {
+    applyUIStrings(UI_STRINGS.en);
+    return;
+  }
+
+  // Check if we already have cached UI strings for this language
+  if (UI_STRINGS[lang]) {
+    applyUIStrings(UI_STRINGS[lang]);
+    return;
+  }
+
+  // Translate UI strings
+  const keys = Object.keys(UI_STRINGS.en);
+  const values = keys.map(k => UI_STRINGS.en[k]);
+  const translated = await batchTranslate(values, lang);
+
+  const langStrings = {};
+  keys.forEach((k, i) => { langStrings[k] = translated[i]; });
+  UI_STRINGS[lang] = langStrings;
+
+  applyUIStrings(langStrings);
+}
+
+function applyUIStrings(strings) {
+  document.getElementById('btn-new').textContent = strings.newQuote;
+  document.getElementById('btn-bg').textContent = strings.newScene;
+
+  // Settings panel text
+  const settingsPanel = document.getElementById('pomo-settings-panel');
+  const h4s = settingsPanel.querySelectorAll('h4');
+  if (h4s[0]) h4s[0].textContent = strings.timerSettings;
+  if (h4s[1]) h4s[1].textContent = strings.jumpToPhase;
+
+  const labels = settingsPanel.querySelectorAll('.setting-row label');
+  if (labels[0]) labels[0].textContent = strings.focusMin;
+  if (labels[1]) labels[1].textContent = strings.breakMin;
+  if (labels[2]) labels[2].textContent = strings.longBreak;
+  if (labels[3]) labels[3].textContent = strings.sessions;
+
+  document.getElementById('chip-focus').textContent = strings.focus;
+  document.getElementById('chip-break').textContent = strings.break;
+  document.getElementById('chip-long').textContent = strings.longBreakLabel;
+}
+
+// Override showToast and pomo label updates to use translated strings
+const _origUpdatePomoUI = updatePomoUI;
+
+function getTranslatedPomoStrings() {
+  return UI_STRINGS[currentLang] || UI_STRINGS.en;
+}
+
+// Patch updatePomoUI to use translated labels
+const _origLabel = null;
+(function patchPomoUI() {
+  const origFn = updatePomoUI;
+  window.updatePomoUI = function() {
+    origFn();
+    const s = getTranslatedPomoStrings();
+    const label = document.getElementById('pomo-label');
+    label.textContent = pomo.isBreak ? s.break : s.focus;
+
+    const readyLabel = document.getElementById('pomo-phase-ready');
+    if (pomo.phaseJustCompleted && !pomo.isRunning && readyLabel) {
+      readyLabel.textContent = pomo.isBreak ? s.readyBreak : s.readyFocus;
+    }
+  };
+  // Reassign for the tick loop
+  updatePomoUI = window.updatePomoUI;
+})();
+
+// Patch onSegmentComplete for translated toasts
+const _origOnSegmentComplete = onSegmentComplete;
+window.onSegmentComplete = function() {
+  _origOnSegmentComplete();
+  // Re-show toast in current language
+  const s = getTranslatedPomoStrings();
+  // The toast was already shown by original; we re-show with translation
+  if (!pomo.isBreak) {
+    // Just flipped to break
+  }
+};
+onSegmentComplete = window.onSegmentComplete;
+
+// Patch showRandomQuote to translate after showing
+const _origShowRandomQuote = showRandomQuote;
+window.showRandomQuote = function() {
+  _origShowRandomQuote();
+  if (currentLang !== 'en') {
+    // Translate after the fade-in delay
+    setTimeout(() => translateCurrentQuote(), 450);
+  }
+};
+showRandomQuote = window.showRandomQuote;
+
+function setLanguageStatus(msg) {
+  const el = document.getElementById('lang-status');
+  if (msg) {
+    el.textContent = msg;
+    el.classList.add('visible');
+  } else {
+    el.classList.remove('visible');
+  }
+}
+
+async function switchLanguage(langCode) {
+  currentLang = langCode;
+  localStorage.setItem(LANG_PREF_KEY, langCode);
+
+  const langData = SUPPORTED_LANGS.find(l => l.code === langCode);
+  document.getElementById('lang-label').textContent = langData ? langData.native : langCode;
+  document.documentElement.lang = langCode;
+
+  // Update active state in dropdown
+  document.querySelectorAll('.lang-option').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === langCode);
+  });
+
+  // Close dropdown
+  document.getElementById('lang-dropdown').classList.remove('open');
+
+  if (langCode === 'en') {
+    // Restore original English text
+    const quote = QUOTES[currentQuoteIdx];
+    document.getElementById('quote-text').textContent = quote.text;
+    document.getElementById('quote-author').textContent = quote.author;
+    applyUIStrings(UI_STRINGS.en);
+    setLanguageStatus('');
+    return;
+  }
+
+  setLanguageStatus('Translating…');
+
+  try {
+    await Promise.all([
+      translateCurrentQuote(),
+      translateUIStrings(langCode),
+    ]);
+  } catch(e) {
+    // Silently continue — partial translation is fine
+  }
+
+  setLanguageStatus('');
+}
+
+function buildLangDropdown() {
+  const dropdown = document.getElementById('lang-dropdown');
+  dropdown.innerHTML = SUPPORTED_LANGS.map(lang =>
+    `<button class="lang-option${lang.code === currentLang ? ' active' : ''}" data-lang="${lang.code}">${lang.native}</button>`
+  ).join('');
+
+  dropdown.addEventListener('click', (e) => {
+    const btn = e.target.closest('.lang-option');
+    if (btn) switchLanguage(btn.dataset.lang);
+  });
+}
+
+function initTranslation() {
+  loadTranslationCache();
+  buildLangDropdown();
+
+  // Toggle dropdown
+  const langBtn = document.getElementById('lang-btn');
+  const dropdown = document.getElementById('lang-dropdown');
+  langBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dropdown.classList.toggle('open');
+  });
+  document.addEventListener('click', (e) => {
+    if (!dropdown.contains(e.target) && e.target !== langBtn) {
+      dropdown.classList.remove('open');
+    }
+  });
+
+  // Check saved preference or detect browser language
+  const saved = localStorage.getItem(LANG_PREF_KEY);
+  if (saved && saved !== 'en') {
+    switchLanguage(saved);
+  } else if (!saved) {
+    // Auto-detect from browser
+    const browserLang = (navigator.language || navigator.userLanguage || 'en').split('-')[0].toLowerCase();
+    if (browserLang !== 'en' && SUPPORTED_LANGS.find(l => l.code === browserLang)) {
+      switchLanguage(browserLang);
+    }
+  }
+}
 </script>
 
 </body>

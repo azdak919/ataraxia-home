@@ -183,7 +183,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
+    overflow-x: hidden;
     position: relative;
     -webkit-font-smoothing: antialiased;
   }
@@ -208,8 +208,6 @@
     inset: 0;
     z-index: 1;
     background: var(--overlay);
-    backdrop-filter: blur(2px) saturate(1.1);
-    -webkit-backdrop-filter: blur(2px) saturate(1.1);
   }
 
   /* ═══════════════════════
@@ -222,7 +220,7 @@
     height: 100dvh;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: visible;
   }
 
   /* ═══════════════════════
@@ -239,7 +237,7 @@
     max-width: 760px;
     padding: 2rem;
     margin: 0 auto;
-    overflow: hidden;
+    overflow: visible;
   }
 
   /* ═══════════════════════
@@ -721,7 +719,7 @@
     opacity: 0.72;
     transition: opacity 0.3s ease, background 0.3s ease;
     letter-spacing: 0.02em;
-    max-width: calc(100% - 180px);
+    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -738,6 +736,177 @@
     text-decoration: none;
   }
   .img-credit a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════
+     BOTTOM-RIGHT BADGES ROW
+     ═══════════════════════ */
+  .bottom-badges {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.35rem;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  .license-badge {
+    position: relative;
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--font-body);
+    font-size: 0.6rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.72);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    text-decoration: none;
+    background: rgba(0, 0, 0, 0.18);
+    padding: 0.22rem 0.6rem;
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    opacity: 0.6;
+    transition: opacity 0.3s ease, background 0.3s ease;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+  }
+
+  .license-badge:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.32);
+  }
+
+  .gpl-icon {
+    width: 12px;
+    height: 12px;
+    fill: currentColor;
+    flex-shrink: 0;
+    opacity: 0.9;
+  }
+
+  /* ═══════════════════════
+     POMODORO FULL-PAGE VIEW
+     ═══════════════════════ */
+  .pomo-fullpage-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 900;
+    background: var(--bg-glass);
+    backdrop-filter: blur(32px) saturate(1.4);
+    -webkit-backdrop-filter: blur(32px) saturate(1.4);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    opacity: 0;
+    transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .pomo-fullpage-overlay.open {
+    display: flex;
+    opacity: 1;
+  }
+
+  .pomo-fullpage-overlay .pomo-ring-wrapper {
+    width: 280px;
+    height: 280px;
+  }
+
+  .pomo-fullpage-overlay .pomo-ring {
+    width: 280px;
+    height: 280px;
+  }
+
+  .pomo-fullpage-overlay .pomo-time-inside {
+    font-size: 5.5rem;
+  }
+
+  .pomo-fullpage-overlay .pomo-label {
+    font-size: 0.85rem;
+  }
+
+  .pomo-fullpage-overlay .pomo-dots {
+    margin-top: 0.5rem;
+  }
+
+  .pomo-fullpage-overlay .pomo-dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  .pomo-fullpage-overlay .pomo-time-unit {
+    font-size: 1.4rem;
+  }
+
+  .pomo-fullpage-overlay .pomo-controls {
+    gap: 1rem;
+  }
+
+  .pomo-fullpage-overlay .pomo-btn--primary {
+    width: 60px;
+    height: 60px;
+  }
+
+  .pomo-fullpage-overlay .pomo-btn--primary svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .pomo-fullpage-overlay .pomo-btn--secondary {
+    width: 44px;
+    height: 44px;
+  }
+
+  .pomo-fullpage-overlay .pomo-btn--secondary svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .pomo-fullpage-overlay .pomo-phase-ready-label {
+    font-size: 0.75rem;
+  }
+
+  .pomo-fullpage-close {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--border-glass);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+  }
+
+  .pomo-fullpage-close:hover {
+    background: var(--bg-glass-hover);
+    color: var(--text-primary);
+  }
+
+  .pomo-fullpage-close svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+  }
+
+  .pomo-ring-wrapper {
+    cursor: pointer;
+  }
+
+  @media (max-width: 600px) {
+    .pomo-fullpage-overlay .pomo-ring-wrapper { width: 220px; height: 220px; }
+    .pomo-fullpage-overlay .pomo-ring { width: 220px; height: 220px; }
+    .pomo-fullpage-overlay .pomo-time-inside { font-size: 4.2rem; }
+    .pomo-fullpage-overlay .pomo-time-unit { font-size: 1.1rem; }
+  }
 
   /* ═══════════════════════
      TOAST NOTIFICATION
@@ -800,6 +969,9 @@
       flex: 1;
       padding: 0.75rem;
       max-width: none;
+    }
+    .bottom-badges {
+      align-items: flex-start;
     }
     .img-credit {
       align-self: flex-start;
@@ -931,11 +1103,53 @@
   </div><!-- /.pomo-settings -->
 </div><!-- /.pomo-container -->
 
-<!-- Image Credit -->
-<div class="img-credit" id="img-credit"></div>
+<!-- Badges: Image Credit + License -->
+<div class="bottom-badges">
+  <div class="img-credit" id="img-credit"></div>
+  <a class="license-badge" href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">
+    <svg class="gpl-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 1C5.9 1 1 5.9 1 12s4.9 11 11 11 11-4.9 11-11S18.1 1 12 1zm0 1.5c5.2 0 9.5 4.3 9.5 9.5s-4.3 9.5-9.5 9.5S2.5 17.2 2.5 12 6.8 2.5 12 2.5z"/>
+      <path d="M12 5.5c-3.6 0-6.5 2.9-6.5 6.5s2.9 6.5 6.5 6.5c1.8 0 3.4-.7 4.6-1.9l-1.4-1.4c-.8.8-2 1.3-3.2 1.3-2.5 0-4.5-2-4.5-4.5s2-4.5 4.5-4.5c1.2 0 2.3.5 3.1 1.3l1.4-1.4C15.4 6.2 13.8 5.5 12 5.5z"/>
+    </svg>
+    <span>GPL v3</span>
+  </a>
+</div>
 
 </div><!-- /.page-bottom -->
 </div><!-- /.page-layout -->
+
+<!-- Pomodoro Full-Page Overlay -->
+<div class="pomo-fullpage-overlay" id="pomo-fullpage">
+  <button class="pomo-fullpage-close" id="pomo-fullpage-close" aria-label="Close full-page timer">
+    <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+  </button>
+  <div class="pomo-ring-wrapper" id="pomo-fp-ring-wrapper">
+    <svg class="pomo-ring" viewBox="0 0 120 120">
+      <circle class="pomo-ring-bg" cx="60" cy="60" r="52"/>
+      <circle class="pomo-ring-progress" id="pomo-fp-progress" cx="60" cy="60" r="52"/>
+    </svg>
+    <div class="pomo-center">
+      <span class="pomo-label" id="pomo-fp-label">Focus</span>
+      <div class="pomo-time-inside" id="pomo-fp-display">25<span class="pomo-time-unit">m</span></div>
+      <div class="pomo-dots" id="pomo-fp-dots"></div>
+    </div>
+  </div>
+  <div class="pomo-phase-ready-label" id="pomo-fp-phase-ready"></div>
+  <div class="pomo-controls">
+    <button class="pomo-btn pomo-btn--secondary" id="pomo-fp-reset" aria-label="Reset timer">
+      <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+    </button>
+    <button class="pomo-btn pomo-btn--primary" id="pomo-fp-play" aria-label="Start timer">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+    <button class="pomo-btn pomo-btn--primary" id="pomo-fp-pause" aria-label="Pause timer" style="display:none">
+      <svg viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+    </button>
+    <button class="pomo-btn pomo-btn--secondary" id="pomo-fp-settings-btn" aria-label="Timer settings">
+      <svg viewBox="0 0 24 24"><path d="M19.14 12.94a7.07 7.07 0 000-1.88l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.04 7.04 0 00-1.63-.94l-.36-2.54a.48.48 0 00-.48-.41h-3.84a.48.48 0 00-.48.41l-.36 2.54c-.59.24-1.13.57-1.63.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87a.48.48 0 00.12.61l2.03 1.58a7.07 7.07 0 000 1.88l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.05.24.26.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.57 1.63-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.49.49 0 00-.12-.61l-2.03-1.58zM12 15.6A3.6 3.6 0 1115.6 12 3.6 3.6 0 0112 15.6z"/></svg>
+    </button>
+  </div>
+</div>
 
 <script>
 /* ═══════════════════════════════════════
@@ -1022,7 +1236,7 @@ const QUOTES = [
    Wikimedia Commons (public domain art)
    ═══════════════════════════════════════ */
 const BACKGROUNDS = [
-  // ── Natural landscapes ─────────────────────────────────────────
+  // ── Natural landscapes — Unsplash ──────────────────────────────
   { url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=85", credit: "Samuel Ferrara", link: "https://unsplash.com/@samferrara", source: "Unsplash" },
   { url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&q=85", credit: "Lukasz Szmigiel", link: "https://unsplash.com/@szmigieldesign", source: "Unsplash" },
   { url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=85", credit: "Luca Bravo", link: "https://unsplash.com/@lucabravo", source: "Unsplash" },
@@ -1033,7 +1247,7 @@ const BACKGROUNDS = [
   { url: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1920&q=85", credit: "Robert Lukeman", link: "https://unsplash.com/@robertlukeman", source: "Unsplash" },
   { url: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=1920&q=85", credit: "Kazuend", link: "https://unsplash.com/@kazuend", source: "Unsplash" },
   { url: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1920&q=85", credit: "Pietro De Grandi", link: "https://unsplash.com/@pietrozj", source: "Unsplash" },
-  // ── Additional Unsplash — meditative & ancient themes ──────────
+  // ── Meditative & ancient themes — Unsplash ─────────────────────
   { url: "https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?w=1920&q=85", credit: "Luca Bravo", link: "https://unsplash.com/@lucabravo", source: "Unsplash" },
   { url: "https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=1920&q=85", credit: "Ian Dooley", link: "https://unsplash.com/@sadswim", source: "Unsplash" },
   { url: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1920&q=85", credit: "Luca Upper", link: "https://unsplash.com/@lucaupper", source: "Unsplash" },
@@ -1042,6 +1256,27 @@ const BACKGROUNDS = [
   { url: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=1920&q=85", credit: "Luca Zanon", link: "https://unsplash.com/@luca_zanon", source: "Unsplash" },
   { url: "https://images.unsplash.com/photo-1528702748617-c64d49f918af?w=1920&q=85", credit: "Alessio Lin", link: "https://unsplash.com/@lin_alessio", source: "Unsplash" },
   { url: "https://images.unsplash.com/photo-1542401886-65d6c61db217?w=1920&q=85", credit: "v2osk", link: "https://unsplash.com/@v2osk", source: "Unsplash" },
+  // ── Mountains, deserts, stars — Unsplash ───────────────────────
+  { url: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=85", credit: "Kalen Emsley", link: "https://unsplash.com/@kalenemsley", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=1920&q=85", credit: "Joshua Earle", link: "https://unsplash.com/@joshuaearle", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1536431311719-398b6704d4cc?w=1920&q=85", credit: "Vincentiu Solomon", link: "https://unsplash.com/@vincentiu", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1462275646964-a0e3c11f18a6?w=1920&q=85", credit: "Luca Baggio", link: "https://unsplash.com/@luca42", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1491002052546-bf38f186af56?w=1920&q=85", credit: "Austin Neill", link: "https://unsplash.com/@arstyy", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1504700610630-ac6edd918f09?w=1920&q=85", credit: "Jeremy Bishop", link: "https://unsplash.com/@jeremybishop", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1444080748397-f442aa95c3e5?w=1920&q=85", credit: "Josh Gordon", link: "https://unsplash.com/@joshgordon", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1920&q=85", credit: "Jonatan Pie", link: "https://unsplash.com/@r3dmax", source: "Unsplash" },
+  // ── Oceans, coasts, dawn — Unsplash ────────────────────────────
+  { url: "https://images.unsplash.com/photo-1484291470158-b8f8d608850d?w=1920&q=85", credit: "Cristina Gottardi", link: "https://unsplash.com/@cristina_gottardi", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1520942702018-0862200e6873?w=1920&q=85", credit: "Silas Baisch", link: "https://unsplash.com/@silasbaisch", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1414609245224-afa02bfb3fda?w=1920&q=85", credit: "Jordan McQueen", link: "https://unsplash.com/@jordanmcqueen", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1920&q=85", credit: "Levi Bare", link: "https://unsplash.com/@levibare", source: "Unsplash" },
+  // ── Pexels — free open license ─────────────────────────────────
+  { url: "https://images.pexels.com/photos/1287145/pexels-photo-1287145.jpeg?auto=compress&w=1920", credit: "Eberhard Grossgasteiger", link: "https://www.pexels.com/photo/1287145/", source: "Pexels" },
+  { url: "https://images.pexels.com/photos/36717/amazing-animal-beautiful-beautifull.jpg?auto=compress&w=1920", credit: "Pixabay", link: "https://www.pexels.com/photo/36717/", source: "Pexels" },
+  { url: "https://images.pexels.com/photos/1671325/pexels-photo-1671325.jpeg?auto=compress&w=1920", credit: "Rafael Cerqueira", link: "https://www.pexels.com/photo/1671325/", source: "Pexels" },
+  { url: "https://images.pexels.com/photos/2387418/pexels-photo-2387418.jpeg?auto=compress&w=1920", credit: "Felipe Palacio", link: "https://www.pexels.com/photo/2387418/", source: "Pexels" },
+  { url: "https://images.pexels.com/photos/1496373/pexels-photo-1496373.jpeg?auto=compress&w=1920", credit: "Trace Hudson", link: "https://www.pexels.com/photo/1496373/", source: "Pexels" },
+  { url: "https://images.pexels.com/photos/2166553/pexels-photo-2166553.jpeg?auto=compress&w=1920", credit: "Felix Mittermeier", link: "https://www.pexels.com/photo/2166553/", source: "Pexels" },
   // ── Wikimedia Commons — Public Domain Art ──────────────────────
   {
     url: "https://upload.wikimedia.org/wikipedia/commons/b/b9/Wanderer_above_the_sea_of_fog.jpg",
@@ -1065,6 +1300,42 @@ const BACKGROUNDS = [
     url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Thomas_Cole_-_The_Oxbow_%28The_Connecticut_River_near_Northampton%29.jpg/1920px-Thomas_Cole_-_The_Oxbow_%28The_Connecticut_River_near_Northampton%29.jpg",
     credit: "The Oxbow — Thomas Cole, 1836",
     link: "https://commons.wikimedia.org/wiki/File:Thomas_Cole_-_The_Oxbow_(The_Connecticut_River_near_Northampton).jpg",
+    source: "Wikimedia Commons · Public Domain"
+  },
+  {
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1920px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+    credit: "The Starry Night — Vincent van Gogh, 1889",
+    link: "https://commons.wikimedia.org/wiki/File:Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+    source: "Wikimedia Commons · Public Domain"
+  },
+  {
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/VanGogh-starry_night_ballance1.jpg/1920px-VanGogh-starry_night_ballance1.jpg",
+    credit: "Starry Night Over the Rhône — Vincent van Gogh, 1888",
+    link: "https://commons.wikimedia.org/wiki/File:VanGogh-starry_night_ballance1.jpg",
+    source: "Wikimedia Commons · Public Domain"
+  },
+  {
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Caspar_David_Friedrich_-_Der_Mönch_am_Meer_-_Google_Art_Project.jpg/1920px-Caspar_David_Friedrich_-_Der_Mönch_am_Meer_-_Google_Art_Project.jpg",
+    credit: "The Monk by the Sea — Caspar David Friedrich, 1810",
+    link: "https://commons.wikimedia.org/wiki/File:Caspar_David_Friedrich_-_Der_M%C3%B6nch_am_Meer_-_Google_Art_Project.jpg",
+    source: "Wikimedia Commons · Public Domain"
+  },
+  {
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Tsunami_by_hokusai_19th_century.jpg/1920px-Tsunami_by_hokusai_19th_century.jpg",
+    credit: "The Great Wave off Kanagawa — Hokusai, 1831",
+    link: "https://commons.wikimedia.org/wiki/File:Tsunami_by_hokusai_19th_century.jpg",
+    source: "Wikimedia Commons · Public Domain"
+  },
+  {
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Monet_-_Impression%2C_Sunrise.jpg/1920px-Monet_-_Impression%2C_Sunrise.jpg",
+    credit: "Impression, Sunrise — Claude Monet, 1872",
+    link: "https://commons.wikimedia.org/wiki/File:Monet_-_Impression,_Sunrise.jpg",
+    source: "Wikimedia Commons · Public Domain"
+  },
+  {
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Claude_Monet_-_Water_Lilies_-_1906%2C_Chicago.jpg/1920px-Claude_Monet_-_Water_Lilies_-_1906%2C_Chicago.jpg",
+    credit: "Water Lilies — Claude Monet, 1906",
+    link: "https://commons.wikimedia.org/wiki/File:Claude_Monet_-_Water_Lilies_-_1906,_Chicago.jpg",
     source: "Wikimedia Commons · Public Domain"
   },
 ];
@@ -1102,9 +1373,18 @@ function showRandomQuote() {
 
 /* ═══════════════════════════════════════
    BACKGROUND LOGIC
+   Static pool + dynamic Unsplash random fetch
+   for infinite variety.
    ═══════════════════════════════════════ */
+const UNSPLASH_TOPICS = ['nature', 'wallpapers', 'travel', 'architecture'];
+let _lastDynamicUrl = '';
+
 function loadBackground(index) {
   const bg = BACKGROUNDS[index];
+  _applyBackground(bg.url, bg.credit, bg.link, bg.source || 'Unsplash');
+}
+
+function _applyBackground(url, creditText, linkUrl, source) {
   const layer = document.getElementById('bg-layer');
   const credit = document.getElementById('img-credit');
 
@@ -1112,26 +1392,60 @@ function loadBackground(index) {
 
   const img = new Image();
   img.onload = () => {
-    layer.style.backgroundImage = `url(${bg.url})`;
+    layer.style.backgroundImage = `url(${url})`;
     layer.classList.add('loaded');
-    const src = bg.source || 'Unsplash';
-    if (src === 'Unsplash') {
-      credit.innerHTML = `Photo: <a href="${bg.link}" target="_blank" rel="noopener">${bg.credit}</a> · Unsplash`;
+    if (source === 'Unsplash' || source === 'Pexels') {
+      credit.innerHTML = `Photo: <a href="${linkUrl}" target="_blank" rel="noopener">${creditText}</a> · ${source}`;
     } else {
-      credit.innerHTML = `<a href="${bg.link}" target="_blank" rel="noopener">${bg.credit}</a> · ${src}`;
+      credit.innerHTML = `<a href="${linkUrl}" target="_blank" rel="noopener">${creditText}</a> · ${source}`;
     }
   };
   img.onerror = () => {
-    // fallback: try next image
+    // fallback to static pool
     currentBgIdx = (currentBgIdx + 1) % BACKGROUNDS.length;
     loadBackground(currentBgIdx);
   };
-  img.src = bg.url;
+  img.src = url;
+}
+
+function _fetchDynamicBackground() {
+  const topic = UNSPLASH_TOPICS[Math.floor(Math.random() * UNSPLASH_TOPICS.length)];
+  const w = Math.max(screen.width, 1920);
+  const url = `https://source.unsplash.com/random/${w}x${Math.round(w * 0.6)}/?${topic}&t=${Date.now()}`;
+
+  const img = new Image();
+  img.onload = () => {
+    // source.unsplash.com redirects to the actual image URL
+    const finalUrl = img.src;
+    if (finalUrl === _lastDynamicUrl) {
+      // Got same image, fall back to static pool
+      _nextFromPool();
+      return;
+    }
+    _lastDynamicUrl = finalUrl;
+    _applyBackground(finalUrl, topic, `https://unsplash.com/s/photos/${topic}`, 'Unsplash');
+  };
+  img.onerror = () => {
+    // Dynamic fetch failed, fall back to static pool
+    _nextFromPool();
+  };
+  img.src = url;
+}
+
+function _nextFromPool() {
+  let idx;
+  do { idx = Math.floor(Math.random() * BACKGROUNDS.length); } while (idx === currentBgIdx && BACKGROUNDS.length > 1);
+  currentBgIdx = idx;
+  loadBackground(currentBgIdx);
 }
 
 function nextBackground() {
-  currentBgIdx = (currentBgIdx + 1) % BACKGROUNDS.length;
-  loadBackground(currentBgIdx);
+  // 50% chance dynamic fetch, 50% curated pool — ensures variety + reliability
+  if (Math.random() < 0.5) {
+    _fetchDynamicBackground();
+  } else {
+    _nextFromPool();
+  }
 }
 
 /* ═══════════════════════════════════════
@@ -1260,7 +1574,7 @@ function formatMinutes(sec) {
   return String(Math.ceil(sec / 60));
 }
 
-function updatePomoUI() {
+function PomoUI() {
   const remaining = getRemaining();
   const display = document.getElementById('pomo-display');
   const progress = document.getElementById('pomo-progress');
@@ -1330,6 +1644,56 @@ function updatePomoUI() {
   // Check completion
   if (remaining <= 0 && pomo.isRunning) {
     onSegmentComplete();
+  }
+
+  // Sync full-page overlay
+  const fpOverlay = document.getElementById('pomo-fullpage');
+  if (fpOverlay) {
+    const fpDisplay = document.getElementById('pomo-fp-display');
+    const fpProgress = document.getElementById('pomo-fp-progress');
+    const fpLabel = document.getElementById('pomo-fp-label');
+    const fpPlay = document.getElementById('pomo-fp-play');
+    const fpPause = document.getElementById('pomo-fp-pause');
+    const fpDots = document.getElementById('pomo-fp-dots');
+    const fpReady = document.getElementById('pomo-fp-phase-ready');
+
+    if (fpDisplay) fpDisplay.innerHTML = `${minStr}<span class="pomo-time-unit">m</span>`;
+    if (fpProgress) {
+      fpProgress.style.strokeDasharray = CIRCUMFERENCE;
+      fpProgress.style.strokeDashoffset = CIRCUMFERENCE * (1 - fraction);
+      fpProgress.classList.toggle('on-break', pomo.isBreak);
+    }
+    if (fpLabel) fpLabel.textContent = pomo.isBreak ? 'Break' : 'Focus';
+    if (fpPlay) { fpPlay.classList.toggle('on-break', pomo.isBreak); }
+    if (fpPause) { fpPause.classList.toggle('on-break', pomo.isBreak); }
+    if (fpDots) {
+      const total = pomo.sessionsBeforeLong;
+      const done = pomo.completedSessions % pomo.sessionsBeforeLong;
+      const breakClass = pomo.isBreak ? ' on-break' : '';
+      fpDots.innerHTML = Array.from({length: total}, (_, i) =>
+        `<span class="pomo-dot${i < done ? ' done' + breakClass : ''}"></span>`
+      ).join('');
+    }
+    if (pomo.isRunning) {
+      if (fpPlay) fpPlay.style.display = 'none';
+      if (fpPause) fpPause.style.display = 'flex';
+      if (fpPlay) fpPlay.classList.remove('phase-ready');
+      if (fpReady) { fpReady.classList.remove('visible', 'on-break'); fpReady.textContent = ''; }
+    } else {
+      if (fpPlay) fpPlay.style.display = 'flex';
+      if (fpPause) fpPause.style.display = 'none';
+      if (pomo.phaseJustCompleted) {
+        if (fpPlay) fpPlay.classList.add('phase-ready');
+        if (fpReady) {
+          fpReady.textContent = pomo.isBreak ? 'Ready to break' : 'Ready to focus';
+          fpReady.classList.toggle('on-break', pomo.isBreak);
+          fpReady.classList.add('visible');
+        }
+      } else {
+        if (fpPlay) fpPlay.classList.remove('phase-ready');
+        if (fpReady) { fpReady.classList.remove('visible', 'on-break'); fpReady.textContent = ''; }
+      }
+    }
   }
 }
 
@@ -1494,14 +1858,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Pomo tick — uses requestAnimationFrame for smooth updates,
   // but the actual timing is timestamp-based (persistent)
   function tick() {
-    updatePomoUI();
+    PomoUI();
     requestAnimationFrame(tick);
   }
   tick();
 
   // Also update on visibility change (when user returns to tab)
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) updatePomoUI();
+    if (!document.hidden) PomoUI();
   });
 
   // Keyboard shortcuts
@@ -1512,6 +1876,46 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === ' ') {
       e.preventDefault();
       pomo.isRunning ? pausePomo() : startPomo();
+    }
+  });
+
+  // ═══════════════════════════════════════
+  // FULL-PAGE POMODORO
+  // ═══════════════════════════════════════
+  const fpOverlay = document.getElementById('pomo-fullpage');
+  const pomoRingWrapper = document.querySelector('.pomo-widget .pomo-ring-wrapper');
+
+  // Open full-page on ring click
+  pomoRingWrapper.addEventListener('click', (e) => {
+    e.stopPropagation();
+    fpOverlay.classList.add('open');
+  });
+
+  // Close full-page
+  document.getElementById('pomo-fullpage-close').addEventListener('click', () => {
+    fpOverlay.classList.remove('open');
+  });
+
+  // Also close on click outside the ring area in full-page
+  fpOverlay.addEventListener('click', (e) => {
+    if (e.target === fpOverlay) fpOverlay.classList.remove('open');
+  });
+
+  // Full-page controls
+  document.getElementById('pomo-fp-play').addEventListener('click', () => { initAudioCtx(); startPomo(); });
+  document.getElementById('pomo-fp-pause').addEventListener('click', pausePomo);
+  document.getElementById('pomo-fp-reset').addEventListener('click', resetPomo);
+  document.getElementById('pomo-fp-settings-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    fpOverlay.classList.remove('open');
+    settingsPanel.classList.toggle('open');
+    if (settingsPanel.classList.contains('open')) loadSettingsUI();
+  });
+
+  // Escape key closes full-page
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && fpOverlay.classList.contains('open')) {
+      fpOverlay.classList.remove('open');
     }
   });
 
@@ -1763,17 +2167,17 @@ function applyUIStrings(strings) {
 }
 
 // Override showToast and pomo label updates to use translated strings
-const _origUpdatePomoUI = updatePomoUI;
+const _origUpdatePomoUI = PomoUI;
 
 function getTranslatedPomoStrings() {
   return UI_STRINGS[currentLang] || UI_STRINGS.en;
 }
 
-// Patch updatePomoUI to use translated labels
+// Patch PomoUI to use translated labels
 const _origLabel = null;
 (function patchPomoUI() {
-  const origFn = updatePomoUI;
-  window.updatePomoUI = function() {
+  const origFn = PomoUI;
+  window.PomoUI = function() {
     origFn();
     const s = getTranslatedPomoStrings();
     const label = document.getElementById('pomo-label');
@@ -1785,7 +2189,7 @@ const _origLabel = null;
     }
   };
   // Reassign for the tick loop
-  updatePomoUI = window.updatePomoUI;
+  PomoUI = window.PomoUI;
 })();
 
 // Patch onSegmentComplete for translated toasts

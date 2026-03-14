@@ -719,7 +719,7 @@
     opacity: 0.72;
     transition: opacity 0.3s ease, background 0.3s ease;
     letter-spacing: 0.02em;
-    max-width: calc(100% - 180px);
+    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -736,6 +736,62 @@
     text-decoration: none;
   }
   .img-credit a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════
+     BOTTOM-RIGHT BADGES ROW
+     ═══════════════════════ */
+  .bottom-badges {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.35rem;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  .license-badge {
+    position: relative;
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--font-body);
+    font-size: 0.6rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.72);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    text-decoration: none;
+    background: rgba(0, 0, 0, 0.18);
+    padding: 0.22rem 0.6rem;
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    opacity: 0.6;
+    transition: opacity 0.3s ease, background 0.3s ease;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+  }
+
+  .license-badge:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.32);
+  }
+
+  .license-badge a {
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+  }
+
+  .license-badge a:hover { text-decoration: underline; }
+
+  .license-badge .copyleft {
+    display: inline-block;
+    transform: scaleX(-1);
+    font-size: 0.7rem;
+    line-height: 1;
+    opacity: 0.85;
+  }
 
   /* ═══════════════════════
      POMODORO FULL-PAGE VIEW
@@ -921,6 +977,9 @@
       padding: 0.75rem;
       max-width: none;
     }
+    .bottom-badges {
+      align-items: flex-start;
+    }
     .img-credit {
       align-self: flex-start;
       max-width: 160px;
@@ -1051,8 +1110,16 @@
   </div><!-- /.pomo-settings -->
 </div><!-- /.pomo-container -->
 
-<!-- Image Credit -->
-<div class="img-credit" id="img-credit"></div>
+<!-- Badges: Image Credit + License -->
+<div class="bottom-badges">
+  <div class="img-credit" id="img-credit"></div>
+  <div class="license-badge">
+    <span class="copyleft">&copy;</span>
+    <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">GPL v3</a>
+    <span>·</span>
+    <span>Open Source</span>
+  </div>
+</div>
 
 </div><!-- /.page-bottom -->
 </div><!-- /.page-layout -->

@@ -10,7 +10,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500&family=Raleway:wght@200;300;400&display=swap" rel="stylesheet">
 
 <style>
   /* ═══════════════════════════════════════════
@@ -37,6 +37,8 @@
     --pomo-break: #5a7f6a;
     --pomo-ring-bg: rgba(139, 111, 78, 0.12);
     --toast-bg: rgba(255,255,255,0.85);
+    --settings-bg: rgba(252, 249, 246, 0.96);
+    --settings-border: rgba(160, 148, 132, 0.45);
   }
 
   /* Dark theme — adapts to OS preference */
@@ -58,6 +60,8 @@
       --pomo-break: #7aab8e;
       --pomo-ring-bg: rgba(201, 168, 124, 0.1);
       --toast-bg: rgba(40,36,32,0.9);
+      --settings-bg: rgba(30, 27, 24, 0.97);
+      --settings-border: rgba(100, 88, 72, 0.55);
     }
   }
 
@@ -345,12 +349,13 @@
   }
 
   .pomo-time-inside {
-    font-family: var(--font-display);
-    font-size: 2.8rem;
-    font-weight: 300;
+    font-family: 'Raleway', var(--font-body), system-ui, sans-serif;
+    font-size: 2.7rem;
+    font-weight: 200;
     color: var(--text-primary);
-    letter-spacing: -0.02em;
+    letter-spacing: 0.01em;
     line-height: 1;
+    font-variant-numeric: tabular-nums;
   }
 
   .pomo-time-unit {
@@ -426,6 +431,40 @@
     transform: scale(1.06);
   }
 
+  /* Phase-complete ready-to-start state */
+  .pomo-btn--primary.phase-ready {
+    animation: pulseReady 1.6s ease-in-out infinite;
+  }
+
+  @keyframes pulseReady {
+    0%, 100% { box-shadow: 0 4px 14px var(--accent-glow), 0 0 0 0 var(--accent-glow); }
+    50%       { box-shadow: 0 4px 18px var(--accent-glow), 0 0 0 7px transparent; }
+  }
+
+  .pomo-phase-ready-label {
+    font-family: var(--font-body);
+    font-size: 0.58rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--pomo-work);
+    text-align: center;
+    margin-top: -0.25rem;
+    opacity: 0;
+    max-height: 0;
+    transition: opacity 0.4s ease, max-height 0.4s ease;
+    overflow: hidden;
+  }
+
+  .pomo-phase-ready-label.visible {
+    opacity: 1;
+    max-height: 1.2em;
+  }
+
+  .pomo-phase-ready-label.on-break {
+    color: var(--pomo-break);
+  }
+
   /* Small secondary reset/settings buttons */
   .pomo-btn--secondary {
     width: 32px;
@@ -458,14 +497,14 @@
     position: absolute;
     bottom: calc(100% + 0.75rem);
     left: 0;
-    background: var(--bg-glass);
-    backdrop-filter: blur(24px) saturate(1.4);
-    -webkit-backdrop-filter: blur(24px) saturate(1.4);
-    border: 1px solid var(--border-glass);
+    background: var(--settings-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--settings-border);
     border-radius: 18px;
     padding: 1.25rem;
-    min-width: 200px;
-    box-shadow: 0 8px 32px var(--shadow-medium);
+    min-width: 210px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
     animation: settingsIn 0.3s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
@@ -502,8 +541,8 @@
     width: 52px;
     padding: 0.3rem 0.4rem;
     border-radius: 8px;
-    border: 1px solid var(--border-glass);
-    background: var(--bg-glass);
+    border: 1px solid var(--settings-border);
+    background: rgba(0,0,0,0.04);
     color: var(--text-primary);
     font-family: var(--font-body);
     font-size: 0.8rem;
@@ -511,9 +550,51 @@
     outline: none;
     transition: border-color 0.25s;
   }
+  @media (prefers-color-scheme: dark) {
+    .setting-row input[type="number"] { background: rgba(255,255,255,0.06); }
+  }
 
   .setting-row input[type="number"]:focus {
     border-color: var(--accent);
+  }
+
+  .setting-divider {
+    height: 1px;
+    background: var(--settings-border);
+    margin: 0.85rem 0 0.75rem;
+  }
+
+  .setting-phase-chips {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .phase-chip {
+    flex: 1;
+    padding: 0.32rem 0.4rem;
+    border-radius: 8px;
+    border: 1px solid var(--settings-border);
+    background: rgba(0,0,0,0.04);
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 400;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .phase-chip:hover {
+    background: var(--accent);
+    color: #fff;
+    border-color: transparent;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .phase-chip { background: rgba(255,255,255,0.06); }
+    .phase-chip:hover { background: var(--accent); color: #1a1816; }
   }
 
   /* ═══════════════════════
@@ -643,6 +724,9 @@
       </div>
     </div>
 
+    <!-- Phase-ready nudge label -->
+    <div class="pomo-phase-ready-label" id="pomo-phase-ready"></div>
+
     <!-- Controls: reset | play/pause | settings -->
     <div class="pomo-controls">
       <button class="pomo-btn pomo-btn--secondary" id="pomo-reset" aria-label="Reset timer">
@@ -680,6 +764,13 @@
     <div class="setting-row">
       <label>Sessions</label>
       <input type="number" id="setting-sessions" min="1" max="12" value="4">
+    </div>
+    <div class="setting-divider"></div>
+    <h4>Jump to phase</h4>
+    <div class="setting-phase-chips">
+      <button class="phase-chip" id="chip-focus">Focus</button>
+      <button class="phase-chip" id="chip-break">Break</button>
+      <button class="phase-chip" id="chip-long">Long Break</button>
     </div>
   </div>
 </div>
@@ -902,6 +993,22 @@ function showToast(msg) {
 const POMO_KEY = 'stoicflow_pomo';
 const CIRCUMFERENCE = 2 * Math.PI * 52; // ~326.73  (r=52 in 120×120 viewBox)
 
+/* ── Shared AudioContext (created on first user gesture) ── */
+let _audioCtx = null;
+function initAudioCtx() {
+  if (_audioCtx) return _audioCtx;
+  try {
+    _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  } catch(e) {}
+  return _audioCtx;
+}
+function getAudioCtx() {
+  const ctx = initAudioCtx();
+  if (!ctx) return null;
+  if (ctx.state === 'suspended') ctx.resume();
+  return ctx;
+}
+
 let pomo = loadPomoState();
 
 function defaultPomoState() {
@@ -957,6 +1064,7 @@ function updatePomoUI() {
   const playBtn = document.getElementById('pomo-play');
   const pauseBtn = document.getElementById('pomo-pause');
   const dotsEl = document.getElementById('pomo-dots');
+  const readyLabel = document.getElementById('pomo-phase-ready');
 
   const minStr = formatMinutes(remaining);
   display.innerHTML = `${minStr}<span class="pomo-time-unit">m</span>`;
@@ -995,9 +1103,24 @@ function updatePomoUI() {
   if (pomo.isRunning) {
     playBtn.style.display = 'none';
     pauseBtn.style.display = 'flex';
+    // Clear phase-ready state once timer is running
+    playBtn.classList.remove('phase-ready');
+    if (readyLabel) { readyLabel.classList.remove('visible', 'on-break'); readyLabel.textContent = ''; }
   } else {
     playBtn.style.display = 'flex';
     pauseBtn.style.display = 'none';
+    // Show phase-ready pulse when a phase just completed (phaseJustCompleted flag)
+    if (pomo.phaseJustCompleted) {
+      playBtn.classList.add('phase-ready');
+      if (readyLabel) {
+        readyLabel.textContent = pomo.isBreak ? 'Ready to break' : 'Ready to focus';
+        readyLabel.classList.toggle('on-break', pomo.isBreak);
+        readyLabel.classList.add('visible');
+      }
+    } else {
+      playBtn.classList.remove('phase-ready');
+      if (readyLabel) { readyLabel.classList.remove('visible', 'on-break'); readyLabel.textContent = ''; }
+    }
   }
 
   // Check completion
@@ -1017,37 +1140,43 @@ function onSegmentComplete() {
     });
   }
 
-  // Bell chime — warm, multi-note, like a mindfulness / productivity timer
+  // Bell chime — warm Tibetan singing-bowl style, like Timer Productivity Cube
+  // Uses shared AudioContext to avoid browser autoplay suspension
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = getAudioCtx();
+    if (ctx) {
+      // Synthesizes a rich bell/bowl tone: fundamental + harmonics + fast attack + long decay
+      function bowlTone(freq, startTime, vol, decay) {
+        const t0 = ctx.currentTime + startTime;
+        const master = ctx.createGain();
+        master.connect(ctx.destination);
+        master.gain.setValueAtTime(0, t0);
+        master.gain.linearRampToValueAtTime(vol, t0 + 0.008);
+        master.gain.exponentialRampToValueAtTime(0.0001, t0 + decay);
 
-    function bellTone(freq, startTime, vol, decay) {
-      const osc  = ctx.createOscillator();
-      const osc2 = ctx.createOscillator(); // subtle detune for warmth
-      const gain = ctx.createGain();
-      osc.connect(gain); osc2.connect(gain); gain.connect(ctx.destination);
-      osc.type = 'sine'; osc2.type = 'sine';
-      osc.frequency.value  = freq;
-      osc2.frequency.value = freq * 1.0013;
-      // Fast attack → long exponential decay (real bell physics)
-      gain.gain.setValueAtTime(0, ctx.currentTime + startTime);
-      gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + startTime + 0.006);
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + startTime + decay);
-      osc.start(ctx.currentTime + startTime);
-      osc2.start(ctx.currentTime + startTime);
-      osc.stop(ctx.currentTime + startTime + decay);
-      osc2.stop(ctx.currentTime + startTime + decay);
-    }
+        // Fundamental + 2nd harmonic (slight) + 3rd partial — gives bowl warmth
+        [[1, 1], [2.756, 0.28], [5.404, 0.12]].forEach(([ratio, relVol]) => {
+          const osc = ctx.createOscillator();
+          const g   = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq * ratio;
+          g.gain.value = relVol;
+          osc.connect(g); g.connect(master);
+          osc.start(t0);
+          osc.stop(t0 + decay);
+        });
+      }
 
-    if (pomo.isBreak) {
-      // Break ending → single warm descending tone (gentle reminder)
-      bellTone(523.25, 0,    0.22, 3.2);  // C5
-      bellTone(392.00, 0.38, 0.14, 2.8);  // G4
-    } else {
-      // Session complete → three ascending notes (uplifting, rewarding)
-      bellTone(523.25, 0,    0.2,  3.5);  // C5
-      bellTone(659.25, 0.40, 0.17, 3.2);  // E5
-      bellTone(783.99, 0.80, 0.14, 3.0);  // G5
+      if (pomo.isBreak) {
+        // Break over — two gentle descending notes (G5 → E5), subtle recall
+        bowlTone(783.99, 0,    0.18, 3.0);   // G5
+        bowlTone(659.25, 0.45, 0.12, 2.6);   // E5
+      } else {
+        // Session complete — three ascending bowl tones (C5 → E5 → G5), rewarding
+        bowlTone(523.25, 0,    0.20, 3.8);   // C5
+        bowlTone(659.25, 0.50, 0.16, 3.4);   // E5
+        bowlTone(783.99, 1.00, 0.13, 3.0);   // G5
+      }
     }
   } catch(e) {}
 
@@ -1065,6 +1194,7 @@ function onSegmentComplete() {
 
   pomo.pausedRemaining = pomo.totalSeconds;
   pomo.startedAt = null;
+  pomo.phaseJustCompleted = true;
   savePomoState();
 }
 
@@ -1074,7 +1204,9 @@ function startPomo() {
   pomo.totalSeconds = remaining; // recalculate from where we left off
   pomo.pausedRemaining = null;
   pomo.isRunning = true;
+  pomo.phaseJustCompleted = false;
   savePomoState();
+  initAudioCtx(); // ensure AudioContext is live after user gesture
 
   // Request notification permission
   if ('Notification' in window && Notification.permission === 'default') {
@@ -1096,6 +1228,26 @@ function resetPomo() {
   pomo.totalSeconds = pomo.workMin * 60;
   pomo.pausedRemaining = pomo.totalSeconds;
   savePomoState();
+}
+
+function jumpToPhase(phase) {
+  pomo.isRunning = false;
+  pomo.startedAt = null;
+  pomo.phaseJustCompleted = false;
+  if (phase === 'focus') {
+    pomo.isBreak = false;
+    pomo.totalSeconds = pomo.workMin * 60;
+  } else if (phase === 'break') {
+    pomo.isBreak = true;
+    pomo.totalSeconds = pomo.breakMin * 60;
+  } else {
+    pomo.isBreak = true;
+    pomo.totalSeconds = pomo.longBreakMin * 60;
+  }
+  pomo.pausedRemaining = pomo.totalSeconds;
+  savePomoState();
+  // Close settings panel
+  document.getElementById('pomo-settings-panel').classList.remove('open');
 }
 
 /* Settings */
@@ -1141,7 +1293,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-bg').addEventListener('click', nextBackground);
 
   // Pomodoro buttons
-  document.getElementById('pomo-play').addEventListener('click', startPomo);
+  document.getElementById('pomo-play').addEventListener('click', () => { initAudioCtx(); startPomo(); });
   document.getElementById('pomo-pause').addEventListener('click', pausePomo);
   document.getElementById('pomo-reset').addEventListener('click', resetPomo);
 
@@ -1164,6 +1316,11 @@ document.addEventListener('DOMContentLoaded', () => {
   ['setting-work', 'setting-break', 'setting-long', 'setting-sessions'].forEach(id => {
     document.getElementById(id).addEventListener('change', applySettings);
   });
+
+  // Phase jump chips
+  document.getElementById('chip-focus').addEventListener('click', () => jumpToPhase('focus'));
+  document.getElementById('chip-break').addEventListener('click', () => jumpToPhase('break'));
+  document.getElementById('chip-long').addEventListener('click', () => jumpToPhase('long'));
 
   // Pomo tick — uses requestAnimationFrame for smooth updates,
   // but the actual timing is timestamp-based (persistent)

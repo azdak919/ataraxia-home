@@ -10,7 +10,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500&family=Raleway:wght@200;300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
 
 <style>
   /* ═══════════════════════════════════════════
@@ -349,13 +349,13 @@
   }
 
   .pomo-time-inside {
-    font-family: 'Raleway', var(--font-body), system-ui, sans-serif;
-    font-size: 2.7rem;
-    font-weight: 200;
+    font-family: 'DM Sans', var(--font-body), system-ui, sans-serif;
+    font-size: 2.6rem;
+    font-weight: 300;
     color: var(--text-primary);
-    letter-spacing: 0.01em;
+    letter-spacing: -0.01em;
     line-height: 1;
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: tabular-nums lining-nums;
   }
 
   .pomo-time-unit {
@@ -661,18 +661,106 @@
     transform: translateX(-50%) translateY(0);
   }
 
-  /* ═══════════════════════
-     RESPONSIVE
-     ═══════════════════════ */
-  @media (max-width: 600px) {
-    .content { padding: 1.25rem; }
-    .quote-card { padding: 2rem 1.5rem; border-radius: 16px; }
-    .quote-text { font-size: 1.3rem; }
-    .pomo-container { bottom: 1rem; left: 1rem; }
-    .pomo-widget { padding: 1.25rem 1rem 1rem; border-radius: 24px; width: 156px; }
-    .pomo-ring-wrapper { width: 116px; height: 116px; }
-    .pomo-ring { width: 116px; height: 116px; }
-    .img-credit { bottom: 1rem; right: 1rem; }
+  /* ═══════════════════════════════════════
+     RESPONSIVE — mobile-first reflow
+     On narrow screens all three panels
+     (quote, timer, credit) stack vertically
+     so nothing overlaps.
+     ═══════════════════════════════════════ */
+
+  /* ── Tablet/small desktop: push content right of the timer ── */
+  @media (max-width: 920px) and (min-width: 651px) {
+    .content {
+      padding-left: calc(172px + 2.5rem + 1rem);
+      max-width: 900px;
+    }
+  }
+
+  /* ── Mobile (portrait & small landscape): vertical stack ── */
+  @media (max-width: 650px) {
+    /* Body becomes a scrollable column */
+    body {
+      overflow-y: auto;
+      overflow-x: hidden;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 0 0 env(safe-area-inset-bottom, 1rem);
+    }
+
+    /* Quote card fills width, no min-height needed */
+    .content {
+      min-height: unset;
+      width: 100%;
+      max-width: 100%;
+      padding: 1.5rem 1rem 0;
+    }
+
+    .quote-card {
+      padding: 2rem 1.5rem 1.75rem;
+      border-radius: 18px;
+    }
+
+    .quote-text { font-size: 1.25rem; }
+
+    /* Timer: un-fix it, centre it below the quote card */
+    .pomo-container {
+      position: static;
+      display: flex;
+      justify-content: center;
+      margin: 1.25rem auto 0;
+      z-index: auto;
+      animation: none;        /* skip slide-in on mobile */
+    }
+
+    /* Settings panel must open upward even when container is static */
+    .pomo-settings {
+      bottom: calc(100% + 0.5rem);
+      left: 50%;
+      transform: translateX(-50%);
+      min-width: 230px;
+    }
+
+    /* Compact horizontal widget strip */
+    .pomo-widget {
+      flex-direction: row;
+      align-items: center;
+      gap: 1.1rem;
+      width: auto;
+      min-width: 280px;
+      max-width: 340px;
+      padding: 1rem 1.25rem;
+      border-radius: 22px;
+    }
+
+    .pomo-ring-wrapper { width: 100px; height: 100px; flex-shrink: 0; }
+    .pomo-ring         { width: 100px; height: 100px; }
+    .pomo-time-inside  { font-size: 2.1rem; }
+
+    /* Right side of horizontal widget: ready-label + controls */
+    .pomo-phase-ready-label {
+      margin-top: 0;
+      margin-bottom: 0.3rem;
+    }
+
+    /* Image credit: un-fix it, centre it below the timer */
+    .img-credit {
+      position: static;
+      display: block;
+      width: fit-content;
+      margin: 1rem auto 1.5rem;
+      text-align: center;
+      opacity: 0.85;
+      bottom: auto;
+      right: auto;
+    }
+  }
+
+  /* ── Very small phones ── */
+  @media (max-width: 380px) {
+    .pomo-widget { min-width: 260px; gap: 0.85rem; padding: 0.85rem 1rem; }
+    .pomo-ring-wrapper { width: 88px; height: 88px; }
+    .pomo-ring         { width: 88px; height: 88px; }
+    .pomo-time-inside  { font-size: 1.9rem; }
   }
 </style>
 
@@ -993,20 +1081,46 @@ function showToast(msg) {
 const POMO_KEY = 'stoicflow_pomo';
 const CIRCUMFERENCE = 2 * Math.PI * 52; // ~326.73  (r=52 in 120×120 viewBox)
 
-/* ── Shared AudioContext (created on first user gesture) ── */
+/* ── Universal AudioContext unlock ────────────────────────
+   Strategy: create the AudioContext immediately (it starts
+   suspended on all mobile browsers). On the FIRST user
+   interaction anywhere on the page (touch, click, keydown)
+   resume it and play a 1-frame silent buffer.  This single
+   unlock makes all later programmatic sounds work on:
+     • Android Chrome  (autoplay policy)
+     • iOS Safari      (requires gesture + silent buffer)
+     • Desktop Chrome/Firefox/Safari
+   ──────────────────────────────────────────────────────── */
 let _audioCtx = null;
-function initAudioCtx() {
-  if (_audioCtx) return _audioCtx;
-  try {
-    _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  } catch(e) {}
-  return _audioCtx;
+try {
+  _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+} catch(e) {}
+
+function _silentUnlock() {
+  if (!_audioCtx) return;
+  const resume = _audioCtx.state === 'suspended' ? _audioCtx.resume() : Promise.resolve();
+  resume.then(() => {
+    try {
+      const buf = _audioCtx.createBuffer(1, 1, _audioCtx.sampleRate);
+      const src = _audioCtx.createBufferSource();
+      src.buffer = buf;
+      src.connect(_audioCtx.destination);
+      src.start(0);
+    } catch(e) {}
+  });
 }
+
+// One-time unlock on the very first user interaction
+['touchstart', 'touchend', 'mousedown', 'keydown'].forEach(ev => {
+  document.addEventListener(ev, _silentUnlock, { once: true, passive: true });
+});
+
+function unlockAudio() { _silentUnlock(); }  // also callable directly on play click
+
 function getAudioCtx() {
-  const ctx = initAudioCtx();
-  if (!ctx) return null;
-  if (ctx.state === 'suspended') ctx.resume();
-  return ctx;
+  if (!_audioCtx) return null;
+  if (_audioCtx.state === 'suspended') _audioCtx.resume();
+  return _audioCtx;
 }
 
 let pomo = loadPomoState();
@@ -1206,7 +1320,6 @@ function startPomo() {
   pomo.isRunning = true;
   pomo.phaseJustCompleted = false;
   savePomoState();
-  initAudioCtx(); // ensure AudioContext is live after user gesture
 
   // Request notification permission
   if ('Notification' in window && Notification.permission === 'default') {
@@ -1292,8 +1405,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-new').addEventListener('click', showRandomQuote);
   document.getElementById('btn-bg').addEventListener('click', nextBackground);
 
-  // Pomodoro buttons
-  document.getElementById('pomo-play').addEventListener('click', () => { initAudioCtx(); startPomo(); });
+  // Pomodoro buttons — unlockAudio() must be the FIRST call inside the click handler
+  document.getElementById('pomo-play').addEventListener('click', () => { unlockAudio(); startPomo(); });
   document.getElementById('pomo-pause').addEventListener('click', pausePomo);
   document.getElementById('pomo-reset').addEventListener('click', resetPomo);
 
@@ -1342,7 +1455,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'b' || e.key === 'B') nextBackground();
     if (e.key === ' ') {
       e.preventDefault();
-      pomo.isRunning ? pausePomo() : startPomo();
+      if (pomo.isRunning) { pausePomo(); } else { unlockAudio(); startPomo(); }
     }
   });
 });

@@ -345,12 +345,22 @@
   }
 
   .pomo-time-inside {
-    font-family: var(--font-body);
-    font-size: 1.75rem;
+    font-family: var(--font-display);
+    font-size: 2.8rem;
     font-weight: 300;
     color: var(--text-primary);
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
     line-height: 1;
+  }
+
+  .pomo-time-unit {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 300;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    margin-left: 1px;
+    vertical-align: middle;
   }
 
   /* Session progress dots */
@@ -514,16 +524,31 @@
     bottom: 1.5rem;
     right: 1.5rem;
     z-index: 10;
-    font-size: 0.65rem;
+    font-family: var(--font-body);
+    font-size: 0.68rem;
     font-weight: 300;
-    color: var(--text-muted);
-    opacity: 0.6;
+    color: rgba(255, 255, 255, 0.82);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
     text-decoration: none;
-    transition: opacity 0.3s;
+    background: rgba(0, 0, 0, 0.22);
+    padding: 0.28rem 0.7rem;
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    opacity: 0.72;
+    transition: opacity 0.3s ease, background 0.3s ease;
+    letter-spacing: 0.02em;
   }
 
-  .img-credit:hover { opacity: 1; }
-  .img-credit a { color: var(--text-secondary); text-decoration: none; }
+  .img-credit:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.36);
+  }
+  .img-credit a {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+  }
   .img-credit a:hover { text-decoration: underline; }
 
   /* ═══════════════════════
@@ -613,7 +638,7 @@
       </svg>
       <div class="pomo-center">
         <span class="pomo-label" id="pomo-label">Focus</span>
-        <div class="pomo-time-inside" id="pomo-display">25:00</div>
+        <div class="pomo-time-inside" id="pomo-display">25<span class="pomo-time-unit">m</span></div>
         <div class="pomo-dots" id="pomo-dots"></div>
       </div>
     </div>
@@ -664,53 +689,131 @@
    STOIC QUOTES DATABASE
    ═══════════════════════════════════════ */
 const QUOTES = [
+  // ── Marcus Aurelius ────────────────────────────────────────────
   { text: "We suffer more often in imagination than in reality.", author: "Seneca" },
-  { text: "No man is free who is not master of himself.", author: "Epictetus" },
-  { text: "The happiness of your life depends upon the quality of your thoughts.", author: "Marcus Aurelius" },
-  { text: "It is not things that disturb us, but our judgments about things.", author: "Epictetus" },
-  { text: "You have power over your mind — not outside events. Realize this, and you will find strength.", author: "Marcus Aurelius" },
+  { text: "The happiness of your life depends upon the quality of your thoughts.", author: "Marcus Aurelius, Meditations" },
+  { text: "You have power over your mind — not outside events. Realize this, and you will find strength.", author: "Marcus Aurelius, Meditations" },
+  { text: "The soul becomes dyed with the color of its thoughts.", author: "Marcus Aurelius, Meditations" },
+  { text: "What we do now echoes in eternity.", author: "Marcus Aurelius, Meditations" },
+  { text: "Waste no more time arguing about what a good man should be. Be one.", author: "Marcus Aurelius, Meditations" },
+  { text: "Very little is needed to make a happy life; it is all within yourself, in your way of thinking.", author: "Marcus Aurelius, Meditations" },
+  { text: "The obstacle is the way.", author: "Marcus Aurelius, Meditations" },
+  { text: "When you arise in the morning think of what a privilege it is to be alive — to think, to enjoy, to love.", author: "Marcus Aurelius, Meditations" },
+  { text: "Accept the things to which fate binds you, and love the people with whom fate brings you together.", author: "Marcus Aurelius, Meditations" },
+  { text: "The best revenge is not to be like your enemy.", author: "Marcus Aurelius, Meditations" },
+  { text: "Confine yourself to the present.", author: "Marcus Aurelius, Meditations" },
+  { text: "If it is not right, do not do it; if it is not true, do not say it.", author: "Marcus Aurelius, Meditations" },
+  { text: "The first rule is to keep an untroubled spirit. The second is to look things in the face and know them for what they are.", author: "Marcus Aurelius, Meditations" },
+  { text: "Loss is nothing else but change, and change is Nature's delight.", author: "Marcus Aurelius, Meditations" },
+  { text: "Nowhere can man find a quieter or more untroubled retreat than in his own soul.", author: "Marcus Aurelius, Meditations" },
+  { text: "Reject your sense of injury and the injury itself disappears.", author: "Marcus Aurelius, Meditations" },
+  { text: "It never ceases to amaze me: we all love ourselves more than other people, yet we care more about their opinion than our own.", author: "Marcus Aurelius, Meditations" },
+  { text: "How much more grievous are the consequences of anger than the causes of it.", author: "Marcus Aurelius, Meditations" },
+  { text: "Receive without pride; relinquish without struggle.", author: "Marcus Aurelius, Meditations" },
+  { text: "Give yourself a gift: the present moment.", author: "Marcus Aurelius, Meditations" },
+  { text: "Perfection of character is this: to live each day as if it were your last, without frenzy, laziness, or any pretending.", author: "Marcus Aurelius, Meditations" },
+  { text: "Look back over the past, with its changing empires that rose and fell, and you can foresee the future, too.", author: "Marcus Aurelius, Meditations" },
+  { text: "Do not indulge in dreams of what you do not have, but count the blessings actually present and think how much you would desire them if they were not yours.", author: "Marcus Aurelius, Meditations" },
+  // ── Epictetus ──────────────────────────────────────────────────
+  { text: "No man is free who is not master of himself.", author: "Epictetus, Discourses" },
+  { text: "It is not things that disturb us, but our judgments about things.", author: "Epictetus, Enchiridion" },
+  { text: "Wealth consists not in having great possessions, but in having few wants.", author: "Epictetus, Discourses" },
+  { text: "How long are you going to wait before you demand the best for yourself?", author: "Epictetus, Discourses" },
+  { text: "First say to yourself what you would be; and then do what you have to do.", author: "Epictetus, Discourses" },
   { text: "Man is not worried by real problems so much as by his imagined anxieties about real problems.", author: "Epictetus" },
-  { text: "Wealth consists not in having great possessions, but in having few wants.", author: "Epictetus" },
-  { text: "The best revenge is not to be like your enemy.", author: "Marcus Aurelius" },
-  { text: "Difficulties strengthen the mind, as labor does the body.", author: "Seneca" },
-  { text: "It is not because things are difficult that we do not dare; it is because we do not dare that they are difficult.", author: "Seneca" },
-  { text: "How long are you going to wait before you demand the best for yourself?", author: "Epictetus" },
-  { text: "The soul becomes dyed with the color of its thoughts.", author: "Marcus Aurelius" },
-  { text: "What we do now echoes in eternity.", author: "Marcus Aurelius" },
-  { text: "First say to yourself what you would be; and then do what you have to do.", author: "Epictetus" },
-  { text: "He who fears death will never do anything worthy of a living man.", author: "Seneca" },
-  { text: "Waste no more time arguing about what a good man should be. Be one.", author: "Marcus Aurelius" },
-  { text: "If a man knows not to which port he sails, no wind is favorable.", author: "Seneca" },
-  { text: "The key is to keep company only with people who uplift you, whose presence calls forth your best.", author: "Epictetus" },
-  { text: "Very little is needed to make a happy life; it is all within yourself, in your way of thinking.", author: "Marcus Aurelius" },
-  { text: "We are more often frightened than hurt; and we suffer more from imagination than from reality.", author: "Seneca" },
-  { text: "Make the best use of what is in your power, and take the rest as it happens.", author: "Epictetus" },
-  { text: "Begin at once to live, and count each separate day as a separate life.", author: "Seneca" },
-  { text: "The obstacle is the way.", author: "Marcus Aurelius" },
-  { text: "He who laughs at himself never runs out of things to laugh at.", author: "Epictetus" },
-  { text: "True happiness is to enjoy the present, without anxious dependence upon the future.", author: "Seneca" },
-  { text: "When you arise in the morning think of what a privilege it is to be alive, to think, to enjoy, to love.", author: "Marcus Aurelius" },
-  { text: "Other people's views and troubles can be contagious. Do not sabotage yourself by unwittingly adopting negative, unproductive attitudes.", author: "Epictetus" },
+  { text: "Make the best use of what is in your power, and take the rest as it happens.", author: "Epictetus, Enchiridion" },
+  { text: "Freedom is the only worthy goal in life. It is won by disregarding things that lie beyond our control.", author: "Epictetus, Discourses" },
+  { text: "Seek not the good in external things; seek it in yourself.", author: "Epictetus, Discourses" },
+  { text: "He is a wise man who does not grieve for the things which he has not, but rejoices for those which he has.", author: "Epictetus" },
+  // ── Seneca ─────────────────────────────────────────────────────
+  { text: "Difficulties strengthen the mind, as labor does the body.", author: "Seneca, Letters" },
+  { text: "It is not because things are difficult that we do not dare; it is because we do not dare that they are difficult.", author: "Seneca, Letters" },
+  { text: "He who fears death will never do anything worthy of a living man.", author: "Seneca, Letters" },
+  { text: "If a man knows not to which port he sails, no wind is favorable.", author: "Seneca, Letters" },
+  { text: "True happiness is to enjoy the present, without anxious dependence upon the future.", author: "Seneca, Letters" },
   { text: "Luck is what happens when preparation meets opportunity.", author: "Seneca" },
-  { text: "Accept the things to which fate binds you, and love the people with whom fate brings you together.", author: "Marcus Aurelius" },
-  { text: "Freedom is the only worthy goal in life. It is won by disregarding things that lie beyond our control.", author: "Epictetus" },
+  { text: "Begin at once to live, and count each separate day as a separate life.", author: "Seneca, Letters" },
+  { text: "The whole future lies in uncertainty: live immediately.", author: "Seneca, Letters" },
+  { text: "A gem cannot be polished without friction, nor a man perfected without trials.", author: "Seneca" },
+  { text: "We suffer more in imagination than in reality.", author: "Seneca, Letters" },
+  // ── Musonius Rufus (Stoic teacher, contemporary of Epictetus) ──
+  { text: "It is not possible to live well today unless you treat it as your last day.", author: "Musonius Rufus" },
+  { text: "If you accomplish something good with hard work, the labor passes quickly, but the good endures; if you do something shameful in pursuit of pleasure, the pleasure passes quickly, but the shame endures.", author: "Musonius Rufus" },
+  { text: "The person who follows nature and practices virtue will be self-sufficient in all things.", author: "Musonius Rufus" },
+  { text: "We should not esteem any good or evil of the body too highly; we should practice indifference to them.", author: "Musonius Rufus" },
+  { text: "Just as the body must be exercised to become strong, so must the mind be trained in reasoning.", author: "Musonius Rufus" },
+  // ── Zeno of Citium (Founder of Stoicism) ──────────────────────
+  { text: "Man conquers the world by conquering himself.", author: "Zeno of Citium" },
+  { text: "Better to trip with the feet than with the tongue.", author: "Zeno of Citium" },
+  { text: "We have two ears and one mouth, so we should listen more than we say.", author: "Zeno of Citium" },
+  { text: "Happiness is a good flow of life.", author: "Zeno of Citium" },
+  { text: "The goal of life is living in agreement with Nature.", author: "Zeno of Citium" },
+  // ── Buddha / Dhammapada (root of Vipassana tradition) ─────────
+  { text: "Do not dwell in the past, do not dream of the future; concentrate the mind on the present moment.", author: "The Buddha" },
+  { text: "Peace comes from within. Do not seek it without.", author: "The Buddha, Dhammapada" },
+  { text: "You yourself must strive. The Buddhas only point the way.", author: "Dhammapada" },
+  { text: "Ardently do today what must be done. Who knows? Tomorrow, death comes.", author: "Dhammapada" },
+  { text: "Better than a thousand hollow words is one word that brings peace.", author: "Dhammapada" },
+  { text: "Irrigators channel waters; fletchers straighten arrows; carpenters shape wood; the wise master themselves.", author: "Dhammapada" },
+  { text: "Purity or impurity depends on oneself. No one can purify another.", author: "Dhammapada" },
+  { text: "Health is the greatest gift, contentment the greatest wealth, faithfulness the best relationship.", author: "The Buddha, Dhammapada" },
+  { text: "To conquer oneself is a greater victory than to conquer thousands in battle.", author: "Dhammapada" },
+  { text: "Three things cannot be long hidden: the sun, the moon, and the truth.", author: "The Buddha" },
+  { text: "As a solid rock is not shaken by the wind, so the wise are not moved by praise or blame.", author: "Dhammapada" },
+  { text: "Drop by drop the water pot is filled. Likewise, the wise one, gathering little by little, fills herself with good.", author: "Dhammapada" },
 ];
 
 /* ═══════════════════════════════════════
    OPEN-SOURCE BACKGROUND IMAGES
-   (Unsplash — free, open license)
+   Sources: Unsplash (free open license) &
+   Wikimedia Commons (public domain art)
    ═══════════════════════════════════════ */
 const BACKGROUNDS = [
-  { url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80", credit: "Samuel Ferrara", link: "https://unsplash.com/@samferrara" },
-  { url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&q=80", credit: "Lukasz Szmigiel", link: "https://unsplash.com/@szmigieldesign" },
-  { url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=80", credit: "Luca Bravo", link: "https://unsplash.com/@lucabravo" },
-  { url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80", credit: "Sean Oulashin", link: "https://unsplash.com/@oulashin" },
-  { url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80", credit: "Benjamin Voros", link: "https://unsplash.com/@vorosbenisop" },
-  { url: "https://images.unsplash.com/photo-1505144808419-1957a94ca61e?w=1920&q=80", credit: "Frank McKenna", link: "https://unsplash.com/@frankiefoto" },
-  { url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&q=80", credit: "David Marcu", link: "https://unsplash.com/@davidmarcu" },
-  { url: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1920&q=80", credit: "Robert Lukeman", link: "https://unsplash.com/@robertlukeman" },
-  { url: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=1920&q=80", credit: "Kazuend", link: "https://unsplash.com/@kazuend" },
-  { url: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1920&q=80", credit: "Pietro De Grandi", link: "https://unsplash.com/@pietrozj" },
+  // ── Natural landscapes ─────────────────────────────────────────
+  { url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=85", credit: "Samuel Ferrara", link: "https://unsplash.com/@samferrara", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&q=85", credit: "Lukasz Szmigiel", link: "https://unsplash.com/@szmigieldesign", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=85", credit: "Luca Bravo", link: "https://unsplash.com/@lucabravo", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=85", credit: "Sean Oulashin", link: "https://unsplash.com/@oulashin", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=85", credit: "Benjamin Voros", link: "https://unsplash.com/@vorosbenisop", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1505144808419-1957a94ca61e?w=1920&q=85", credit: "Frank McKenna", link: "https://unsplash.com/@frankiefoto", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&q=85", credit: "David Marcu", link: "https://unsplash.com/@davidmarcu", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1920&q=85", credit: "Robert Lukeman", link: "https://unsplash.com/@robertlukeman", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=1920&q=85", credit: "Kazuend", link: "https://unsplash.com/@kazuend", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1920&q=85", credit: "Pietro De Grandi", link: "https://unsplash.com/@pietrozj", source: "Unsplash" },
+  // ── Additional Unsplash — meditative & ancient themes ──────────
+  { url: "https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?w=1920&q=85", credit: "Luca Bravo", link: "https://unsplash.com/@lucabravo", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=1920&q=85", credit: "Ian Dooley", link: "https://unsplash.com/@sadswim", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1920&q=85", credit: "Luca Upper", link: "https://unsplash.com/@lucaupper", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=1920&q=85", credit: "Joanna Kosinska", link: "https://unsplash.com/@joannakosinska", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=1920&q=85", credit: "Ricardo Gomez Angel", link: "https://unsplash.com/@rgaleriacom", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=1920&q=85", credit: "Luca Zanon", link: "https://unsplash.com/@luca_zanon", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1528702748617-c64d49f918af?w=1920&q=85", credit: "Alessio Lin", link: "https://unsplash.com/@lin_alessio", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1542401886-65d6c61db217?w=1920&q=85", credit: "v2osk", link: "https://unsplash.com/@v2osk", source: "Unsplash" },
+  // ── Wikimedia Commons — Public Domain Art ──────────────────────
+  {
+    url: "https://upload.wikimedia.org/wikipedia/commons/b/b9/Wanderer_above_the_sea_of_fog.jpg",
+    credit: "Wanderer above the Sea of Fog — Caspar David Friedrich, 1818",
+    link: "https://commons.wikimedia.org/wiki/File:Wanderer_above_the_sea_of_fog.jpg",
+    source: "Wikimedia Commons · Public Domain"
+  },
+  {
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/%22The_School_of_Athens%22_by_Raffaello_Sanzio_da_Urbino.jpg/1920px-%22The_School_of_Athens%22_by_Raffaello_Sanzio_da_Urbino.jpg",
+    credit: "The School of Athens — Raphael, 1511",
+    link: "https://commons.wikimedia.org/wiki/File:%22The_School_of_Athens%22_by_Raffaello_Sanzio_da_Urbino.jpg",
+    source: "Wikimedia Commons · Public Domain"
+  },
+  {
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/David_-_The_Death_of_Socrates.jpg/1920px-David_-_The_Death_of_Socrates.jpg",
+    credit: "The Death of Socrates — Jacques-Louis David, 1787",
+    link: "https://commons.wikimedia.org/wiki/File:David_-_The_Death_of_Socrates.jpg",
+    source: "Wikimedia Commons · Public Domain"
+  },
+  {
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Thomas_Cole_-_The_Oxbow_%28The_Connecticut_River_near_Northampton%29.jpg/1920px-Thomas_Cole_-_The_Oxbow_%28The_Connecticut_River_near_Northampton%29.jpg",
+    credit: "The Oxbow — Thomas Cole, 1836",
+    link: "https://commons.wikimedia.org/wiki/File:Thomas_Cole_-_The_Oxbow_(The_Connecticut_River_near_Northampton).jpg",
+    source: "Wikimedia Commons · Public Domain"
+  },
 ];
 
 /* ═══════════════════════════════════════
@@ -758,7 +861,12 @@ function loadBackground(index) {
   img.onload = () => {
     layer.style.backgroundImage = `url(${bg.url})`;
     layer.classList.add('loaded');
-    credit.innerHTML = `Photo by <a href="${bg.link}" target="_blank" rel="noopener">${bg.credit}</a> / Unsplash`;
+    const src = bg.source || 'Unsplash';
+    if (src === 'Unsplash') {
+      credit.innerHTML = `Photo: <a href="${bg.link}" target="_blank" rel="noopener">${bg.credit}</a> · Unsplash`;
+    } else {
+      credit.innerHTML = `<a href="${bg.link}" target="_blank" rel="noopener">${bg.credit}</a> · ${src}`;
+    }
   };
   img.onerror = () => {
     // fallback: try next image
@@ -835,10 +943,10 @@ function getRemaining() {
   return Math.max(0, pomo.totalSeconds - elapsed);
 }
 
-function formatTime(sec) {
-  const m = Math.floor(sec / 60);
-  const s = Math.floor(sec % 60);
-  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+function formatMinutes(sec) {
+  // Show only minutes — no seconds to avoid distraction
+  if (sec <= 0) return '0';
+  return String(Math.ceil(sec / 60));
 }
 
 function updatePomoUI() {
@@ -850,7 +958,13 @@ function updatePomoUI() {
   const pauseBtn = document.getElementById('pomo-pause');
   const dotsEl = document.getElementById('pomo-dots');
 
-  display.textContent = formatTime(remaining);
+  const minStr = formatMinutes(remaining);
+  display.innerHTML = `${minStr}<span class="pomo-time-unit">m</span>`;
+
+  // Update browser tab title with stage and time
+  const stageLabel = pomo.isBreak ? 'Break' : 'Focus';
+  const pausedMark = !pomo.isRunning && (pomo.pausedRemaining != null || pomo.startedAt != null) ? '⏸ ' : '';
+  document.title = `${pausedMark}${stageLabel} · ${minStr}m — Stoic Flow`;
 
   const fraction = 1 - (remaining / pomo.totalSeconds);
   progress.style.strokeDasharray = CIRCUMFERENCE;
@@ -903,19 +1017,38 @@ function onSegmentComplete() {
     });
   }
 
-  // Audio cue
+  // Bell chime — warm, multi-note, like a mindfulness / productivity timer
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.frequency.value = pomo.isBreak ? 523 : 440;
-    osc.type = 'sine';
-    gain.gain.value = 0.15;
-    osc.start();
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
-    osc.stop(ctx.currentTime + 1.2);
+
+    function bellTone(freq, startTime, vol, decay) {
+      const osc  = ctx.createOscillator();
+      const osc2 = ctx.createOscillator(); // subtle detune for warmth
+      const gain = ctx.createGain();
+      osc.connect(gain); osc2.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine'; osc2.type = 'sine';
+      osc.frequency.value  = freq;
+      osc2.frequency.value = freq * 1.0013;
+      // Fast attack → long exponential decay (real bell physics)
+      gain.gain.setValueAtTime(0, ctx.currentTime + startTime);
+      gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + startTime + 0.006);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + startTime + decay);
+      osc.start(ctx.currentTime + startTime);
+      osc2.start(ctx.currentTime + startTime);
+      osc.stop(ctx.currentTime + startTime + decay);
+      osc2.stop(ctx.currentTime + startTime + decay);
+    }
+
+    if (pomo.isBreak) {
+      // Break ending → single warm descending tone (gentle reminder)
+      bellTone(523.25, 0,    0.22, 3.2);  // C5
+      bellTone(392.00, 0.38, 0.14, 2.8);  // G4
+    } else {
+      // Session complete → three ascending notes (uplifting, rewarding)
+      bellTone(523.25, 0,    0.2,  3.5);  // C5
+      bellTone(659.25, 0.40, 0.17, 3.2);  // E5
+      bellTone(783.99, 0.80, 0.14, 3.0);  // G5
+    }
   } catch(e) {}
 
   if (!pomo.isBreak) {

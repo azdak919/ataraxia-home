@@ -1,0 +1,1965 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stoic Flow — Daily Quotes & Focus Timer</title>
+
+<!-- Open Source Fonts from Google Fonts -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  /* ═══════════════════════════════════════════
+     CSS CUSTOM PROPERTIES — OS ADAPTIVE THEME
+     ═══════════════════════════════════════════ */
+  :root {
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-body: 'Outfit', system-ui, sans-serif;
+
+    /* Light theme (default) */
+    --bg-primary: #f5f0eb;
+    --bg-glass: rgba(255, 255, 255, 0.55);
+    --bg-glass-hover: rgba(255, 255, 255, 0.72);
+    --border-glass: rgba(180, 170, 155, 0.3);
+    --text-primary: #2c2824;
+    --text-secondary: #6b6259;
+    --text-muted: #9a9088;
+    --accent: #8b6f4e;
+    --accent-glow: rgba(139, 111, 78, 0.15);
+    --shadow-soft: rgba(44, 40, 36, 0.06);
+    --shadow-medium: rgba(44, 40, 36, 0.1);
+    --overlay: rgba(245, 240, 235, 0.35);
+    --pomo-work: #8b6f4e;
+    --pomo-break: #5a7f6a;
+    --pomo-ring-bg: rgba(139, 111, 78, 0.12);
+    --toast-bg: rgba(255,255,255,0.85);
+  }
+
+  /* Dark theme — adapts to OS preference */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1a1816;
+      --bg-glass: rgba(40, 36, 32, 0.6);
+      --bg-glass-hover: rgba(50, 45, 40, 0.75);
+      --border-glass: rgba(100, 90, 78, 0.25);
+      --text-primary: #e8e0d8;
+      --text-secondary: #a89e94;
+      --text-muted: #6b6259;
+      --accent: #c9a87c;
+      --accent-glow: rgba(201, 168, 124, 0.12);
+      --shadow-soft: rgba(0, 0, 0, 0.15);
+      --shadow-medium: rgba(0, 0, 0, 0.3);
+      --overlay: rgba(26, 24, 22, 0.45);
+      --pomo-work: #c9a87c;
+      --pomo-break: #7aab8e;
+      --pomo-ring-bg: rgba(201, 168, 124, 0.1);
+      --toast-bg: rgba(40,36,32,0.9);
+    }
+  }
+
+  /* High contrast mode */
+  @media (prefers-contrast: high) {
+    :root {
+      --bg-glass: rgba(255, 255, 255, 0.85);
+      --border-glass: rgba(0, 0, 0, 0.4);
+      --text-primary: #000;
+      --text-secondary: #333;
+    }
+  }
+  @media (prefers-contrast: high) and (prefers-color-scheme: dark) {
+    :root {
+      --bg-glass: rgba(0, 0, 0, 0.85);
+      --border-glass: rgba(255, 255, 255, 0.4);
+      --text-primary: #fff;
+      --text-secondary: #ccc;
+    }
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ═══════════════════════
+     RESET & BASE
+     ═══════════════════════ */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    color-scheme: light dark;
+  }
+
+  body {
+    font-family: var(--font-body);
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ═══════════════════════
+     BACKGROUND IMAGE
+     ═══════════════════════ */
+  #bg-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: opacity 1.8s ease;
+    opacity: 0;
+  }
+  #bg-layer.loaded { opacity: 1; }
+
+  #bg-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    background: var(--overlay);
+    backdrop-filter: blur(2px) saturate(1.1);
+    -webkit-backdrop-filter: blur(2px) saturate(1.1);
+  }
+
+  /* ═══════════════════════
+     MAIN CONTENT
+     ═══════════════════════ */
+  .content {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 760px;
+    padding: 2rem;
+    min-height: 100dvh;
+  }
+
+  /* ═══════════════════════
+     QUOTE CARD
+     ═══════════════════════ */
+  .quote-card {
+    background: var(--bg-glass);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    border: 1px solid var(--border-glass);
+    border-radius: 20px;
+    padding: 3rem 2.75rem;
+    text-align: center;
+    box-shadow:
+      0 8px 32px var(--shadow-soft),
+      0 2px 8px var(--shadow-soft);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.4s ease;
+    animation: cardEnter 1s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
+  }
+
+  .quote-card:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 12px 40px var(--shadow-medium),
+      0 4px 12px var(--shadow-soft);
+  }
+
+  @keyframes cardEnter {
+    from { opacity: 0; transform: translateY(24px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .quote-mark {
+    font-family: var(--font-display);
+    font-size: 4rem;
+    line-height: 1;
+    color: var(--accent);
+    opacity: 0.35;
+    margin-bottom: -1rem;
+    user-select: none;
+  }
+
+  .quote-text {
+    font-family: var(--font-display);
+    font-size: 1.65rem;
+    font-weight: 400;
+    line-height: 1.55;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    font-style: italic;
+    transition: opacity 0.5s ease;
+  }
+
+  .quote-author {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    transition: opacity 0.5s ease;
+  }
+
+  .quote-author::before {
+    content: '— ';
+    opacity: 0.5;
+  }
+
+  .quote-action-row {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1.75rem;
+  }
+
+  .btn {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.5rem;
+    border-radius: 100px;
+    border: 1px solid var(--border-glass);
+    background: var(--bg-glass);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .btn:hover {
+    background: var(--bg-glass-hover);
+    color: var(--text-primary);
+    border-color: var(--accent);
+    box-shadow: 0 0 16px var(--accent-glow);
+  }
+
+  .btn:active { transform: scale(0.97); }
+
+  /* ═══════════════════════
+     POMODORO TIMER
+     ═══════════════════════ */
+  .pomo-container {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    z-index: 100;
+    animation: pomoEnter 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both;
+  }
+
+  @keyframes pomoEnter {
+    from { opacity: 0; transform: translateY(16px) scale(0.9); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .pomo-widget {
+    background: var(--bg-glass);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    border: 1px solid var(--border-glass);
+    border-radius: 20px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 8px 32px var(--shadow-soft);
+    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    cursor: default;
+  }
+
+  .pomo-widget:hover {
+    box-shadow: 0 12px 40px var(--shadow-medium);
+  }
+
+  .pomo-ring-wrapper {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+  }
+
+  .pomo-ring {
+    width: 56px;
+    height: 56px;
+    transform: rotate(-90deg);
+  }
+
+  .pomo-ring-bg {
+    fill: none;
+    stroke: var(--pomo-ring-bg);
+    stroke-width: 3.5;
+  }
+
+  .pomo-ring-progress {
+    fill: none;
+    stroke: var(--pomo-work);
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    stroke-dasharray: 157.08;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear, stroke 0.5s ease;
+  }
+
+  .pomo-ring-progress.on-break {
+    stroke: var(--pomo-break);
+  }
+
+  .pomo-time-inside {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 300;
+    color: var(--text-primary);
+    letter-spacing: 0.02em;
+  }
+
+  .pomo-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  .pomo-label {
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .pomo-controls {
+    display: flex;
+    gap: 0.35rem;
+  }
+
+  .pomo-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--border-glass);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    font-size: 0.7rem;
+  }
+
+  .pomo-btn:hover {
+    background: var(--bg-glass-hover);
+    color: var(--text-primary);
+    border-color: var(--accent);
+  }
+
+  .pomo-btn svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+  }
+
+  /* Pomo settings panel */
+  .pomo-settings {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 0.75rem);
+    left: 0;
+    background: var(--bg-glass);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    border: 1px solid var(--border-glass);
+    border-radius: 16px;
+    padding: 1.25rem;
+    min-width: 220px;
+    box-shadow: 0 8px 32px var(--shadow-medium);
+    animation: settingsIn 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .pomo-settings.open { display: block; }
+
+  @keyframes settingsIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .pomo-settings h4 {
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.85rem;
+  }
+
+  .setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.65rem;
+  }
+
+  .setting-row label {
+    font-size: 0.8rem;
+    font-weight: 300;
+    color: var(--text-secondary);
+  }
+
+  .setting-row input[type="number"] {
+    width: 52px;
+    padding: 0.3rem 0.4rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-glass);
+    background: var(--bg-glass);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.25s;
+  }
+
+  .setting-row input[type="number"]:focus {
+    border-color: var(--accent);
+  }
+
+  /* ═══════════════════════
+     IMAGE CREDIT
+     ═══════════════════════ */
+  .img-credit {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 10;
+    font-size: 0.65rem;
+    font-weight: 300;
+    color: var(--text-muted);
+    opacity: 0.6;
+    text-decoration: none;
+    transition: opacity 0.3s;
+  }
+
+  .img-credit:hover { opacity: 1; }
+  .img-credit a { color: var(--text-secondary); text-decoration: none; }
+  .img-credit a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════
+     TOAST NOTIFICATION
+     ═══════════════════════ */
+  .toast {
+    position: fixed;
+    top: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100%);
+    z-index: 200;
+    background: var(--toast-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-glass);
+    border-radius: 12px;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.8rem;
+    font-weight: 300;
+    color: var(--text-primary);
+    box-shadow: 0 8px 24px var(--shadow-medium);
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ═══════════════════════
+     RESPONSIVE
+     ═══════════════════════ */
+  @media (max-width: 600px) {
+    .content { padding: 1.25rem; }
+    .quote-card { padding: 2rem 1.5rem; border-radius: 16px; }
+    .quote-text { font-size: 1.3rem; }
+    .pomo-container { bottom: 1rem; left: 1rem; }
+    .pomo-widget { padding: 1rem; gap: 0.75rem; border-radius: 16px; }
+    .img-credit { bottom: 1rem; right: 1rem; }
+  }
+</style>
+
+</head>
+<body>
+
+<!-- Background -->
+
+<div id="bg-layer"></div>
+<div id="bg-overlay"></div>
+
+<!-- Toast -->
+
+<div class="toast" id="toast"></div>
+
+<!-- Quote Card -->
+
+<div class="content">
+  <div class="quote-card">
+    <div class="quote-mark">"</div>
+    <p class="quote-text" id="quote-text">We suffer more often in imagination than in reality.</p>
+    <p class="quote-author" id="quote-author">Seneca</p>
+    <div class="quote-action-row">
+      <button class="btn" id="btn-new" aria-label="New quote">New Quote</button>
+      <button class="btn" id="btn-bg" aria-label="Change background">New Scene</button>
+    </div>
+  </div>
+</div>
+
+<!-- Image Credit -->
+
+<div class="img-credit" id="img-credit"></div>
+
+<!-- Pomodoro Timer -->
+
+<div class="pomo-container">
+  <div class="pomo-widget">
+    <div class="pomo-ring-wrapper">
+      <svg class="pomo-ring" viewBox="0 0 56 56">
+        <circle class="pomo-ring-bg" cx="28" cy="28" r="25"/>
+        <circle class="pomo-ring-progress" id="pomo-progress" cx="28" cy="28" r="25"/>
+      </svg>
+      <div class="pomo-time-inside" id="pomo-display">25:00</div>
+    </div>
+    <div class="pomo-info">
+      <span class="pomo-label" id="pomo-label">Focus</span>
+      <div class="pomo-controls">
+        <!-- Play -->
+        <button class="pomo-btn" id="pomo-play" aria-label="Start timer">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <!-- Pause -->
+        <button class="pomo-btn" id="pomo-pause" aria-label="Pause timer" style="display:none">
+          <svg viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+        </button>
+        <!-- Reset -->
+        <button class="pomo-btn" id="pomo-reset" aria-label="Reset timer">
+          <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+        </button>
+        <!-- Settings -->
+        <button class="pomo-btn" id="pomo-settings-btn" aria-label="Timer settings">
+          <svg viewBox="0 0 24 24"><path d="M19.14 12.94a7.07 7.07 0 000-1.88l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.04 7.04 0 00-1.63-.94l-.36-2.54a.48.48 0 00-.48-.41h-3.84a.48.48 0 00-.48.41l-.36 2.54c-.59.24-1.13.57-1.63.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87a.48.48 0 00.12.61l2.03 1.58a7.07 7.07 0 000 1.88l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.05.24.26.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.57 1.63-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.49.49 0 00-.12-.61l-2.03-1.58zM12 15.6A3.6 3.6 0 1115.6 12 3.6 3.6 0 0112 15.6z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Panel -->
+
+  <div class="pomo-settings" id="pomo-settings-panel">
+    <h4>Timer Settings</h4>
+    <div class="setting-row">
+      <label>Focus (min)</label>
+      <input type="number" id="setting-work" min="1" max="90" value="25">
+    </div>
+    <div class="setting-row">
+      <label>Break (min)</label>
+      <input type="number" id="setting-break" min="1" max="30" value="5">
+    </div>
+    <div class="setting-row">
+      <label>Long break</label>
+      <input type="number" id="setting-long" min="1" max="60" value="15">
+    </div>
+    <div class="setting-row">
+      <label>Sessions</label>
+      <input type="number" id="setting-sessions" min="1" max="12" value="4">
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   STOIC QUOTES DATABASE
+   ═══════════════════════════════════════ */
+const QUOTES = [
+  { text: "We suffer more often in imagination than in reality.", author: "Seneca" },
+  { text: "No man is free who is not master of himself.", author: "Epictetus" },
+  { text: "The happiness of your life depends upon the quality of your thoughts.", author: "Marcus Aurelius" },
+  { text: "It is not things that disturb us, but our judgments about things.", author: "Epictetus" },
+  { text: "You have power over your mind — not outside events. Realize this, and you will find strength.", author: "Marcus Aurelius" },
+  { text: "Man is not worried by real problems so much as by his imagined anxieties about real problems.", author: "Epictetus" },
+  { text: "Wealth consists not in having great possessions, but in having few wants.", author: "Epictetus" },
+  { text: "The best revenge is not to be like your enemy.", author: "Marcus Aurelius" },
+  { text: "Difficulties strengthen the mind, as labor does the body.", author: "Seneca" },
+  { text: "It is not because things are difficult that we do not dare; it is because we do not dare that they are difficult.", author: "Seneca" },
+  { text: "How long are you going to wait before you demand the best for yourself?", author: "Epictetus" },
+  { text: "The soul becomes dyed with the color of its thoughts.", author: "Marcus Aurelius" },
+  { text: "What we do now echoes in eternity.", author: "Marcus Aurelius" },
+  { text: "First say to yourself what you would be; and then do what you have to do.", author: "Epictetus" },
+  { text: "He who fears death will never do anything worthy of a living man.", author: "Seneca" },
+  { text: "Waste no more time arguing about what a good man should be. Be one.", author: "Marcus Aurelius" },
+  { text: "If a man knows not to which port he sails, no wind is favorable.", author: "Seneca" },
+  { text: "The key is to keep company only with people who uplift you, whose presence calls forth your best.", author: "Epictetus" },
+  { text: "Very little is needed to make a happy life; it is all within yourself, in your way of thinking.", author: "Marcus Aurelius" },
+  { text: "We are more often frightened than hurt; and we suffer more from imagination than from reality.", author: "Seneca" },
+  { text: "Make the best use of what is in your power, and take the rest as it happens.", author: "Epictetus" },
+  { text: "Begin at once to live, and count each separate day as a separate life.", author: "Seneca" },
+  { text: "The obstacle is the way.", author: "Marcus Aurelius" },
+  { text: "He who laughs at himself never runs out of things to laugh at.", author: "Epictetus" },
+  { text: "True happiness is to enjoy the present, without anxious dependence upon the future.", author: "Seneca" },
+  { text: "When you arise in the morning think of what a privilege it is to be alive, to think, to enjoy, to love.", author: "Marcus Aurelius" },
+  { text: "Other people's views and troubles can be contagious. Do not sabotage yourself by unwittingly adopting negative, unproductive attitudes.", author: "Epictetus" },
+  { text: "Luck is what happens when preparation meets opportunity.", author: "Seneca" },
+  { text: "Accept the things to which fate binds you, and love the people with whom fate brings you together.", author: "Marcus Aurelius" },
+  { text: "Freedom is the only worthy goal in life. It is won by disregarding things that lie beyond our control.", author: "Epictetus" },
+];
+
+/* ═══════════════════════════════════════
+   OPEN-SOURCE BACKGROUND IMAGES
+   (Unsplash — free, open license)
+   ═══════════════════════════════════════ */
+const BACKGROUNDS = [
+  { url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80", credit: "Samuel Ferrara", link: "https://unsplash.com/@samferrara" },
+  { url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&q=80", credit: "Lukasz Szmigiel", link: "https://unsplash.com/@szmigieldesign" },
+  { url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=80", credit: "Luca Bravo", link: "https://unsplash.com/@lucabravo" },
+  { url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80", credit: "Sean Oulashin", link: "https://unsplash.com/@oulashin" },
+  { url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80", credit: "Benjamin Voros", link: "https://unsplash.com/@vorosbenisop" },
+  { url: "https://images.unsplash.com/photo-1505144808419-1957a94ca61e?w=1920&q=80", credit: "Frank McKenna", link: "https://unsplash.com/@frankiefoto" },
+  { url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&q=80", credit: "David Marcu", link: "https://unsplash.com/@davidmarcu" },
+  { url: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1920&q=80", credit: "Robert Lukeman", link: "https://unsplash.com/@robertlukeman" },
+  { url: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=1920&q=80", credit: "Kazuend", link: "https://unsplash.com/@kazuend" },
+  { url: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1920&q=80", credit: "Pietro De Grandi", link: "https://unsplash.com/@pietrozj" },
+];
+
+/* ═══════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════ */
+let currentQuoteIdx = 0;
+let currentBgIdx = 0;
+
+/* ═══════════════════════════════════════
+   QUOTE LOGIC
+   ═══════════════════════════════════════ */
+function showRandomQuote() {
+  const textEl = document.getElementById('quote-text');
+  const authorEl = document.getElementById('quote-author');
+
+  // fade out
+  textEl.style.opacity = '0';
+  authorEl.style.opacity = '0';
+
+  setTimeout(() => {
+    let idx;
+    do { idx = Math.floor(Math.random() * QUOTES.length); } while (idx === currentQuoteIdx && QUOTES.length > 1);
+    currentQuoteIdx = idx;
+
+    textEl.textContent = QUOTES[idx].text;
+    authorEl.textContent = QUOTES[idx].author;
+
+    // fade in
+    textEl.style.opacity = '1';
+    authorEl.style.opacity = '1';
+  }, 400);
+}
+
+/* ═══════════════════════════════════════
+   BACKGROUND LOGIC
+   ═══════════════════════════════════════ */
+function loadBackground(index) {
+  const bg = BACKGROUNDS[index];
+  const layer = document.getElementById('bg-layer');
+  const credit = document.getElementById('img-credit');
+
+  layer.classList.remove('loaded');
+
+  const img = new Image();
+  img.onload = () => {
+    layer.style.backgroundImage = `url(${bg.url})`;
+    layer.classList.add('loaded');
+    credit.innerHTML = `Photo by <a href="${bg.link}" target="_blank" rel="noopener">${bg.credit}</a> / Unsplash`;
+  };
+  img.onerror = () => {
+    // fallback: try next image
+    currentBgIdx = (currentBgIdx + 1) % BACKGROUNDS.length;
+    loadBackground(currentBgIdx);
+  };
+  img.src = bg.url;
+}
+
+function nextBackground() {
+  currentBgIdx = (currentBgIdx + 1) % BACKGROUNDS.length;
+  loadBackground(currentBgIdx);
+}
+
+/* ═══════════════════════════════════════
+   TOAST
+   ═══════════════════════════════════════ */
+let toastTimeout;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ═══════════════════════════════════════
+   POMODORO TIMER — PERSISTENT
+   Uses timestamps so it keeps running
+   even when the tab is hidden or closed.
+   State is persisted to localStorage.
+   ═══════════════════════════════════════ */
+const POMO_KEY = 'stoicflow_pomo';
+const CIRCUMFERENCE = 2 * Math.PI * 25; // ~157.08
+
+let pomo = loadPomoState();
+
+function defaultPomoState() {
+  return {
+    workMin: 25,
+    breakMin: 5,
+    longBreakMin: 15,
+    sessionsBeforeLong: 4,
+    completedSessions: 0,
+    isRunning: false,
+    isBreak: false,
+    startedAt: null,       // timestamp when current segment started
+    pausedRemaining: null, // seconds remaining when paused
+    totalSeconds: 25 * 60,
+  };
+}
+
+function loadPomoState() {
+  try {
+    const raw = localStorage.getItem(POMO_KEY);
+    if (raw) {
+      const s = JSON.parse(raw);
+      // Validate
+      if (typeof s.workMin === 'number') return s;
+    }
+  } catch(e) {}
+  return defaultPomoState();
+}
+
+function savePomoState() {
+  localStorage.setItem(POMO_KEY, JSON.stringify(pomo));
+}
+
+function getRemaining() {
+  if (!pomo.isRunning) {
+    return pomo.pausedRemaining != null ? pomo.pausedRemaining : pomo.totalSeconds;
+  }
+  const elapsed = (Date.now() - pomo.startedAt) / 1000;
+  return Math.max(0, pomo.totalSeconds - elapsed);
+}
+
+function formatTime(sec) {
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function updatePomoUI() {
+  const remaining = getRemaining();
+  const display = document.getElementById('pomo-display');
+  const progress = document.getElementById('pomo-progress');
+  const label = document.getElementById('pomo-label');
+  const playBtn = document.getElementById('pomo-play');
+  const pauseBtn = document.getElementById('pomo-pause');
+
+  display.textContent = formatTime(remaining);
+
+  const fraction = 1 - (remaining / pomo.totalSeconds);
+  progress.style.strokeDasharray = CIRCUMFERENCE;
+  progress.style.strokeDashoffset = CIRCUMFERENCE * (1 - fraction);
+
+  if (pomo.isBreak) {
+    progress.classList.add('on-break');
+    label.textContent = 'Break';
+  } else {
+    progress.classList.remove('on-break');
+    label.textContent = `Focus${pomo.completedSessions > 0 ? ` · ${pomo.completedSessions}` : ''}`;
+  }
+
+  if (pomo.isRunning) {
+    playBtn.style.display = 'none';
+    pauseBtn.style.display = 'flex';
+  } else {
+    playBtn.style.display = 'flex';
+    pauseBtn.style.display = 'none';
+  }
+
+  // Check completion
+  if (remaining <= 0 && pomo.isRunning) {
+    onSegmentComplete();
+  }
+}
+
+function onSegmentComplete() {
+  pomo.isRunning = false;
+
+  // Notification
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification(pomo.isBreak ? 'Break over — time to focus!' : 'Session complete — take a break!', {
+      icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🏛️</text></svg>',
+      tag: 'stoicflow-pomo'
+    });
+  }
+
+  // Audio cue
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = pomo.isBreak ? 523 : 440;
+    osc.type = 'sine';
+    gain.gain.value = 0.15;
+    osc.start();
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+    osc.stop(ctx.currentTime + 1.2);
+  } catch(e) {}
+
+  if (!pomo.isBreak) {
+    pomo.completedSessions++;
+    const isLong = pomo.completedSessions % pomo.sessionsBeforeLong === 0;
+    pomo.isBreak = true;
+    pomo.totalSeconds = (isLong ? pomo.longBreakMin : pomo.breakMin) * 60;
+    showToast(isLong ? `${pomo.completedSessions} sessions done — long break!` : 'Session done — short break');
+  } else {
+    pomo.isBreak = false;
+    pomo.totalSeconds = pomo.workMin * 60;
+    showToast('Break over — let\'s focus');
+  }
+
+  pomo.pausedRemaining = pomo.totalSeconds;
+  pomo.startedAt = null;
+  savePomoState();
+}
+
+function startPomo() {
+  const remaining = pomo.pausedRemaining != null ? pomo.pausedRemaining : pomo.totalSeconds;
+  pomo.startedAt = Date.now();
+  pomo.totalSeconds = remaining; // recalculate from where we left off
+  pomo.pausedRemaining = null;
+  pomo.isRunning = true;
+  savePomoState();
+
+  // Request notification permission
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+}
+
+function pausePomo() {
+  pomo.pausedRemaining = getRemaining();
+  pomo.isRunning = false;
+  pomo.startedAt = null;
+  savePomoState();
+}
+
+function resetPomo() {
+  pomo.isRunning = false;
+  pomo.startedAt = null;
+  pomo.isBreak = false;
+  pomo.totalSeconds = pomo.workMin * 60;
+  pomo.pausedRemaining = pomo.totalSeconds;
+  savePomoState();
+}
+
+/* Settings */
+function loadSettingsUI() {
+  document.getElementById('setting-work').value = pomo.workMin;
+  document.getElementById('setting-break').value = pomo.breakMin;
+  document.getElementById('setting-long').value = pomo.longBreakMin;
+  document.getElementById('setting-sessions').value = pomo.sessionsBeforeLong;
+}
+
+function applySettings() {
+  const w = parseInt(document.getElementById('setting-work').value) || 25;
+  const b = parseInt(document.getElementById('setting-break').value) || 5;
+  const l = parseInt(document.getElementById('setting-long').value) || 15;
+  const s = parseInt(document.getElementById('setting-sessions').value) || 4;
+
+  pomo.workMin = Math.max(1, Math.min(90, w));
+  pomo.breakMin = Math.max(1, Math.min(30, b));
+  pomo.longBreakMin = Math.max(1, Math.min(60, l));
+  pomo.sessionsBeforeLong = Math.max(1, Math.min(12, s));
+
+  if (!pomo.isRunning && !pomo.isBreak) {
+    pomo.totalSeconds = pomo.workMin * 60;
+    pomo.pausedRemaining = pomo.totalSeconds;
+  }
+  savePomoState();
+}
+
+/* ═══════════════════════════════════════
+   INIT & EVENT LISTENERS
+   ═══════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  // Random start
+  currentBgIdx = Math.floor(Math.random() * BACKGROUNDS.length);
+  loadBackground(currentBgIdx);
+
+  currentQuoteIdx = Math.floor(Math.random() * QUOTES.length);
+  document.getElementById('quote-text').textContent = QUOTES[currentQuoteIdx].text;
+  document.getElementById('quote-author').textContent = QUOTES[currentQuoteIdx].author;
+
+  // Quote buttons
+  document.getElementById('btn-new').addEventListener('click', showRandomQuote);
+  document.getElementById('btn-bg').addEventListener('click', nextBackground);
+
+  // Pomodoro buttons
+  document.getElementById('pomo-play').addEventListener('click', startPomo);
+  document.getElementById('pomo-pause').addEventListener('click', pausePomo);
+  document.getElementById('pomo-reset').addEventListener('click', resetPomo);
+
+  // Settings toggle
+  const settingsPanel = document.getElementById('pomo-settings-panel');
+  document.getElementById('pomo-settings-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    settingsPanel.classList.toggle('open');
+    if (settingsPanel.classList.contains('open')) loadSettingsUI();
+  });
+
+  // Close settings on outside click
+  document.addEventListener('click', (e) => {
+    if (!settingsPanel.contains(e.target) && e.target.id !== 'pomo-settings-btn') {
+      settingsPanel.classList.remove('open');
+    }
+  });
+
+  // Settings inputs — apply on change
+  ['setting-work', 'setting-break', 'setting-long', 'setting-sessions'].forEach(id => {
+    document.getElementById(id).addEventListener('change', applySettings);
+  });
+
+  // Pomo tick — uses requestAnimationFrame for smooth updates,
+  // but the actual timing is timestamp-based (persistent)
+  function tick() {
+    updatePomoUI();
+    requestAnimationFrame(tick);
+  }
+  tick();
+
+  // Also update on visibility change (when user returns to tab)
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) updatePomoUI();
+  });
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === 'q' || e.key === 'Q') showRandomQuote();
+    if (e.key === 'b' || e.key === 'B') nextBackground();
+    if (e.key === ' ') {
+      e.preventDefault();
+      pomo.isRunning ? pausePomo() : startPomo();
+    }
+  });
+});
+</script>
+
+</body>
+</html><!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stoic Flow — Daily Quotes & Focus Timer</title>
+
+<!-- Open Source Fonts from Google Fonts -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  /* ═══════════════════════════════════════════
+     CSS CUSTOM PROPERTIES — OS ADAPTIVE THEME
+     ═══════════════════════════════════════════ */
+  :root {
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-body: 'Outfit', system-ui, sans-serif;
+
+    /* Light theme (default) */
+    --bg-primary: #f5f0eb;
+    --bg-glass: rgba(255, 255, 255, 0.55);
+    --bg-glass-hover: rgba(255, 255, 255, 0.72);
+    --border-glass: rgba(180, 170, 155, 0.3);
+    --text-primary: #2c2824;
+    --text-secondary: #6b6259;
+    --text-muted: #9a9088;
+    --accent: #8b6f4e;
+    --accent-glow: rgba(139, 111, 78, 0.15);
+    --shadow-soft: rgba(44, 40, 36, 0.06);
+    --shadow-medium: rgba(44, 40, 36, 0.1);
+    --overlay: rgba(245, 240, 235, 0.35);
+    --pomo-work: #8b6f4e;
+    --pomo-break: #5a7f6a;
+    --pomo-ring-bg: rgba(139, 111, 78, 0.12);
+    --toast-bg: rgba(255,255,255,0.85);
+  }
+
+  /* Dark theme — adapts to OS preference */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1a1816;
+      --bg-glass: rgba(40, 36, 32, 0.6);
+      --bg-glass-hover: rgba(50, 45, 40, 0.75);
+      --border-glass: rgba(100, 90, 78, 0.25);
+      --text-primary: #e8e0d8;
+      --text-secondary: #a89e94;
+      --text-muted: #6b6259;
+      --accent: #c9a87c;
+      --accent-glow: rgba(201, 168, 124, 0.12);
+      --shadow-soft: rgba(0, 0, 0, 0.15);
+      --shadow-medium: rgba(0, 0, 0, 0.3);
+      --overlay: rgba(26, 24, 22, 0.45);
+      --pomo-work: #c9a87c;
+      --pomo-break: #7aab8e;
+      --pomo-ring-bg: rgba(201, 168, 124, 0.1);
+      --toast-bg: rgba(40,36,32,0.9);
+    }
+  }
+
+  /* High contrast mode */
+  @media (prefers-contrast: high) {
+    :root {
+      --bg-glass: rgba(255, 255, 255, 0.85);
+      --border-glass: rgba(0, 0, 0, 0.4);
+      --text-primary: #000;
+      --text-secondary: #333;
+    }
+  }
+  @media (prefers-contrast: high) and (prefers-color-scheme: dark) {
+    :root {
+      --bg-glass: rgba(0, 0, 0, 0.85);
+      --border-glass: rgba(255, 255, 255, 0.4);
+      --text-primary: #fff;
+      --text-secondary: #ccc;
+    }
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ═══════════════════════
+     RESET & BASE
+     ═══════════════════════ */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    color-scheme: light dark;
+  }
+
+  body {
+    font-family: var(--font-body);
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ═══════════════════════
+     BACKGROUND IMAGE
+     ═══════════════════════ */
+  #bg-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: opacity 1.8s ease;
+    opacity: 0;
+  }
+  #bg-layer.loaded { opacity: 1; }
+
+  #bg-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    background: var(--overlay);
+    backdrop-filter: blur(2px) saturate(1.1);
+    -webkit-backdrop-filter: blur(2px) saturate(1.1);
+  }
+
+  /* ═══════════════════════
+     MAIN CONTENT
+     ═══════════════════════ */
+  .content {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 760px;
+    padding: 2rem;
+    min-height: 100dvh;
+  }
+
+  /* ═══════════════════════
+     QUOTE CARD
+     ═══════════════════════ */
+  .quote-card {
+    background: var(--bg-glass);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    border: 1px solid var(--border-glass);
+    border-radius: 20px;
+    padding: 3rem 2.75rem;
+    text-align: center;
+    box-shadow:
+      0 8px 32px var(--shadow-soft),
+      0 2px 8px var(--shadow-soft);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.4s ease;
+    animation: cardEnter 1s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
+  }
+
+  .quote-card:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 12px 40px var(--shadow-medium),
+      0 4px 12px var(--shadow-soft);
+  }
+
+  @keyframes cardEnter {
+    from { opacity: 0; transform: translateY(24px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .quote-mark {
+    font-family: var(--font-display);
+    font-size: 4rem;
+    line-height: 1;
+    color: var(--accent);
+    opacity: 0.35;
+    margin-bottom: -1rem;
+    user-select: none;
+  }
+
+  .quote-text {
+    font-family: var(--font-display);
+    font-size: 1.65rem;
+    font-weight: 400;
+    line-height: 1.55;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    font-style: italic;
+    transition: opacity 0.5s ease;
+  }
+
+  .quote-author {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    transition: opacity 0.5s ease;
+  }
+
+  .quote-author::before {
+    content: '— ';
+    opacity: 0.5;
+  }
+
+  .quote-action-row {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1.75rem;
+  }
+
+  .btn {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.5rem;
+    border-radius: 100px;
+    border: 1px solid var(--border-glass);
+    background: var(--bg-glass);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .btn:hover {
+    background: var(--bg-glass-hover);
+    color: var(--text-primary);
+    border-color: var(--accent);
+    box-shadow: 0 0 16px var(--accent-glow);
+  }
+
+  .btn:active { transform: scale(0.97); }
+
+  /* ═══════════════════════
+     POMODORO TIMER
+     ═══════════════════════ */
+  .pomo-container {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    z-index: 100;
+    animation: pomoEnter 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both;
+  }
+
+  @keyframes pomoEnter {
+    from { opacity: 0; transform: translateY(16px) scale(0.9); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .pomo-widget {
+    background: var(--bg-glass);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    border: 1px solid var(--border-glass);
+    border-radius: 20px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 8px 32px var(--shadow-soft);
+    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    cursor: default;
+  }
+
+  .pomo-widget:hover {
+    box-shadow: 0 12px 40px var(--shadow-medium);
+  }
+
+  .pomo-ring-wrapper {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+  }
+
+  .pomo-ring {
+    width: 56px;
+    height: 56px;
+    transform: rotate(-90deg);
+  }
+
+  .pomo-ring-bg {
+    fill: none;
+    stroke: var(--pomo-ring-bg);
+    stroke-width: 3.5;
+  }
+
+  .pomo-ring-progress {
+    fill: none;
+    stroke: var(--pomo-work);
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    stroke-dasharray: 157.08;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear, stroke 0.5s ease;
+  }
+
+  .pomo-ring-progress.on-break {
+    stroke: var(--pomo-break);
+  }
+
+  .pomo-time-inside {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 300;
+    color: var(--text-primary);
+    letter-spacing: 0.02em;
+  }
+
+  .pomo-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  .pomo-label {
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .pomo-controls {
+    display: flex;
+    gap: 0.35rem;
+  }
+
+  .pomo-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--border-glass);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    font-size: 0.7rem;
+  }
+
+  .pomo-btn:hover {
+    background: var(--bg-glass-hover);
+    color: var(--text-primary);
+    border-color: var(--accent);
+  }
+
+  .pomo-btn svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+  }
+
+  /* Pomo settings panel */
+  .pomo-settings {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 0.75rem);
+    left: 0;
+    background: var(--bg-glass);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    border: 1px solid var(--border-glass);
+    border-radius: 16px;
+    padding: 1.25rem;
+    min-width: 220px;
+    box-shadow: 0 8px 32px var(--shadow-medium);
+    animation: settingsIn 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .pomo-settings.open { display: block; }
+
+  @keyframes settingsIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .pomo-settings h4 {
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.85rem;
+  }
+
+  .setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.65rem;
+  }
+
+  .setting-row label {
+    font-size: 0.8rem;
+    font-weight: 300;
+    color: var(--text-secondary);
+  }
+
+  .setting-row input[type="number"] {
+    width: 52px;
+    padding: 0.3rem 0.4rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-glass);
+    background: var(--bg-glass);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.25s;
+  }
+
+  .setting-row input[type="number"]:focus {
+    border-color: var(--accent);
+  }
+
+  /* ═══════════════════════
+     IMAGE CREDIT
+     ═══════════════════════ */
+  .img-credit {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 10;
+    font-size: 0.65rem;
+    font-weight: 300;
+    color: var(--text-muted);
+    opacity: 0.6;
+    text-decoration: none;
+    transition: opacity 0.3s;
+  }
+
+  .img-credit:hover { opacity: 1; }
+  .img-credit a { color: var(--text-secondary); text-decoration: none; }
+  .img-credit a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════
+     TOAST NOTIFICATION
+     ═══════════════════════ */
+  .toast {
+    position: fixed;
+    top: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100%);
+    z-index: 200;
+    background: var(--toast-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-glass);
+    border-radius: 12px;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.8rem;
+    font-weight: 300;
+    color: var(--text-primary);
+    box-shadow: 0 8px 24px var(--shadow-medium);
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ═══════════════════════
+     RESPONSIVE
+     ═══════════════════════ */
+  @media (max-width: 600px) {
+    .content { padding: 1.25rem; }
+    .quote-card { padding: 2rem 1.5rem; border-radius: 16px; }
+    .quote-text { font-size: 1.3rem; }
+    .pomo-container { bottom: 1rem; left: 1rem; }
+    .pomo-widget { padding: 1rem; gap: 0.75rem; border-radius: 16px; }
+    .img-credit { bottom: 1rem; right: 1rem; }
+  }
+</style>
+
+</head>
+<body>
+
+<!-- Background -->
+
+<div id="bg-layer"></div>
+<div id="bg-overlay"></div>
+
+<!-- Toast -->
+
+<div class="toast" id="toast"></div>
+
+<!-- Quote Card -->
+
+<div class="content">
+  <div class="quote-card">
+    <div class="quote-mark">"</div>
+    <p class="quote-text" id="quote-text">We suffer more often in imagination than in reality.</p>
+    <p class="quote-author" id="quote-author">Seneca</p>
+    <div class="quote-action-row">
+      <button class="btn" id="btn-new" aria-label="New quote">New Quote</button>
+      <button class="btn" id="btn-bg" aria-label="Change background">New Scene</button>
+    </div>
+  </div>
+</div>
+
+<!-- Image Credit -->
+
+<div class="img-credit" id="img-credit"></div>
+
+<!-- Pomodoro Timer -->
+
+<div class="pomo-container">
+  <div class="pomo-widget">
+    <div class="pomo-ring-wrapper">
+      <svg class="pomo-ring" viewBox="0 0 56 56">
+        <circle class="pomo-ring-bg" cx="28" cy="28" r="25"/>
+        <circle class="pomo-ring-progress" id="pomo-progress" cx="28" cy="28" r="25"/>
+      </svg>
+      <div class="pomo-time-inside" id="pomo-display">25:00</div>
+    </div>
+    <div class="pomo-info">
+      <span class="pomo-label" id="pomo-label">Focus</span>
+      <div class="pomo-controls">
+        <!-- Play -->
+        <button class="pomo-btn" id="pomo-play" aria-label="Start timer">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <!-- Pause -->
+        <button class="pomo-btn" id="pomo-pause" aria-label="Pause timer" style="display:none">
+          <svg viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+        </button>
+        <!-- Reset -->
+        <button class="pomo-btn" id="pomo-reset" aria-label="Reset timer">
+          <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+        </button>
+        <!-- Settings -->
+        <button class="pomo-btn" id="pomo-settings-btn" aria-label="Timer settings">
+          <svg viewBox="0 0 24 24"><path d="M19.14 12.94a7.07 7.07 0 000-1.88l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.04 7.04 0 00-1.63-.94l-.36-2.54a.48.48 0 00-.48-.41h-3.84a.48.48 0 00-.48.41l-.36 2.54c-.59.24-1.13.57-1.63.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87a.48.48 0 00.12.61l2.03 1.58a7.07 7.07 0 000 1.88l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.05.24.26.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.57 1.63-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.49.49 0 00-.12-.61l-2.03-1.58zM12 15.6A3.6 3.6 0 1115.6 12 3.6 3.6 0 0112 15.6z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Panel -->
+
+  <div class="pomo-settings" id="pomo-settings-panel">
+    <h4>Timer Settings</h4>
+    <div class="setting-row">
+      <label>Focus (min)</label>
+      <input type="number" id="setting-work" min="1" max="90" value="25">
+    </div>
+    <div class="setting-row">
+      <label>Break (min)</label>
+      <input type="number" id="setting-break" min="1" max="30" value="5">
+    </div>
+    <div class="setting-row">
+      <label>Long break</label>
+      <input type="number" id="setting-long" min="1" max="60" value="15">
+    </div>
+    <div class="setting-row">
+      <label>Sessions</label>
+      <input type="number" id="setting-sessions" min="1" max="12" value="4">
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   STOIC QUOTES DATABASE
+   ═══════════════════════════════════════ */
+const QUOTES = [
+  { text: "We suffer more often in imagination than in reality.", author: "Seneca" },
+  { text: "No man is free who is not master of himself.", author: "Epictetus" },
+  { text: "The happiness of your life depends upon the quality of your thoughts.", author: "Marcus Aurelius" },
+  { text: "It is not things that disturb us, but our judgments about things.", author: "Epictetus" },
+  { text: "You have power over your mind — not outside events. Realize this, and you will find strength.", author: "Marcus Aurelius" },
+  { text: "Man is not worried by real problems so much as by his imagined anxieties about real problems.", author: "Epictetus" },
+  { text: "Wealth consists not in having great possessions, but in having few wants.", author: "Epictetus" },
+  { text: "The best revenge is not to be like your enemy.", author: "Marcus Aurelius" },
+  { text: "Difficulties strengthen the mind, as labor does the body.", author: "Seneca" },
+  { text: "It is not because things are difficult that we do not dare; it is because we do not dare that they are difficult.", author: "Seneca" },
+  { text: "How long are you going to wait before you demand the best for yourself?", author: "Epictetus" },
+  { text: "The soul becomes dyed with the color of its thoughts.", author: "Marcus Aurelius" },
+  { text: "What we do now echoes in eternity.", author: "Marcus Aurelius" },
+  { text: "First say to yourself what you would be; and then do what you have to do.", author: "Epictetus" },
+  { text: "He who fears death will never do anything worthy of a living man.", author: "Seneca" },
+  { text: "Waste no more time arguing about what a good man should be. Be one.", author: "Marcus Aurelius" },
+  { text: "If a man knows not to which port he sails, no wind is favorable.", author: "Seneca" },
+  { text: "The key is to keep company only with people who uplift you, whose presence calls forth your best.", author: "Epictetus" },
+  { text: "Very little is needed to make a happy life; it is all within yourself, in your way of thinking.", author: "Marcus Aurelius" },
+  { text: "We are more often frightened than hurt; and we suffer more from imagination than from reality.", author: "Seneca" },
+  { text: "Make the best use of what is in your power, and take the rest as it happens.", author: "Epictetus" },
+  { text: "Begin at once to live, and count each separate day as a separate life.", author: "Seneca" },
+  { text: "The obstacle is the way.", author: "Marcus Aurelius" },
+  { text: "He who laughs at himself never runs out of things to laugh at.", author: "Epictetus" },
+  { text: "True happiness is to enjoy the present, without anxious dependence upon the future.", author: "Seneca" },
+  { text: "When you arise in the morning think of what a privilege it is to be alive, to think, to enjoy, to love.", author: "Marcus Aurelius" },
+  { text: "Other people's views and troubles can be contagious. Do not sabotage yourself by unwittingly adopting negative, unproductive attitudes.", author: "Epictetus" },
+  { text: "Luck is what happens when preparation meets opportunity.", author: "Seneca" },
+  { text: "Accept the things to which fate binds you, and love the people with whom fate brings you together.", author: "Marcus Aurelius" },
+  { text: "Freedom is the only worthy goal in life. It is won by disregarding things that lie beyond our control.", author: "Epictetus" },
+];
+
+/* ═══════════════════════════════════════
+   OPEN-SOURCE BACKGROUND IMAGES
+   (Unsplash — free, open license)
+   ═══════════════════════════════════════ */
+const BACKGROUNDS = [
+  { url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80", credit: "Samuel Ferrara", link: "https://unsplash.com/@samferrara" },
+  { url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&q=80", credit: "Lukasz Szmigiel", link: "https://unsplash.com/@szmigieldesign" },
+  { url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=80", credit: "Luca Bravo", link: "https://unsplash.com/@lucabravo" },
+  { url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80", credit: "Sean Oulashin", link: "https://unsplash.com/@oulashin" },
+  { url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80", credit: "Benjamin Voros", link: "https://unsplash.com/@vorosbenisop" },
+  { url: "https://images.unsplash.com/photo-1505144808419-1957a94ca61e?w=1920&q=80", credit: "Frank McKenna", link: "https://unsplash.com/@frankiefoto" },
+  { url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&q=80", credit: "David Marcu", link: "https://unsplash.com/@davidmarcu" },
+  { url: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1920&q=80", credit: "Robert Lukeman", link: "https://unsplash.com/@robertlukeman" },
+  { url: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=1920&q=80", credit: "Kazuend", link: "https://unsplash.com/@kazuend" },
+  { url: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1920&q=80", credit: "Pietro De Grandi", link: "https://unsplash.com/@pietrozj" },
+];
+
+/* ═══════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════ */
+let currentQuoteIdx = 0;
+let currentBgIdx = 0;
+
+/* ═══════════════════════════════════════
+   QUOTE LOGIC
+   ═══════════════════════════════════════ */
+function showRandomQuote() {
+  const textEl = document.getElementById('quote-text');
+  const authorEl = document.getElementById('quote-author');
+
+  // fade out
+  textEl.style.opacity = '0';
+  authorEl.style.opacity = '0';
+
+  setTimeout(() => {
+    let idx;
+    do { idx = Math.floor(Math.random() * QUOTES.length); } while (idx === currentQuoteIdx && QUOTES.length > 1);
+    currentQuoteIdx = idx;
+
+    textEl.textContent = QUOTES[idx].text;
+    authorEl.textContent = QUOTES[idx].author;
+
+    // fade in
+    textEl.style.opacity = '1';
+    authorEl.style.opacity = '1';
+  }, 400);
+}
+
+/* ═══════════════════════════════════════
+   BACKGROUND LOGIC
+   ═══════════════════════════════════════ */
+function loadBackground(index) {
+  const bg = BACKGROUNDS[index];
+  const layer = document.getElementById('bg-layer');
+  const credit = document.getElementById('img-credit');
+
+  layer.classList.remove('loaded');
+
+  const img = new Image();
+  img.onload = () => {
+    layer.style.backgroundImage = `url(${bg.url})`;
+    layer.classList.add('loaded');
+    credit.innerHTML = `Photo by <a href="${bg.link}" target="_blank" rel="noopener">${bg.credit}</a> / Unsplash`;
+  };
+  img.onerror = () => {
+    // fallback: try next image
+    currentBgIdx = (currentBgIdx + 1) % BACKGROUNDS.length;
+    loadBackground(currentBgIdx);
+  };
+  img.src = bg.url;
+}
+
+function nextBackground() {
+  currentBgIdx = (currentBgIdx + 1) % BACKGROUNDS.length;
+  loadBackground(currentBgIdx);
+}
+
+/* ═══════════════════════════════════════
+   TOAST
+   ═══════════════════════════════════════ */
+let toastTimeout;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ═══════════════════════════════════════
+   POMODORO TIMER — PERSISTENT
+   Uses timestamps so it keeps running
+   even when the tab is hidden or closed.
+   State is persisted to localStorage.
+   ═══════════════════════════════════════ */
+const POMO_KEY = 'stoicflow_pomo';
+const CIRCUMFERENCE = 2 * Math.PI * 25; // ~157.08
+
+let pomo = loadPomoState();
+
+function defaultPomoState() {
+  return {
+    workMin: 25,
+    breakMin: 5,
+    longBreakMin: 15,
+    sessionsBeforeLong: 4,
+    completedSessions: 0,
+    isRunning: false,
+    isBreak: false,
+    startedAt: null,       // timestamp when current segment started
+    pausedRemaining: null, // seconds remaining when paused
+    totalSeconds: 25 * 60,
+  };
+}
+
+function loadPomoState() {
+  try {
+    const raw = localStorage.getItem(POMO_KEY);
+    if (raw) {
+      const s = JSON.parse(raw);
+      // Validate
+      if (typeof s.workMin === 'number') return s;
+    }
+  } catch(e) {}
+  return defaultPomoState();
+}
+
+function savePomoState() {
+  localStorage.setItem(POMO_KEY, JSON.stringify(pomo));
+}
+
+function getRemaining() {
+  if (!pomo.isRunning) {
+    return pomo.pausedRemaining != null ? pomo.pausedRemaining : pomo.totalSeconds;
+  }
+  const elapsed = (Date.now() - pomo.startedAt) / 1000;
+  return Math.max(0, pomo.totalSeconds - elapsed);
+}
+
+function formatTime(sec) {
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function updatePomoUI() {
+  const remaining = getRemaining();
+  const display = document.getElementById('pomo-display');
+  const progress = document.getElementById('pomo-progress');
+  const label = document.getElementById('pomo-label');
+  const playBtn = document.getElementById('pomo-play');
+  const pauseBtn = document.getElementById('pomo-pause');
+
+  display.textContent = formatTime(remaining);
+
+  const fraction = 1 - (remaining / pomo.totalSeconds);
+  progress.style.strokeDasharray = CIRCUMFERENCE;
+  progress.style.strokeDashoffset = CIRCUMFERENCE * (1 - fraction);
+
+  if (pomo.isBreak) {
+    progress.classList.add('on-break');
+    label.textContent = 'Break';
+  } else {
+    progress.classList.remove('on-break');
+    label.textContent = `Focus${pomo.completedSessions > 0 ? ` · ${pomo.completedSessions}` : ''}`;
+  }
+
+  if (pomo.isRunning) {
+    playBtn.style.display = 'none';
+    pauseBtn.style.display = 'flex';
+  } else {
+    playBtn.style.display = 'flex';
+    pauseBtn.style.display = 'none';
+  }
+
+  // Check completion
+  if (remaining <= 0 && pomo.isRunning) {
+    onSegmentComplete();
+  }
+}
+
+function onSegmentComplete() {
+  pomo.isRunning = false;
+
+  // Notification
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification(pomo.isBreak ? 'Break over — time to focus!' : 'Session complete — take a break!', {
+      icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🏛️</text></svg>',
+      tag: 'stoicflow-pomo'
+    });
+  }
+
+  // Audio cue
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = pomo.isBreak ? 523 : 440;
+    osc.type = 'sine';
+    gain.gain.value = 0.15;
+    osc.start();
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+    osc.stop(ctx.currentTime + 1.2);
+  } catch(e) {}
+
+  if (!pomo.isBreak) {
+    pomo.completedSessions++;
+    const isLong = pomo.completedSessions % pomo.sessionsBeforeLong === 0;
+    pomo.isBreak = true;
+    pomo.totalSeconds = (isLong ? pomo.longBreakMin : pomo.breakMin) * 60;
+    showToast(isLong ? `${pomo.completedSessions} sessions done — long break!` : 'Session done — short break');
+  } else {
+    pomo.isBreak = false;
+    pomo.totalSeconds = pomo.workMin * 60;
+    showToast('Break over — let\'s focus');
+  }
+
+  pomo.pausedRemaining = pomo.totalSeconds;
+  pomo.startedAt = null;
+  savePomoState();
+}
+
+function startPomo() {
+  const remaining = pomo.pausedRemaining != null ? pomo.pausedRemaining : pomo.totalSeconds;
+  pomo.startedAt = Date.now();
+  pomo.totalSeconds = remaining; // recalculate from where we left off
+  pomo.pausedRemaining = null;
+  pomo.isRunning = true;
+  savePomoState();
+
+  // Request notification permission
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+}
+
+function pausePomo() {
+  pomo.pausedRemaining = getRemaining();
+  pomo.isRunning = false;
+  pomo.startedAt = null;
+  savePomoState();
+}
+
+function resetPomo() {
+  pomo.isRunning = false;
+  pomo.startedAt = null;
+  pomo.isBreak = false;
+  pomo.totalSeconds = pomo.workMin * 60;
+  pomo.pausedRemaining = pomo.totalSeconds;
+  savePomoState();
+}
+
+/* Settings */
+function loadSettingsUI() {
+  document.getElementById('setting-work').value = pomo.workMin;
+  document.getElementById('setting-break').value = pomo.breakMin;
+  document.getElementById('setting-long').value = pomo.longBreakMin;
+  document.getElementById('setting-sessions').value = pomo.sessionsBeforeLong;
+}
+
+function applySettings() {
+  const w = parseInt(document.getElementById('setting-work').value) || 25;
+  const b = parseInt(document.getElementById('setting-break').value) || 5;
+  const l = parseInt(document.getElementById('setting-long').value) || 15;
+  const s = parseInt(document.getElementById('setting-sessions').value) || 4;
+
+  pomo.workMin = Math.max(1, Math.min(90, w));
+  pomo.breakMin = Math.max(1, Math.min(30, b));
+  pomo.longBreakMin = Math.max(1, Math.min(60, l));
+  pomo.sessionsBeforeLong = Math.max(1, Math.min(12, s));
+
+  if (!pomo.isRunning && !pomo.isBreak) {
+    pomo.totalSeconds = pomo.workMin * 60;
+    pomo.pausedRemaining = pomo.totalSeconds;
+  }
+  savePomoState();
+}
+
+/* ═══════════════════════════════════════
+   INIT & EVENT LISTENERS
+   ═══════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  // Random start
+  currentBgIdx = Math.floor(Math.random() * BACKGROUNDS.length);
+  loadBackground(currentBgIdx);
+
+  currentQuoteIdx = Math.floor(Math.random() * QUOTES.length);
+  document.getElementById('quote-text').textContent = QUOTES[currentQuoteIdx].text;
+  document.getElementById('quote-author').textContent = QUOTES[currentQuoteIdx].author;
+
+  // Quote buttons
+  document.getElementById('btn-new').addEventListener('click', showRandomQuote);
+  document.getElementById('btn-bg').addEventListener('click', nextBackground);
+
+  // Pomodoro buttons
+  document.getElementById('pomo-play').addEventListener('click', startPomo);
+  document.getElementById('pomo-pause').addEventListener('click', pausePomo);
+  document.getElementById('pomo-reset').addEventListener('click', resetPomo);
+
+  // Settings toggle
+  const settingsPanel = document.getElementById('pomo-settings-panel');
+  document.getElementById('pomo-settings-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    settingsPanel.classList.toggle('open');
+    if (settingsPanel.classList.contains('open')) loadSettingsUI();
+  });
+
+  // Close settings on outside click
+  document.addEventListener('click', (e) => {
+    if (!settingsPanel.contains(e.target) && e.target.id !== 'pomo-settings-btn') {
+      settingsPanel.classList.remove('open');
+    }
+  });
+
+  // Settings inputs — apply on change
+  ['setting-work', 'setting-break', 'setting-long', 'setting-sessions'].forEach(id => {
+    document.getElementById(id).addEventListener('change', applySettings);
+  });
+
+  // Pomo tick — uses requestAnimationFrame for smooth updates,
+  // but the actual timing is timestamp-based (persistent)
+  function tick() {
+    updatePomoUI();
+    requestAnimationFrame(tick);
+  }
+  tick();
+
+  // Also update on visibility change (when user returns to tab)
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) updatePomoUI();
+  });
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === 'q' || e.key === 'Q') showRandomQuote();
+    if (e.key === 'b' || e.key === 'B') nextBackground();
+    if (e.key === ' ') {
+      e.preventDefault();
+      pomo.isRunning ? pausePomo() : startPomo();
+    }
+  });
+});
+</script>
+
+</body>
+</html>

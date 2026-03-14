@@ -615,7 +615,7 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  .pomo-settings h4 {
+  .pomo-settings h4, .pomo-fp-settings h4 {
     font-family: var(--font-body);
     font-size: 0.65rem;
     letter-spacing: 0.15em;
@@ -747,6 +747,11 @@
     gap: 0.35rem;
     flex-shrink: 1;
     min-width: 0;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+  .bottom-badges.visible {
+    opacity: 1;
   }
 
   .license-badge {
@@ -896,6 +901,21 @@
     height: 18px;
     fill: currentColor;
   }
+
+  /* Fullpage inline settings */
+  .pomo-fp-settings {
+    display: none;
+    background: var(--settings-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--settings-border);
+    border-radius: 18px;
+    padding: 1.25rem;
+    min-width: 210px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
+    animation: settingsIn 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .pomo-fp-settings.open { display: block; }
 
   .pomo-ring-wrapper {
     cursor: pointer;
@@ -1149,6 +1169,33 @@
       <svg viewBox="0 0 24 24"><path d="M19.14 12.94a7.07 7.07 0 000-1.88l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.04 7.04 0 00-1.63-.94l-.36-2.54a.48.48 0 00-.48-.41h-3.84a.48.48 0 00-.48.41l-.36 2.54c-.59.24-1.13.57-1.63.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87a.48.48 0 00.12.61l2.03 1.58a7.07 7.07 0 000 1.88l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.05.24.26.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.57 1.63-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.49.49 0 00-.12-.61l-2.03-1.58zM12 15.6A3.6 3.6 0 1115.6 12 3.6 3.6 0 0112 15.6z"/></svg>
     </button>
   </div>
+  <!-- Fullpage inline settings -->
+  <div class="pomo-fp-settings" id="pomo-fp-settings-panel">
+    <h4>Timer Settings</h4>
+    <div class="setting-row">
+      <label>Focus (min)</label>
+      <input type="number" id="fp-setting-work" min="1" max="90" value="25">
+    </div>
+    <div class="setting-row">
+      <label>Break (min)</label>
+      <input type="number" id="fp-setting-break" min="1" max="30" value="5">
+    </div>
+    <div class="setting-row">
+      <label>Long break</label>
+      <input type="number" id="fp-setting-long" min="1" max="60" value="15">
+    </div>
+    <div class="setting-row">
+      <label>Sessions</label>
+      <input type="number" id="fp-setting-sessions" min="1" max="12" value="4">
+    </div>
+    <div class="setting-divider"></div>
+    <h4>Jump to phase</h4>
+    <div class="setting-phase-chips">
+      <button class="phase-chip" id="fp-chip-focus">Focus</button>
+      <button class="phase-chip" id="fp-chip-break">Break</button>
+      <button class="phase-chip" id="fp-chip-long">Long Break</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1399,6 +1446,7 @@ function _applyBackground(url, creditText, linkUrl, source) {
     } else {
       credit.innerHTML = `<a href="${linkUrl}" target="_blank" rel="noopener">${creditText}</a> · ${source}`;
     }
+    document.querySelector('.bottom-badges').classList.add('visible');
   };
   img.onerror = () => {
     // fallback to static pool
@@ -1779,8 +1827,9 @@ function jumpToPhase(phase) {
   }
   pomo.pausedRemaining = pomo.totalSeconds;
   savePomoState();
-  // Close settings panel
+  // Close settings panels
   document.getElementById('pomo-settings-panel').classList.remove('open');
+  document.getElementById('pomo-fp-settings-panel').classList.remove('open');
 }
 
 /* Settings */
@@ -1796,6 +1845,32 @@ function applySettings() {
   const b = parseInt(document.getElementById('setting-break').value) || 5;
   const l = parseInt(document.getElementById('setting-long').value) || 15;
   const s = parseInt(document.getElementById('setting-sessions').value) || 4;
+
+  pomo.workMin = Math.max(1, Math.min(90, w));
+  pomo.breakMin = Math.max(1, Math.min(30, b));
+  pomo.longBreakMin = Math.max(1, Math.min(60, l));
+  pomo.sessionsBeforeLong = Math.max(1, Math.min(12, s));
+
+  if (!pomo.isRunning && !pomo.isBreak) {
+    pomo.totalSeconds = pomo.workMin * 60;
+    pomo.pausedRemaining = pomo.totalSeconds;
+  }
+  savePomoState();
+}
+
+/* Fullpage settings */
+function loadFpSettingsUI() {
+  document.getElementById('fp-setting-work').value = pomo.workMin;
+  document.getElementById('fp-setting-break').value = pomo.breakMin;
+  document.getElementById('fp-setting-long').value = pomo.longBreakMin;
+  document.getElementById('fp-setting-sessions').value = pomo.sessionsBeforeLong;
+}
+
+function applyFpSettings() {
+  const w = parseInt(document.getElementById('fp-setting-work').value) || 25;
+  const b = parseInt(document.getElementById('fp-setting-break').value) || 5;
+  const l = parseInt(document.getElementById('fp-setting-long').value) || 15;
+  const s = parseInt(document.getElementById('fp-setting-sessions').value) || 4;
 
   pomo.workMin = Math.max(1, Math.min(90, w));
   pomo.breakMin = Math.max(1, Math.min(30, b));
@@ -1894,28 +1969,53 @@ document.addEventListener('DOMContentLoaded', () => {
   // Close full-page
   document.getElementById('pomo-fullpage-close').addEventListener('click', () => {
     fpOverlay.classList.remove('open');
+    document.getElementById('pomo-fp-settings-panel').classList.remove('open');
   });
 
   // Also close on click outside the ring area in full-page
   fpOverlay.addEventListener('click', (e) => {
-    if (e.target === fpOverlay) fpOverlay.classList.remove('open');
+    if (e.target === fpOverlay) {
+      fpOverlay.classList.remove('open');
+      document.getElementById('pomo-fp-settings-panel').classList.remove('open');
+    }
   });
 
   // Full-page controls
   document.getElementById('pomo-fp-play').addEventListener('click', () => { initAudioCtx(); startPomo(); });
   document.getElementById('pomo-fp-pause').addEventListener('click', pausePomo);
   document.getElementById('pomo-fp-reset').addEventListener('click', resetPomo);
+  const fpSettingsPanel = document.getElementById('pomo-fp-settings-panel');
   document.getElementById('pomo-fp-settings-btn').addEventListener('click', (e) => {
     e.stopPropagation();
-    fpOverlay.classList.remove('open');
-    settingsPanel.classList.toggle('open');
-    if (settingsPanel.classList.contains('open')) loadSettingsUI();
+    fpSettingsPanel.classList.toggle('open');
+    if (fpSettingsPanel.classList.contains('open')) loadFpSettingsUI();
   });
 
-  // Escape key closes full-page
+  // Fullpage settings inputs — apply on change
+  ['fp-setting-work', 'fp-setting-break', 'fp-setting-long', 'fp-setting-sessions'].forEach(id => {
+    document.getElementById(id).addEventListener('change', applyFpSettings);
+  });
+
+  // Fullpage phase jump chips
+  document.getElementById('fp-chip-focus').addEventListener('click', () => jumpToPhase('focus'));
+  document.getElementById('fp-chip-break').addEventListener('click', () => jumpToPhase('break'));
+  document.getElementById('fp-chip-long').addEventListener('click', () => jumpToPhase('long'));
+
+  // Close fp settings on outside click within overlay
+  fpOverlay.addEventListener('click', (e) => {
+    if (!fpSettingsPanel.contains(e.target) && e.target.id !== 'pomo-fp-settings-btn') {
+      fpSettingsPanel.classList.remove('open');
+    }
+  });
+
+  // Escape key closes full-page or fp settings
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && fpOverlay.classList.contains('open')) {
-      fpOverlay.classList.remove('open');
+      if (fpSettingsPanel.classList.contains('open')) {
+        fpSettingsPanel.classList.remove('open');
+      } else {
+        fpOverlay.classList.remove('open');
+      }
     }
   });
 

@@ -778,19 +778,12 @@
     background: rgba(0, 0, 0, 0.32);
   }
 
-  .license-badge a {
-    color: rgba(255, 255, 255, 0.85);
-    text-decoration: none;
-  }
-
-  .license-badge a:hover { text-decoration: underline; }
-
-  .license-badge .copyleft {
-    display: inline-block;
-    transform: scaleX(-1);
-    font-size: 0.7rem;
-    line-height: 1;
-    opacity: 0.85;
+  .gpl-icon {
+    width: 12px;
+    height: 12px;
+    fill: currentColor;
+    flex-shrink: 0;
+    opacity: 0.9;
   }
 
   /* ═══════════════════════
@@ -1113,12 +1106,13 @@
 <!-- Badges: Image Credit + License -->
 <div class="bottom-badges">
   <div class="img-credit" id="img-credit"></div>
-  <div class="license-badge">
-    <span class="copyleft">&copy;</span>
-    <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">GPL v3</a>
-    <span>·</span>
-    <span>Open Source</span>
-  </div>
+  <a class="license-badge" href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">
+    <svg class="gpl-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 1C5.9 1 1 5.9 1 12s4.9 11 11 11 11-4.9 11-11S18.1 1 12 1zm0 1.5c5.2 0 9.5 4.3 9.5 9.5s-4.3 9.5-9.5 9.5S2.5 17.2 2.5 12 6.8 2.5 12 2.5z"/>
+      <path d="M12 5.5c-3.6 0-6.5 2.9-6.5 6.5s2.9 6.5 6.5 6.5c1.8 0 3.4-.7 4.6-1.9l-1.4-1.4c-.8.8-2 1.3-3.2 1.3-2.5 0-4.5-2-4.5-4.5s2-4.5 4.5-4.5c1.2 0 2.3.5 3.1 1.3l1.4-1.4C15.4 6.2 13.8 5.5 12 5.5z"/>
+    </svg>
+    <span>GPL v3</span>
+  </a>
 </div>
 
 </div><!-- /.page-bottom -->
@@ -1379,9 +1373,18 @@ function showRandomQuote() {
 
 /* ═══════════════════════════════════════
    BACKGROUND LOGIC
+   Static pool + dynamic Unsplash random fetch
+   for infinite variety.
    ═══════════════════════════════════════ */
+const UNSPLASH_TOPICS = ['nature', 'wallpapers', 'travel', 'architecture'];
+let _lastDynamicUrl = '';
+
 function loadBackground(index) {
   const bg = BACKGROUNDS[index];
+  _applyBackground(bg.url, bg.credit, bg.link, bg.source || 'Unsplash');
+}
+
+function _applyBackground(url, creditText, linkUrl, source) {
   const layer = document.getElementById('bg-layer');
   const credit = document.getElementById('img-credit');
 
@@ -1389,28 +1392,60 @@ function loadBackground(index) {
 
   const img = new Image();
   img.onload = () => {
-    layer.style.backgroundImage = `url(${bg.url})`;
+    layer.style.backgroundImage = `url(${url})`;
     layer.classList.add('loaded');
-    const src = bg.source || 'Unsplash';
-    if (src === 'Unsplash' || src === 'Pexels') {
-      credit.innerHTML = `Photo: <a href="${bg.link}" target="_blank" rel="noopener">${bg.credit}</a> · ${src}`;
+    if (source === 'Unsplash' || source === 'Pexels') {
+      credit.innerHTML = `Photo: <a href="${linkUrl}" target="_blank" rel="noopener">${creditText}</a> · ${source}`;
     } else {
-      credit.innerHTML = `<a href="${bg.link}" target="_blank" rel="noopener">${bg.credit}</a> · ${src}`;
+      credit.innerHTML = `<a href="${linkUrl}" target="_blank" rel="noopener">${creditText}</a> · ${source}`;
     }
   };
   img.onerror = () => {
-    // fallback: try next image
+    // fallback to static pool
     currentBgIdx = (currentBgIdx + 1) % BACKGROUNDS.length;
     loadBackground(currentBgIdx);
   };
-  img.src = bg.url;
+  img.src = url;
 }
 
-function nextBackground() {
+function _fetchDynamicBackground() {
+  const topic = UNSPLASH_TOPICS[Math.floor(Math.random() * UNSPLASH_TOPICS.length)];
+  const w = Math.max(screen.width, 1920);
+  const url = `https://source.unsplash.com/random/${w}x${Math.round(w * 0.6)}/?${topic}&t=${Date.now()}`;
+
+  const img = new Image();
+  img.onload = () => {
+    // source.unsplash.com redirects to the actual image URL
+    const finalUrl = img.src;
+    if (finalUrl === _lastDynamicUrl) {
+      // Got same image, fall back to static pool
+      _nextFromPool();
+      return;
+    }
+    _lastDynamicUrl = finalUrl;
+    _applyBackground(finalUrl, topic, `https://unsplash.com/s/photos/${topic}`, 'Unsplash');
+  };
+  img.onerror = () => {
+    // Dynamic fetch failed, fall back to static pool
+    _nextFromPool();
+  };
+  img.src = url;
+}
+
+function _nextFromPool() {
   let idx;
   do { idx = Math.floor(Math.random() * BACKGROUNDS.length); } while (idx === currentBgIdx && BACKGROUNDS.length > 1);
   currentBgIdx = idx;
   loadBackground(currentBgIdx);
+}
+
+function nextBackground() {
+  // 50% chance dynamic fetch, 50% curated pool — ensures variety + reliability
+  if (Math.random() < 0.5) {
+    _fetchDynamicBackground();
+  } else {
+    _nextFromPool();
+  }
 }
 
 /* ═══════════════════════════════════════

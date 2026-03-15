@@ -795,7 +795,7 @@
      POMODORO FULL-PAGE VIEW
      ═══════════════════════ */
   .pomo-fullpage-overlay {
-    display: none;
+    display: flex;
     position: fixed;
     inset: 0;
     z-index: 900;
@@ -807,12 +807,17 @@
     justify-content: center;
     gap: 2rem;
     opacity: 0;
-    transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    visibility: hidden;
+    pointer-events: none;
+    overflow-y: auto;
+    transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+                visibility 0.4s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .pomo-fullpage-overlay.open {
-    display: flex;
     opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
   }
 
   .pomo-fullpage-overlay .pomo-ring-wrapper {
@@ -912,6 +917,8 @@
     border-radius: 18px;
     padding: 1.25rem;
     min-width: 210px;
+    max-height: calc(100dvh - 360px);
+    overflow-y: auto;
     box-shadow: 0 12px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
     animation: settingsIn 0.3s cubic-bezier(0.22, 1, 0.36, 1);
   }
@@ -936,7 +943,7 @@
     top: 1.5rem;
     left: 50%;
     transform: translateX(-50%) translateY(-100%);
-    z-index: 200;
+    z-index: 1000;
     background: var(--toast-bg);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);

@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stoic Flow — Daily Quotes & Focus Timer</title>
+<title>Ataraxia — Daily Quotes & Focus Timer</title>
 
 <!-- Open Source Fonts from Google Fonts -->
 
@@ -257,6 +257,7 @@
      QUOTE CARD
      ═══════════════════════ */
   .quote-card {
+    position: relative;
     background: var(--bg-glass);
     backdrop-filter: blur(24px) saturate(1.4);
     -webkit-backdrop-filter: blur(24px) saturate(1.4);
@@ -268,8 +269,73 @@
       0 8px 32px var(--shadow-soft),
       0 2px 8px var(--shadow-soft);
     transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-                box-shadow 0.4s ease;
+                box-shadow 0.4s ease,
+                padding 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+                border-radius 0.4s ease;
     animation: cardEnter 1s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
+  }
+
+  .quote-card.minimized {
+    padding: 0.6rem 1.5rem;
+    border-radius: 24px;
+    cursor: pointer;
+  }
+
+  .quote-card.minimized:hover {
+    transform: translateY(0);
+  }
+
+  .quote-card .quote-inner {
+    transition: opacity 0.35s ease, max-height 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    max-height: 600px;
+    overflow: hidden;
+  }
+
+  .quote-card.minimized .quote-inner {
+    opacity: 0;
+    max-height: 0;
+    pointer-events: none;
+  }
+
+  .quote-minimize-btn {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--border-glass);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    z-index: 2;
+  }
+
+  .quote-minimize-btn:hover {
+    background: var(--bg-glass-hover);
+    color: var(--text-primary);
+  }
+
+  .quote-minimize-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+    transition: transform 0.3s ease;
+  }
+
+  .quote-card.minimized .quote-minimize-btn {
+    position: static;
+    border: none;
+    width: 24px;
+    height: 24px;
+  }
+
+  .quote-card.minimized .quote-minimize-btn svg {
+    transform: rotate(180deg);
   }
 
   .quote-card:hover {
@@ -388,6 +454,89 @@
 
   .pomo-widget:hover {
     box-shadow: 0 14px 44px var(--shadow-medium), 0 2px 8px var(--shadow-soft);
+  }
+
+  /* Minimize button */
+  .pomo-minimize-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1px solid var(--border-glass);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    z-index: 2;
+    opacity: 0;
+  }
+
+  .pomo-widget:hover .pomo-minimize-btn {
+    opacity: 1;
+  }
+
+  .pomo-minimize-btn:hover {
+    background: var(--bg-glass-hover);
+    color: var(--text-primary);
+  }
+
+  .pomo-minimize-btn svg {
+    width: 12px;
+    height: 12px;
+    fill: currentColor;
+  }
+
+  /* Minimized pomo state */
+  .pomo-widget.minimized {
+    width: 48px;
+    padding: 0.5rem;
+    border-radius: 24px;
+    cursor: pointer;
+    gap: 0;
+  }
+
+  .pomo-widget.minimized .pomo-ring-wrapper,
+  .pomo-widget.minimized .pomo-phase-ready-label,
+  .pomo-widget.minimized .pomo-controls,
+  .pomo-widget.minimized .pomo-minimize-btn {
+    display: none;
+  }
+
+  .pomo-mini-indicator {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+  }
+
+  .pomo-widget.minimized .pomo-mini-indicator {
+    display: flex;
+  }
+
+  .pomo-mini-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--pomo-work);
+    transition: background 0.3s ease;
+  }
+
+  .pomo-mini-dot.on-break {
+    background: var(--pomo-break);
+  }
+
+  .pomo-mini-time {
+    font-family: var(--font-body);
+    font-size: 0.55rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    font-variant-numeric: tabular-nums;
   }
 
   /* Large ring */
@@ -818,6 +967,7 @@
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
+    position: fixed;
   }
 
   .pomo-fullpage-overlay .pomo-ring-wrapper {
@@ -907,22 +1057,108 @@
     fill: currentColor;
   }
 
-  /* Fullpage inline settings */
-  .pomo-fp-settings {
+  /* Fullpage radial settings */
+  .pomo-radial-settings {
     display: none;
-    background: var(--settings-bg);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid var(--settings-border);
-    border-radius: 18px;
-    padding: 1.25rem;
-    min-width: 210px;
-    max-height: calc(100dvh - 360px);
-    overflow-y: auto;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
-    animation: settingsIn 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
   }
-  .pomo-fp-settings.open { display: block; }
+
+  .pomo-radial-settings.open {
+    display: block;
+  }
+
+  .radial-item {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%)
+               rotate(var(--angle))
+               translateY(calc(-1 * var(--distance)))
+               rotate(calc(-1 * var(--angle)));
+    pointer-events: auto;
+    opacity: 0;
+    animation: radialIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0s) forwards;
+  }
+
+  .pomo-radial-settings:not(.open) .radial-item {
+    animation: none;
+    opacity: 0;
+  }
+
+  @keyframes radialIn {
+    from { opacity: 0; transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(-0.6 * var(--distance))) rotate(calc(-1 * var(--angle))); }
+    to   { opacity: 1; transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(-1 * var(--distance))) rotate(calc(-1 * var(--angle))); }
+  }
+
+  .radial-item label {
+    display: block;
+    font-family: var(--font-body);
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.3rem;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .radial-item input[type="number"] {
+    width: 56px;
+    padding: 0.35rem 0.25rem;
+    border-radius: 12px;
+    border: 1px solid var(--settings-border);
+    background: var(--settings-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.25s, box-shadow 0.25s;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  }
+
+  .radial-item input[type="number"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12), 0 0 0 2px var(--accent-glow);
+  }
+
+  .radial-chip .phase-chip {
+    padding: 0.35rem 0.65rem;
+    border-radius: 10px;
+    border: 1px solid var(--settings-border);
+    background: var(--settings-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 400;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  }
+
+  .radial-chip .phase-chip:hover {
+    background: var(--bg-glass-hover);
+    color: var(--text-primary);
+    border-color: var(--accent);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .radial-item input[type="number"] { background: rgba(255,255,255,0.06); }
+    .radial-chip .phase-chip { background: rgba(255,255,255,0.06); }
+  }
+
+  @media (max-width: 600px) {
+    .radial-item { --distance: 135px !important; }
+  }
 
   .pomo-ring-wrapper {
     cursor: pointer;
@@ -1046,13 +1282,18 @@
 <div class="page-layout">
 
 <div class="content">
-  <div class="quote-card">
-    <div class="quote-mark">"</div>
-    <p class="quote-text" id="quote-text">We suffer more often in imagination than in reality.</p>
-    <p class="quote-author" id="quote-author">Seneca</p>
-    <div class="quote-action-row">
-      <button class="btn" id="btn-new" aria-label="New quote">New Quote</button>
-      <button class="btn" id="btn-bg" aria-label="Change background">New Scene</button>
+  <div class="quote-card" id="quote-card">
+    <button class="quote-minimize-btn" id="quote-minimize-btn" aria-label="Minimize quote">
+      <svg viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
+    </button>
+    <div class="quote-inner">
+      <div class="quote-mark">"</div>
+      <p class="quote-text" id="quote-text">We suffer more often in imagination than in reality.</p>
+      <p class="quote-author" id="quote-author">Seneca</p>
+      <div class="quote-action-row">
+        <button class="btn" id="btn-new" aria-label="New quote">New Quote</button>
+        <button class="btn" id="btn-bg" aria-label="Change background">New Scene</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1064,7 +1305,14 @@
 <!-- Pomodoro Timer -->
 
 <div class="pomo-container">
-  <div class="pomo-widget">
+  <div class="pomo-widget" id="pomo-widget" style="position:relative">
+    <button class="pomo-minimize-btn" id="pomo-minimize-btn" aria-label="Minimize timer">
+      <svg viewBox="0 0 24 24"><path d="M19 13H5v-2h14v2z"/></svg>
+    </button>
+    <div class="pomo-mini-indicator" id="pomo-mini-indicator">
+      <span class="pomo-mini-dot" id="pomo-mini-dot"></span>
+      <span class="pomo-mini-time" id="pomo-mini-time">25m</span>
+    </div>
 
     <!-- Large progress ring with time + label inside -->
     <div class="pomo-ring-wrapper">
@@ -1176,30 +1424,31 @@
       <svg viewBox="0 0 24 24"><path d="M19.14 12.94a7.07 7.07 0 000-1.88l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.04 7.04 0 00-1.63-.94l-.36-2.54a.48.48 0 00-.48-.41h-3.84a.48.48 0 00-.48.41l-.36 2.54c-.59.24-1.13.57-1.63.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87a.48.48 0 00.12.61l2.03 1.58a7.07 7.07 0 000 1.88l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.05.24.26.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.57 1.63-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.49.49 0 00-.12-.61l-2.03-1.58zM12 15.6A3.6 3.6 0 1115.6 12 3.6 3.6 0 0112 15.6z"/></svg>
     </button>
   </div>
-  <!-- Fullpage inline settings -->
-  <div class="pomo-fp-settings" id="pomo-fp-settings-panel">
-    <h4>Timer Settings</h4>
-    <div class="setting-row">
-      <label>Focus (min)</label>
+  <!-- Fullpage radial settings -->
+  <div class="pomo-radial-settings" id="pomo-fp-settings-panel">
+    <div class="radial-item" style="--angle: 320deg; --distance: 200px; --delay: 0s">
+      <label>Focus</label>
       <input type="number" id="fp-setting-work" min="1" max="90" value="25">
     </div>
-    <div class="setting-row">
-      <label>Break (min)</label>
+    <div class="radial-item" style="--angle: 40deg; --distance: 200px; --delay: 0.05s">
+      <label>Break</label>
       <input type="number" id="fp-setting-break" min="1" max="30" value="5">
     </div>
-    <div class="setting-row">
-      <label>Long break</label>
+    <div class="radial-item" style="--angle: 220deg; --distance: 200px; --delay: 0.1s">
+      <label>Long</label>
       <input type="number" id="fp-setting-long" min="1" max="60" value="15">
     </div>
-    <div class="setting-row">
+    <div class="radial-item" style="--angle: 140deg; --distance: 200px; --delay: 0.15s">
       <label>Sessions</label>
       <input type="number" id="fp-setting-sessions" min="1" max="12" value="4">
     </div>
-    <div class="setting-divider"></div>
-    <h4>Jump to phase</h4>
-    <div class="setting-phase-chips">
+    <div class="radial-item radial-chip" style="--angle: 180deg; --distance: 200px; --delay: 0.2s">
       <button class="phase-chip" id="fp-chip-focus">Focus</button>
+    </div>
+    <div class="radial-item radial-chip" style="--angle: 0deg; --distance: 200px; --delay: 0.25s">
       <button class="phase-chip" id="fp-chip-break">Break</button>
+    </div>
+    <div class="radial-item radial-chip" style="--angle: 90deg; --distance: 200px; --delay: 0.3s">
       <button class="phase-chip" id="fp-chip-long">Long Break</button>
     </div>
   </div>
@@ -1282,6 +1531,76 @@ const QUOTES = [
   { text: "Three things cannot be long hidden: the sun, the moon, and the truth.", author: "The Buddha" },
   { text: "As a solid rock is not shaken by the wind, so the wise are not moved by praise or blame.", author: "Dhammapada" },
   { text: "Drop by drop the water pot is filled. Likewise, the wise one, gathering little by little, fills herself with good.", author: "Dhammapada" },
+
+  // ── Lao Tzu / Tao Te Ching ─────────────────────────────
+  { text: "The Tao that can be told is not the eternal Tao. The name that can be named is not the eternal name.", author: "Lao Tzu, Tao Te Ching" },
+  { text: "When I let go of what I am, I become what I might be.", author: "Lao Tzu" },
+  { text: "Nature does not hurry, yet everything is accomplished.", author: "Lao Tzu" },
+  { text: "A journey of a thousand miles begins with a single step.", author: "Lao Tzu, Tao Te Ching" },
+  { text: "He who knows others is wise; he who knows himself is enlightened.", author: "Lao Tzu, Tao Te Ching" },
+  { text: "The softest things in the world overcome the hardest things in the world.", author: "Lao Tzu, Tao Te Ching" },
+  { text: "Be content with what you have; rejoice in the way things are. When you realize there is nothing lacking, the whole world belongs to you.", author: "Lao Tzu, Tao Te Ching" },
+  { text: "Silence is a source of great strength.", author: "Lao Tzu" },
+
+  // ── Rumi ────────────────────────────────────────────────
+  { text: "The wound is the place where the Light enters you.", author: "Rumi" },
+  { text: "Yesterday I was clever, so I wanted to change the world. Today I am wise, so I am changing myself.", author: "Rumi" },
+  { text: "Don't grieve. Anything you lose comes round in another form.", author: "Rumi" },
+  { text: "Let yourself be silently drawn by the strange pull of what you really love. It will not lead you astray.", author: "Rumi" },
+  { text: "You are not a drop in the ocean. You are the entire ocean in a drop.", author: "Rumi" },
+  { text: "Raise your words, not your voice. It is rain that grows flowers, not thunder.", author: "Rumi" },
+
+  // ── Thich Nhat Hanh ────────────────────────────────────
+  { text: "The present moment is filled with joy and happiness. If you are attentive, you will see it.", author: "Thich Nhat Hanh" },
+  { text: "Feelings come and go like clouds in a windy sky. Conscious breathing is my anchor.", author: "Thich Nhat Hanh" },
+  { text: "Smile, breathe, and go slowly.", author: "Thich Nhat Hanh" },
+  { text: "When another person makes you suffer, it is because he suffers deeply within himself, and his suffering is spilling over.", author: "Thich Nhat Hanh" },
+  { text: "The seed of suffering in you may be strong, but don't wait until you have no more suffering before allowing yourself to be happy.", author: "Thich Nhat Hanh" },
+
+  // ── Alan Watts ─────────────────────────────────────────
+  { text: "The only way to make sense out of change is to plunge into it, move with it, and join the dance.", author: "Alan Watts" },
+  { text: "Muddy water is best cleared by leaving it alone.", author: "Alan Watts" },
+  { text: "You are a function of what the whole universe is doing in the same way that a wave is a function of what the whole ocean is doing.", author: "Alan Watts" },
+  { text: "This is the real secret of life — to be completely engaged with what you are doing in the here and now. And instead of calling it work, realize it is play.", author: "Alan Watts" },
+  { text: "We seldom realize, for example, that our most private thoughts and emotions are not actually our own. For we think in terms of languages and images which we did not invent.", author: "Alan Watts" },
+
+  // ── Heraclitus ─────────────────────────────────────────
+  { text: "No man ever steps in the same river twice, for it is not the same river and he is not the same man.", author: "Heraclitus" },
+  { text: "The soul is dyed the color of its thoughts.", author: "Heraclitus" },
+  { text: "Character is destiny.", author: "Heraclitus" },
+  { text: "Everything flows and nothing abides; everything gives way and nothing stays fixed.", author: "Heraclitus" },
+  { text: "The eyes are more exact witnesses than the ears.", author: "Heraclitus" },
+
+  // ── Aristotle (on virtue & eudaimonia) ─────────────────
+  { text: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", author: "Aristotle" },
+  { text: "Happiness depends upon ourselves.", author: "Aristotle" },
+  { text: "It is during our darkest moments that we must focus to see the light.", author: "Aristotle" },
+  { text: "The soul never thinks without a mental image.", author: "Aristotle" },
+
+  // ── Japanese / Zen Proverbs ────────────────────────────
+  { text: "Fall seven times, stand up eight.", author: "Japanese Proverb" },
+  { text: "The bamboo that bends is stronger than the oak that resists.", author: "Japanese Proverb" },
+  { text: "Sitting quietly, doing nothing, spring comes, and the grass grows by itself.", author: "Zen Proverb" },
+  { text: "When you reach the top of the mountain, keep climbing.", author: "Zen Proverb" },
+  { text: "Before enlightenment, chop wood, carry water. After enlightenment, chop wood, carry water.", author: "Zen Proverb" },
+
+  // ── More Marcus Aurelius (deeper cuts) ─────────────────
+  { text: "How much more grievous are the consequences of anger than the causes of it.", author: "Marcus Aurelius, Meditations" },
+  { text: "If it is not right, do not do it. If it is not true, do not say it.", author: "Marcus Aurelius, Meditations" },
+  { text: "Each day provides its own gifts.", author: "Marcus Aurelius, Meditations" },
+  { text: "Never esteem anything as of advantage to you that will make you break your word or lose your self-respect.", author: "Marcus Aurelius, Meditations" },
+
+  // ── More Seneca (deeper cuts) ──────────────────────────
+  { text: "We are more often frightened than hurt; and we suffer more in imagination than in reality.", author: "Seneca, Letters to Lucilius" },
+  { text: "Luck is what happens when preparation meets opportunity.", author: "Seneca" },
+  { text: "A gem cannot be polished without friction, nor a man perfected without trials.", author: "Seneca" },
+  { text: "It is not that we have a short time to live, but that we waste a great deal of it.", author: "Seneca, On the Shortness of Life" },
+
+  // ── Cato / Cleanthes / Chrysippus ─────────────────────
+  { text: "Bitter are the roots of study, but how sweet their fruit.", author: "Cato the Elder" },
+  { text: "Lead me, O Zeus, and thou, O Destiny, to wherever your decrees have assigned me. I follow willingly, and if I did not, wretched though I am, I must follow still.", author: "Cleanthes, Hymn to Zeus" },
+  { text: "The universe itself is God and the universal outpouring of its soul.", author: "Chrysippus" },
+  { text: "Living virtuously is equal to living in accordance with one's experience of the actual course of nature.", author: "Chrysippus" },
 ];
 
 /* ═══════════════════════════════════════
@@ -1391,6 +1710,222 @@ const BACKGROUNDS = [
     credit: "Water Lilies — Claude Monet, 1906",
     link: "https://commons.wikimedia.org/wiki/File:Claude_Monet_-_Water_Lilies_-_1906,_Chicago.jpg",
     source: "Wikimedia Commons · Public Domain"
+  },
+
+  /* ── More Wikimedia Commons Public Domain Art ── */
+  {
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/The_Fighting_Temeraire%2C_JMW_Turner%2C_National_Gallery.jpg/1920px-The_Fighting_Temeraire%2C_JMW_Turner%2C_National_Gallery.jpg",
+    credit: "The Fighting Temeraire — J.M.W. Turner, 1839",
+    link: "https://commons.wikimedia.org/wiki/File:The_Fighting_Temeraire,_JMW_Turner,_National_Gallery.jpg",
+    source: "Wikimedia Commons · Public Domain"
+  },
+  {
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/1665_Girl_with_a_Pearl_Earring.jpg/1024px-1665_Girl_with_a_Pearl_Earring.jpg",
+    credit: "Girl with a Pearl Earring — Johannes Vermeer, c. 1665",
+    link: "https://commons.wikimedia.org/wiki/File:1665_Girl_with_a_Pearl_Earring.jpg",
+    source: "Wikimedia Commons · Public Domain"
+  },
+  {
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Sandro_Botticelli_-_La_nascita_di_Venere_-_Google_Art_Project_-_edited.jpg/1920px-Sandro_Botticelli_-_La_nascita_di_Venere_-_Google_Art_Project_-_edited.jpg",
+    credit: "The Birth of Venus — Sandro Botticelli, c. 1485",
+    link: "https://commons.wikimedia.org/wiki/File:Sandro_Botticelli_-_La_nascita_di_Venere_-_Google_Art_Project_-_edited.jpg",
+    source: "Wikimedia Commons · Public Domain"
+  },
+  {
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/The_Hay_Wain_1821.jpg/1920px-The_Hay_Wain_1821.jpg",
+    credit: "The Hay Wain — John Constable, 1821",
+    link: "https://commons.wikimedia.org/wiki/File:The_Hay_Wain_1821.jpg",
+    source: "Wikimedia Commons · Public Domain"
+  },
+  {
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Cole_Thomas_The_Oxbow_%28The_Connecticut_River_near_Northampton_1836%29.jpg/1920px-Cole_Thomas_The_Oxbow_%28The_Connecticut_River_near_Northampton_1836%29.jpg",
+    credit: "The Oxbow — Thomas Cole, 1836",
+    link: "https://commons.wikimedia.org/wiki/File:Cole_Thomas_The_Oxbow_(The_Connecticut_River_near_Northampton_1836).jpg",
+    source: "Wikimedia Commons · Public Domain"
+  },
+  {
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Albert_Bierstadt_-_Among_the_Sierra_Nevada%2C_California_-_Google_Art_Project.jpg/1920px-Albert_Bierstadt_-_Among_the_Sierra_Nevada%2C_California_-_Google_Art_Project.jpg",
+    credit: "Among the Sierra Nevada, California — Albert Bierstadt, 1868",
+    link: "https://commons.wikimedia.org/wiki/File:Albert_Bierstadt_-_Among_the_Sierra_Nevada,_California_-_Google_Art_Project.jpg",
+    source: "Wikimedia Commons · Public Domain"
+  },
+  {
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Aivazovsky%2C_Ivan_-_The_Ninth_Wave.jpg/1920px-Aivazovsky%2C_Ivan_-_The_Ninth_Wave.jpg",
+    credit: "The Ninth Wave — Ivan Aivazovsky, 1850",
+    link: "https://commons.wikimedia.org/wiki/File:Aivazovsky,_Ivan_-_The_Ninth_Wave.jpg",
+    source: "Wikimedia Commons · Public Domain"
+  },
+  {
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Whistler-Nocturne_in_black_and_gold.jpg/1024px-Whistler-Nocturne_in_black_and_gold.jpg",
+    credit: "Nocturne in Black and Gold: The Falling Rocket — James McNeill Whistler, 1875",
+    link: "https://commons.wikimedia.org/wiki/File:Whistler-Nocturne_in_black_and_gold.jpg",
+    source: "Wikimedia Commons · Public Domain"
+  },
+  {
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Frederic_Edwin_Church_-_Heart_of_the_Andes_-_Google_Art_Project.jpg/1920px-Frederic_Edwin_Church_-_Heart_of_the_Andes_-_Google_Art_Project.jpg",
+    credit: "Heart of the Andes — Frederic Edwin Church, 1859",
+    link: "https://commons.wikimedia.org/wiki/File:Frederic_Edwin_Church_-_Heart_of_the_Andes_-_Google_Art_Project.jpg",
+    source: "Wikimedia Commons · Public Domain"
+  },
+  {
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Turner_-_Rain%2C_Steam_and_Speed_-_National_Gallery_file.jpg/1920px-Turner_-_Rain%2C_Steam_and_Speed_-_National_Gallery_file.jpg",
+    credit: "Rain, Steam and Speed — J.M.W. Turner, 1844",
+    link: "https://commons.wikimedia.org/wiki/File:Turner_-_Rain,_Steam_and_Speed_-_National_Gallery_file.jpg",
+    source: "Wikimedia Commons · Public Domain"
+  },
+  {
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Caspar_David_Friedrich_-_Das_Eismeer_-_Hamburger_Kunsthalle_-_02.jpg/1920px-Caspar_David_Friedrich_-_Das_Eismeer_-_Hamburger_Kunsthalle_-_02.jpg",
+    credit: "The Sea of Ice (Das Eismeer) — Caspar David Friedrich, 1824",
+    link: "https://commons.wikimedia.org/wiki/File:Caspar_David_Friedrich_-_Das_Eismeer_-_Hamburger_Kunsthalle_-_02.jpg",
+    source: "Wikimedia Commons · Public Domain"
+  },
+  {
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/John_Martin_-_The_Great_Day_of_His_Wrath_-_Google_Art_Project.jpg/1920px-John_Martin_-_The_Great_Day_of_His_Wrath_-_Google_Art_Project.jpg",
+    credit: "The Great Day of His Wrath — John Martin, 1851–1853",
+    link: "https://commons.wikimedia.org/wiki/File:John_Martin_-_The_Great_Day_of_His_Wrath_-_Google_Art_Project.jpg",
+    source: "Wikimedia Commons · Public Domain"
+  },
+
+  /* ── More Unsplash Nature ── */
+  {
+    url: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1920&q=85",
+    credit: "Jonatan Pie",
+    link: "https://unsplash.com/@r3dmax",
+    source: "Unsplash"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=1920&q=85",
+    credit: "Su San Lee",
+    link: "https://unsplash.com/@s_s_lee",
+    source: "Unsplash"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=1920&q=85",
+    credit: "Keith Hardy",
+    link: "https://unsplash.com/@keithhardy2001",
+    source: "Unsplash"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&q=85",
+    credit: "Johannes Plenio",
+    link: "https://unsplash.com/@jplenio",
+    source: "Unsplash"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920&q=85",
+    credit: "Federico Respini",
+    link: "https://unsplash.com/@federicorespini",
+    source: "Unsplash"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=85",
+    credit: "Sebastian Unrau",
+    link: "https://unsplash.com/@sebastian_unrau",
+    source: "Unsplash"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1499002238440-d264edd596ec?w=1920&q=85",
+    credit: "Leonard Cotte",
+    link: "https://unsplash.com/@leonardcotte",
+    source: "Unsplash"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1483347756197-71ef80e95f73?w=1920&q=85",
+    credit: "Johny Goerend",
+    link: "https://unsplash.com/@johnygoerend",
+    source: "Unsplash"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1474044159687-1ee9f3a51722?w=1920&q=85",
+    credit: "Josh Hild",
+    link: "https://unsplash.com/@joshhild",
+    source: "Unsplash"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1462275646964-a0e3c11f18a6?w=1920&q=85",
+    credit: "Alain Bonnardeaux",
+    link: "https://unsplash.com/@alainbonnardeaux",
+    source: "Unsplash"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&q=85",
+    credit: "v2osk",
+    link: "https://unsplash.com/@v2osk",
+    source: "Unsplash"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1477601263568-180e2c6d046e?w=1920&q=85",
+    credit: "Joshua Earle",
+    link: "https://unsplash.com/@joshuaearle",
+    source: "Unsplash"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1432405972618-c6b0cfba8673?w=1920&q=85",
+    credit: "Liam Pozz",
+    link: "https://unsplash.com/@liampozz",
+    source: "Unsplash"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1464852045489-bccb7d17fe39?w=1920&q=85",
+    credit: "Denis Degioanni",
+    link: "https://unsplash.com/@denisdegioanni",
+    source: "Unsplash"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1418985991508-e47386d96a71?w=1920&q=85",
+    credit: "Eberhard Grossgasteiger",
+    link: "https://unsplash.com/@eberhardgross",
+    source: "Unsplash"
+  },
+
+  /* ── More Pexels ── */
+  {
+    url: "https://images.pexels.com/photos/36717/amazing-animal-beautiful-beautifull.jpg?auto=compress&cs=tinysrgb&w=1920",
+    credit: "Pixabay",
+    link: "https://www.pexels.com/@pixabay",
+    source: "Pexels"
+  },
+  {
+    url: "https://images.pexels.com/photos/3225517/pexels-photo-3225517.jpeg?auto=compress&cs=tinysrgb&w=1920",
+    credit: "Michael Block",
+    link: "https://www.pexels.com/@michael-block-1691617",
+    source: "Pexels"
+  },
+  {
+    url: "https://images.pexels.com/photos/1367192/pexels-photo-1367192.jpeg?auto=compress&cs=tinysrgb&w=1920",
+    credit: "Eberhard Grossgasteiger",
+    link: "https://www.pexels.com/@eberhardgross",
+    source: "Pexels"
+  },
+  {
+    url: "https://images.pexels.com/photos/1295138/pexels-photo-1295138.jpeg?auto=compress&cs=tinysrgb&w=1920",
+    credit: "Emiliano Arano",
+    link: "https://www.pexels.com/@emiliano-arano-167768",
+    source: "Pexels"
+  },
+  {
+    url: "https://images.pexels.com/photos/462118/pexels-photo-462118.jpeg?auto=compress&cs=tinysrgb&w=1920",
+    credit: "Pixabay",
+    link: "https://www.pexels.com/@pixabay",
+    source: "Pexels"
+  },
+  {
+    url: "https://images.pexels.com/photos/417173/pexels-photo-417173.jpeg?auto=compress&cs=tinysrgb&w=1920",
+    credit: "James Wheeler",
+    link: "https://www.pexels.com/@souvenirpixels",
+    source: "Pexels"
+  },
+  {
+    url: "https://images.pexels.com/photos/1028600/pexels-photo-1028600.jpeg?auto=compress&cs=tinysrgb&w=1920",
+    credit: "Maria Tyutina",
+    link: "https://www.pexels.com/@maria-tyutina-257298",
+    source: "Pexels"
+  },
+  {
+    url: "https://images.pexels.com/photos/2166553/pexels-photo-2166553.jpeg?auto=compress&cs=tinysrgb&w=1920",
+    credit: "Milo Miloezger",
+    link: "https://www.pexels.com/@miloezger",
+    source: "Pexels"
   },
 ];
 
@@ -1642,10 +2177,16 @@ function PomoUI() {
   const minStr = formatMinutes(remaining);
   display.innerHTML = `${minStr}<span class="pomo-time-unit">m</span>`;
 
+  // Update mini indicator for minimized state
+  const miniTime = document.getElementById('pomo-mini-time');
+  const miniDot = document.getElementById('pomo-mini-dot');
+  if (miniTime) miniTime.textContent = minStr + 'm';
+  if (miniDot) miniDot.classList.toggle('on-break', pomo.isBreak);
+
   // Update browser tab title with stage and time
   const stageLabel = pomo.isBreak ? 'Break' : 'Focus';
   const pausedMark = !pomo.isRunning && (pomo.pausedRemaining != null || pomo.startedAt != null) ? '⏸ ' : '';
-  document.title = `${pausedMark}${stageLabel} · ${minStr}m — Stoic Flow`;
+  document.title = `${pausedMark}${stageLabel} · ${minStr}m — Ataraxia`;
 
   const fraction = 1 - (remaining / pomo.totalSeconds);
   progress.style.strokeDasharray = CIRCUMFERENCE;
@@ -1906,6 +2447,47 @@ document.addEventListener('DOMContentLoaded', () => {
   // Quote buttons
   document.getElementById('btn-new').addEventListener('click', showRandomQuote);
   document.getElementById('btn-bg').addEventListener('click', nextBackground);
+
+  // Collapsible quote card
+  const quoteCard = document.getElementById('quote-card');
+  const quoteMinBtn = document.getElementById('quote-minimize-btn');
+  if (localStorage.getItem('ataraxia_quote_minimized') === 'true') {
+    quoteCard.classList.add('minimized');
+  }
+  quoteMinBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    quoteCard.classList.toggle('minimized');
+    const isMin = quoteCard.classList.contains('minimized');
+    quoteMinBtn.setAttribute('aria-label', isMin ? 'Expand quote' : 'Minimize quote');
+    localStorage.setItem('ataraxia_quote_minimized', isMin);
+  });
+  quoteCard.addEventListener('click', (e) => {
+    if (quoteCard.classList.contains('minimized')) {
+      quoteCard.classList.remove('minimized');
+      quoteMinBtn.setAttribute('aria-label', 'Minimize quote');
+      localStorage.setItem('ataraxia_quote_minimized', 'false');
+    }
+  });
+
+  // Minimizable pomodoro widget
+  const pomoWidget = document.getElementById('pomo-widget');
+  const pomoMinBtn = document.getElementById('pomo-minimize-btn');
+  const pomoMiniTime = document.getElementById('pomo-mini-time');
+  const pomoMiniDot = document.getElementById('pomo-mini-dot');
+  if (localStorage.getItem('ataraxia_pomo_minimized') === 'true') {
+    pomoWidget.classList.add('minimized');
+  }
+  pomoMinBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    pomoWidget.classList.add('minimized');
+    localStorage.setItem('ataraxia_pomo_minimized', 'true');
+  });
+  pomoWidget.addEventListener('click', (e) => {
+    if (pomoWidget.classList.contains('minimized')) {
+      pomoWidget.classList.remove('minimized');
+      localStorage.setItem('ataraxia_pomo_minimized', 'false');
+    }
+  });
 
   // Pomodoro buttons
   document.getElementById('pomo-play').addEventListener('click', () => { initAudioCtx(); startPomo(); });

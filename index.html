@@ -238,6 +238,7 @@
     padding: 2rem;
     margin: 0 auto;
     overflow: visible;
+    position: relative;
   }
 
   /* ═══════════════════════
@@ -279,10 +280,15 @@
     padding: 0.6rem 1.5rem;
     border-radius: 24px;
     cursor: pointer;
+    width: auto;
+    position: absolute;
+    top: 1.25rem;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   .quote-card.minimized:hover {
-    transform: translateY(0);
+    transform: translateX(-50%) translateY(-1px);
   }
 
   .quote-card .quote-inner {
@@ -493,9 +499,9 @@
 
   /* Minimized pomo state */
   .pomo-widget.minimized {
-    width: 48px;
-    padding: 0.5rem;
-    border-radius: 24px;
+    width: 68px;
+    padding: 0.6rem;
+    border-radius: 28px;
     cursor: pointer;
     gap: 0;
   }
@@ -519,8 +525,8 @@
   }
 
   .pomo-mini-dot {
-    width: 12px;
-    height: 12px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     background: var(--pomo-work);
     transition: background 0.3s ease;
@@ -532,7 +538,7 @@
 
   .pomo-mini-time {
     font-family: var(--font-body);
-    font-size: 0.55rem;
+    font-size: 0.72rem;
     font-weight: 500;
     color: var(--text-muted);
     letter-spacing: 0.05em;
@@ -921,7 +927,7 @@
     border: 1px solid rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    opacity: 0.6;
+    opacity: 0.72;
     transition: opacity 0.3s ease, background 0.3s ease;
     letter-spacing: 0.04em;
     cursor: pointer;
@@ -932,10 +938,9 @@
     background: rgba(0, 0, 0, 0.32);
   }
 
-  .gpl-icon {
-    width: 12px;
-    height: 12px;
-    fill: currentColor;
+  .copyleft-symbol {
+    font-size: 0.8rem;
+    line-height: 1;
     flex-shrink: 0;
     opacity: 0.9;
   }
@@ -1057,107 +1062,48 @@
     fill: currentColor;
   }
 
-  /* Fullpage radial settings */
-  .pomo-radial-settings {
+  /* Fullpage settings panel */
+  .pomo-fp-settings-panel {
     display: none;
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
+    background: var(--settings-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--settings-border);
+    border-radius: 18px;
+    padding: 1.25rem;
+    min-width: 240px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.22);
+    animation: fpSettingsIn 0.3s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  .pomo-radial-settings.open {
-    display: block;
+  .pomo-fp-settings-panel.open { display: block; }
+
+  @keyframes fpSettingsIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
-  .radial-item {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%)
-               rotate(var(--angle))
-               translateY(calc(-1 * var(--distance)))
-               rotate(calc(-1 * var(--angle)));
-    pointer-events: auto;
-    opacity: 0;
-    animation: radialIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0s) forwards;
-  }
-
-  .pomo-radial-settings:not(.open) .radial-item {
-    animation: none;
-    opacity: 0;
-  }
-
-  @keyframes radialIn {
-    from { opacity: 0; transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(-0.6 * var(--distance))) rotate(calc(-1 * var(--angle))); }
-    to   { opacity: 1; transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(-1 * var(--distance))) rotate(calc(-1 * var(--angle))); }
-  }
-
-  .radial-item label {
-    display: block;
-    font-family: var(--font-body);
-    font-size: 0.65rem;
-    font-weight: 500;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 0.3rem;
-    text-align: center;
-    white-space: nowrap;
-  }
-
-  .radial-item input[type="number"] {
+  .pomo-fp-settings-panel .setting-row input[type="number"] {
     width: 56px;
     padding: 0.35rem 0.25rem;
-    border-radius: 12px;
+    border-radius: 10px;
     border: 1px solid var(--settings-border);
-    background: var(--settings-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(0,0,0,0.04);
     color: var(--text-primary);
     font-family: var(--font-body);
     font-size: 0.85rem;
     text-align: center;
     outline: none;
     transition: border-color 0.25s, box-shadow 0.25s;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
   }
 
-  .radial-item input[type="number"]:focus {
+  .pomo-fp-settings-panel .setting-row input[type="number"]:focus {
     border-color: var(--accent);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.12), 0 0 0 2px var(--accent-glow);
-  }
-
-  .radial-chip .phase-chip {
-    padding: 0.35rem 0.65rem;
-    border-radius: 10px;
-    border: 1px solid var(--settings-border);
-    background: var(--settings-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    color: var(--text-secondary);
-    font-family: var(--font-body);
-    font-size: 0.7rem;
-    font-weight: 400;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.25s ease;
-    white-space: nowrap;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-  }
-
-  .radial-chip .phase-chip:hover {
-    background: var(--bg-glass-hover);
-    color: var(--text-primary);
-    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-glow);
   }
 
   @media (prefers-color-scheme: dark) {
-    .radial-item input[type="number"] { background: rgba(255,255,255,0.06); }
-    .radial-chip .phase-chip { background: rgba(255,255,255,0.06); }
-  }
-
-  @media (max-width: 600px) {
-    .radial-item { --distance: 135px !important; }
+    .pomo-fp-settings-panel .setting-row input[type="number"] { background: rgba(255,255,255,0.06); }
   }
 
   .pomo-ring-wrapper {
@@ -1381,12 +1327,9 @@
 <!-- Badges: Image Credit + License -->
 <div class="bottom-badges">
   <div class="img-credit" id="img-credit"></div>
-  <a class="license-badge" href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">
-    <svg class="gpl-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 1C5.9 1 1 5.9 1 12s4.9 11 11 11 11-4.9 11-11S18.1 1 12 1zm0 1.5c5.2 0 9.5 4.3 9.5 9.5s-4.3 9.5-9.5 9.5S2.5 17.2 2.5 12 6.8 2.5 12 2.5z"/>
-      <path d="M12 5.5c-3.6 0-6.5 2.9-6.5 6.5s2.9 6.5 6.5 6.5c1.8 0 3.4-.7 4.6-1.9l-1.4-1.4c-.8.8-2 1.3-3.2 1.3-2.5 0-4.5-2-4.5-4.5s2-4.5 4.5-4.5c1.2 0 2.3.5 3.1 1.3l1.4-1.4C15.4 6.2 13.8 5.5 12 5.5z"/>
-    </svg>
-    <span>GPL v3</span>
+  <a class="license-badge" href="https://www.gnu.org/licenses/gpl-2.0.html" target="_blank" rel="noopener">
+    <span class="copyleft-symbol">🄯</span>
+    <span>GPL v2</span>
   </a>
 </div>
 
@@ -1424,31 +1367,30 @@
       <svg viewBox="0 0 24 24"><path d="M19.14 12.94a7.07 7.07 0 000-1.88l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.04 7.04 0 00-1.63-.94l-.36-2.54a.48.48 0 00-.48-.41h-3.84a.48.48 0 00-.48.41l-.36 2.54c-.59.24-1.13.57-1.63.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87a.48.48 0 00.12.61l2.03 1.58a7.07 7.07 0 000 1.88l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.05.24.26.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.57 1.63-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.49.49 0 00-.12-.61l-2.03-1.58zM12 15.6A3.6 3.6 0 1115.6 12 3.6 3.6 0 0112 15.6z"/></svg>
     </button>
   </div>
-  <!-- Fullpage radial settings -->
-  <div class="pomo-radial-settings" id="pomo-fp-settings-panel">
-    <div class="radial-item" style="--angle: 320deg; --distance: 200px; --delay: 0s">
-      <label>Focus</label>
+  <!-- Fullpage settings panel -->
+  <div class="pomo-fp-settings-panel" id="pomo-fp-settings-panel">
+    <h4>Timer Settings</h4>
+    <div class="setting-row">
+      <label>Focus (min)</label>
       <input type="number" id="fp-setting-work" min="1" max="90" value="25">
     </div>
-    <div class="radial-item" style="--angle: 40deg; --distance: 200px; --delay: 0.05s">
-      <label>Break</label>
+    <div class="setting-row">
+      <label>Break (min)</label>
       <input type="number" id="fp-setting-break" min="1" max="30" value="5">
     </div>
-    <div class="radial-item" style="--angle: 220deg; --distance: 200px; --delay: 0.1s">
-      <label>Long</label>
+    <div class="setting-row">
+      <label>Long break</label>
       <input type="number" id="fp-setting-long" min="1" max="60" value="15">
     </div>
-    <div class="radial-item" style="--angle: 140deg; --distance: 200px; --delay: 0.15s">
+    <div class="setting-row">
       <label>Sessions</label>
       <input type="number" id="fp-setting-sessions" min="1" max="12" value="4">
     </div>
-    <div class="radial-item radial-chip" style="--angle: 180deg; --distance: 200px; --delay: 0.2s">
+    <div class="setting-divider"></div>
+    <h4>Jump to phase</h4>
+    <div class="setting-phase-chips">
       <button class="phase-chip" id="fp-chip-focus">Focus</button>
-    </div>
-    <div class="radial-item radial-chip" style="--angle: 0deg; --distance: 200px; --delay: 0.25s">
       <button class="phase-chip" id="fp-chip-break">Break</button>
-    </div>
-    <div class="radial-item radial-chip" style="--angle: 90deg; --distance: 200px; --delay: 0.3s">
       <button class="phase-chip" id="fp-chip-long">Long Break</button>
     </div>
   </div>
@@ -1610,46 +1552,46 @@ const QUOTES = [
    ═══════════════════════════════════════ */
 const BACKGROUNDS = [
   // ── Natural landscapes — Unsplash ──────────────────────────────
-  { url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=85", credit: "Samuel Ferrara", link: "https://unsplash.com/@samferrara", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&q=85", credit: "Lukasz Szmigiel", link: "https://unsplash.com/@szmigieldesign", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=85", credit: "Luca Bravo", link: "https://unsplash.com/@lucabravo", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=85", credit: "Sean Oulashin", link: "https://unsplash.com/@oulashin", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=85", credit: "Benjamin Voros", link: "https://unsplash.com/@vorosbenisop", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1505144808419-1957a94ca61e?w=1920&q=85", credit: "Frank McKenna", link: "https://unsplash.com/@frankiefoto", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&q=85", credit: "David Marcu", link: "https://unsplash.com/@davidmarcu", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1920&q=85", credit: "Robert Lukeman", link: "https://unsplash.com/@robertlukeman", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=1920&q=85", credit: "Kazuend", link: "https://unsplash.com/@kazuend", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1920&q=85", credit: "Pietro De Grandi", link: "https://unsplash.com/@pietrozj", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=85", credit: "Samuel Ferrara", link: "https://unsplash.com/@samferrara", source: "Unsplash", title: "Alpine Summit" },
+  { url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&q=85", credit: "Lukasz Szmigiel", link: "https://unsplash.com/@szmigieldesign", source: "Unsplash", title: "Forest Mist" },
+  { url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=85", credit: "Luca Bravo", link: "https://unsplash.com/@lucabravo", source: "Unsplash", title: "Forest Light" },
+  { url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=85", credit: "Sean Oulashin", link: "https://unsplash.com/@oulashin", source: "Unsplash", title: "Tropical Beach" },
+  { url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=85", credit: "Benjamin Voros", link: "https://unsplash.com/@vorosbenisop", source: "Unsplash", title: "Starry Mountains" },
+  { url: "https://images.unsplash.com/photo-1505144808419-1957a94ca61e?w=1920&q=85", credit: "Frank McKenna", link: "https://unsplash.com/@frankiefoto", source: "Unsplash", title: "Northern Lights" },
+  { url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&q=85", credit: "David Marcu", link: "https://unsplash.com/@davidmarcu", source: "Unsplash", title: "Sun Through Trees" },
+  { url: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1920&q=85", credit: "Robert Lukeman", link: "https://unsplash.com/@robertlukeman", source: "Unsplash", title: "Lake Reflection" },
+  { url: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=1920&q=85", credit: "Kazuend", link: "https://unsplash.com/@kazuend", source: "Unsplash", title: "Waterfall Forest" },
+  { url: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1920&q=85", credit: "Pietro De Grandi", link: "https://unsplash.com/@pietrozj", source: "Unsplash", title: "Mountain Sunrise" },
   // ── Meditative & ancient themes — Unsplash ─────────────────────
-  { url: "https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?w=1920&q=85", credit: "Luca Bravo", link: "https://unsplash.com/@lucabravo", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=1920&q=85", credit: "Ian Dooley", link: "https://unsplash.com/@sadswim", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1920&q=85", credit: "Luca Upper", link: "https://unsplash.com/@lucaupper", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=1920&q=85", credit: "Joanna Kosinska", link: "https://unsplash.com/@joannakosinska", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=1920&q=85", credit: "Ricardo Gomez Angel", link: "https://unsplash.com/@rgaleriacom", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=1920&q=85", credit: "Luca Zanon", link: "https://unsplash.com/@luca_zanon", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1528702748617-c64d49f918af?w=1920&q=85", credit: "Alessio Lin", link: "https://unsplash.com/@lin_alessio", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1542401886-65d6c61db217?w=1920&q=85", credit: "v2osk", link: "https://unsplash.com/@v2osk", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?w=1920&q=85", credit: "Luca Bravo", link: "https://unsplash.com/@lucabravo", source: "Unsplash", title: "Night Sky" },
+  { url: "https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=1920&q=85", credit: "Ian Dooley", link: "https://unsplash.com/@sadswim", source: "Unsplash", title: "Desert Sands" },
+  { url: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1920&q=85", credit: "Luca Upper", link: "https://unsplash.com/@lucaupper", source: "Unsplash", title: "Golden Road" },
+  { url: "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=1920&q=85", credit: "Joanna Kosinska", link: "https://unsplash.com/@joannakosinska", source: "Unsplash", title: "Lavender Fields" },
+  { url: "https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=1920&q=85", credit: "Ricardo Gomez Angel", link: "https://unsplash.com/@rgaleriacom", source: "Unsplash", title: "Spiral Galaxy" },
+  { url: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=1920&q=85", credit: "Luca Zanon", link: "https://unsplash.com/@luca_zanon", source: "Unsplash", title: "Snowy Trees" },
+  { url: "https://images.unsplash.com/photo-1528702748617-c64d49f918af?w=1920&q=85", credit: "Alessio Lin", link: "https://unsplash.com/@lin_alessio", source: "Unsplash", title: "Stone Arch" },
+  { url: "https://images.unsplash.com/photo-1542401886-65d6c61db217?w=1920&q=85", credit: "v2osk", link: "https://unsplash.com/@v2osk", source: "Unsplash", title: "Volcanic Landscape" },
   // ── Mountains, deserts, stars — Unsplash ───────────────────────
-  { url: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=85", credit: "Kalen Emsley", link: "https://unsplash.com/@kalenemsley", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=1920&q=85", credit: "Joshua Earle", link: "https://unsplash.com/@joshuaearle", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1536431311719-398b6704d4cc?w=1920&q=85", credit: "Vincentiu Solomon", link: "https://unsplash.com/@vincentiu", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1462275646964-a0e3c11f18a6?w=1920&q=85", credit: "Luca Baggio", link: "https://unsplash.com/@luca42", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1491002052546-bf38f186af56?w=1920&q=85", credit: "Austin Neill", link: "https://unsplash.com/@arstyy", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1504700610630-ac6edd918f09?w=1920&q=85", credit: "Jeremy Bishop", link: "https://unsplash.com/@jeremybishop", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1444080748397-f442aa95c3e5?w=1920&q=85", credit: "Josh Gordon", link: "https://unsplash.com/@joshgordon", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1920&q=85", credit: "Jonatan Pie", link: "https://unsplash.com/@r3dmax", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=85", credit: "Kalen Emsley", link: "https://unsplash.com/@kalenemsley", source: "Unsplash", title: "Mountain Peak" },
+  { url: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=1920&q=85", credit: "Joshua Earle", link: "https://unsplash.com/@joshuaearle", source: "Unsplash", title: "Misty Summit" },
+  { url: "https://images.unsplash.com/photo-1536431311719-398b6704d4cc?w=1920&q=85", credit: "Vincentiu Solomon", link: "https://unsplash.com/@vincentiu", source: "Unsplash", title: "Milky Way" },
+  { url: "https://images.unsplash.com/photo-1462275646964-a0e3c11f18a6?w=1920&q=85", credit: "Luca Baggio", link: "https://unsplash.com/@luca42", source: "Unsplash", title: "Pine Forest" },
+  { url: "https://images.unsplash.com/photo-1491002052546-bf38f186af56?w=1920&q=85", credit: "Austin Neill", link: "https://unsplash.com/@arstyy", source: "Unsplash", title: "Autumn Forest" },
+  { url: "https://images.unsplash.com/photo-1504700610630-ac6edd918f09?w=1920&q=85", credit: "Jeremy Bishop", link: "https://unsplash.com/@jeremybishop", source: "Unsplash", title: "Ocean Cliff" },
+  { url: "https://images.unsplash.com/photo-1444080748397-f442aa95c3e5?w=1920&q=85", credit: "Josh Gordon", link: "https://unsplash.com/@joshgordon", source: "Unsplash", title: "Desert Stars" },
+  { url: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1920&q=85", credit: "Jonatan Pie", link: "https://unsplash.com/@r3dmax", source: "Unsplash", title: "Aurora Borealis" },
   // ── Oceans, coasts, dawn — Unsplash ────────────────────────────
-  { url: "https://images.unsplash.com/photo-1484291470158-b8f8d608850d?w=1920&q=85", credit: "Cristina Gottardi", link: "https://unsplash.com/@cristina_gottardi", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1520942702018-0862200e6873?w=1920&q=85", credit: "Silas Baisch", link: "https://unsplash.com/@silasbaisch", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1414609245224-afa02bfb3fda?w=1920&q=85", credit: "Jordan McQueen", link: "https://unsplash.com/@jordanmcqueen", source: "Unsplash" },
-  { url: "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1920&q=85", credit: "Levi Bare", link: "https://unsplash.com/@levibare", source: "Unsplash" },
+  { url: "https://images.unsplash.com/photo-1484291470158-b8f8d608850d?w=1920&q=85", credit: "Cristina Gottardi", link: "https://unsplash.com/@cristina_gottardi", source: "Unsplash", title: "Sea of Clouds" },
+  { url: "https://images.unsplash.com/photo-1520942702018-0862200e6873?w=1920&q=85", credit: "Silas Baisch", link: "https://unsplash.com/@silasbaisch", source: "Unsplash", title: "Ocean Shore" },
+  { url: "https://images.unsplash.com/photo-1414609245224-afa02bfb3fda?w=1920&q=85", credit: "Jordan McQueen", link: "https://unsplash.com/@jordanmcqueen", source: "Unsplash", title: "Sunrise Coast" },
+  { url: "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1920&q=85", credit: "Levi Bare", link: "https://unsplash.com/@levibare", source: "Unsplash", title: "Golden Cliffs" },
   // ── Pexels — free open license ─────────────────────────────────
-  { url: "https://images.pexels.com/photos/1287145/pexels-photo-1287145.jpeg?auto=compress&w=1920", credit: "Eberhard Grossgasteiger", link: "https://www.pexels.com/photo/1287145/", source: "Pexels" },
-  { url: "https://images.pexels.com/photos/36717/amazing-animal-beautiful-beautifull.jpg?auto=compress&w=1920", credit: "Pixabay", link: "https://www.pexels.com/photo/36717/", source: "Pexels" },
-  { url: "https://images.pexels.com/photos/1671325/pexels-photo-1671325.jpeg?auto=compress&w=1920", credit: "Rafael Cerqueira", link: "https://www.pexels.com/photo/1671325/", source: "Pexels" },
-  { url: "https://images.pexels.com/photos/2387418/pexels-photo-2387418.jpeg?auto=compress&w=1920", credit: "Felipe Palacio", link: "https://www.pexels.com/photo/2387418/", source: "Pexels" },
-  { url: "https://images.pexels.com/photos/1496373/pexels-photo-1496373.jpeg?auto=compress&w=1920", credit: "Trace Hudson", link: "https://www.pexels.com/photo/1496373/", source: "Pexels" },
-  { url: "https://images.pexels.com/photos/2166553/pexels-photo-2166553.jpeg?auto=compress&w=1920", credit: "Felix Mittermeier", link: "https://www.pexels.com/photo/2166553/", source: "Pexels" },
+  { url: "https://images.pexels.com/photos/1287145/pexels-photo-1287145.jpeg?auto=compress&w=1920", credit: "Eberhard Grossgasteiger", link: "https://www.pexels.com/photo/1287145/", source: "Pexels", title: "Alpine Meadow" },
+  { url: "https://images.pexels.com/photos/36717/amazing-animal-beautiful-beautifull.jpg?auto=compress&w=1920", credit: "Pixabay", link: "https://www.pexels.com/photo/36717/", source: "Pexels", title: "Misty Mountains" },
+  { url: "https://images.pexels.com/photos/1671325/pexels-photo-1671325.jpeg?auto=compress&w=1920", credit: "Rafael Cerqueira", link: "https://www.pexels.com/photo/1671325/", source: "Pexels", title: "Mountain Path" },
+  { url: "https://images.pexels.com/photos/2387418/pexels-photo-2387418.jpeg?auto=compress&w=1920", credit: "Felipe Palacio", link: "https://www.pexels.com/photo/2387418/", source: "Pexels", title: "Foggy Valley" },
+  { url: "https://images.pexels.com/photos/1496373/pexels-photo-1496373.jpeg?auto=compress&w=1920", credit: "Trace Hudson", link: "https://www.pexels.com/photo/1496373/", source: "Pexels", title: "Ocean Waves" },
+  { url: "https://images.pexels.com/photos/2166553/pexels-photo-2166553.jpeg?auto=compress&w=1920", credit: "Felix Mittermeier", link: "https://www.pexels.com/photo/2166553/", source: "Pexels", title: "Winter Forest" },
   // ── Wikimedia Commons — Public Domain Art ──────────────────────
   {
     url: "https://upload.wikimedia.org/wikipedia/commons/b/b9/Wanderer_above_the_sea_of_fog.jpg",
@@ -1791,91 +1733,106 @@ const BACKGROUNDS = [
     url: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1920&q=85",
     credit: "Jonatan Pie",
     link: "https://unsplash.com/@r3dmax",
-    source: "Unsplash"
+    source: "Unsplash",
+    title: "Aurora Borealis"
   },
   {
     url: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=1920&q=85",
     credit: "Su San Lee",
     link: "https://unsplash.com/@s_s_lee",
-    source: "Unsplash"
+    source: "Unsplash",
+    title: "Cherry Blossoms"
   },
   {
     url: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=1920&q=85",
     credit: "Keith Hardy",
     link: "https://unsplash.com/@keithhardy2001",
-    source: "Unsplash"
+    source: "Unsplash",
+    title: "Monument Valley"
   },
   {
     url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&q=85",
     credit: "Johannes Plenio",
     link: "https://unsplash.com/@jplenio",
-    source: "Unsplash"
+    source: "Unsplash",
+    title: "Misty Forest"
   },
   {
     url: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920&q=85",
     credit: "Federico Respini",
     link: "https://unsplash.com/@federicorespini",
-    source: "Unsplash"
+    source: "Unsplash",
+    title: "Golden Fields"
   },
   {
     url: "https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=85",
     credit: "Sebastian Unrau",
     link: "https://unsplash.com/@sebastian_unrau",
-    source: "Unsplash"
+    source: "Unsplash",
+    title: "Winter Pines"
   },
   {
     url: "https://images.unsplash.com/photo-1499002238440-d264edd596ec?w=1920&q=85",
     credit: "Leonard Cotte",
     link: "https://unsplash.com/@leonardcotte",
-    source: "Unsplash"
+    source: "Unsplash",
+    title: "City at Night"
   },
   {
     url: "https://images.unsplash.com/photo-1483347756197-71ef80e95f73?w=1920&q=85",
     credit: "Johny Goerend",
     link: "https://unsplash.com/@johnygoerend",
-    source: "Unsplash"
+    source: "Unsplash",
+    title: "Desert Dunes"
   },
   {
     url: "https://images.unsplash.com/photo-1474044159687-1ee9f3a51722?w=1920&q=85",
     credit: "Josh Hild",
     link: "https://unsplash.com/@joshhild",
-    source: "Unsplash"
+    source: "Unsplash",
+    title: "Foggy Mountains"
   },
   {
     url: "https://images.unsplash.com/photo-1462275646964-a0e3c11f18a6?w=1920&q=85",
     credit: "Alain Bonnardeaux",
     link: "https://unsplash.com/@alainbonnardeaux",
-    source: "Unsplash"
+    source: "Unsplash",
+    title: "Alpine Forest"
   },
   {
     url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&q=85",
     credit: "v2osk",
     link: "https://unsplash.com/@v2osk",
-    source: "Unsplash"
+    source: "Unsplash",
+    title: "Forest Mist"
   },
   {
     url: "https://images.unsplash.com/photo-1477601263568-180e2c6d046e?w=1920&q=85",
     credit: "Joshua Earle",
     link: "https://unsplash.com/@joshuaearle",
-    source: "Unsplash"
+    source: "Unsplash",
+    title: "Mountain Hiker"
   },
   {
     url: "https://images.unsplash.com/photo-1432405972618-c6b0cfba8673?w=1920&q=85",
     credit: "Liam Pozz",
     link: "https://unsplash.com/@liampozz",
-    source: "Unsplash"
+    source: "Unsplash",
+    title: "Waterfall"
   },
   {
     url: "https://images.unsplash.com/photo-1464852045489-bccb7d17fe39?w=1920&q=85",
     credit: "Denis Degioanni",
     link: "https://unsplash.com/@denisdegioanni",
-    source: "Unsplash"
+    source: "Unsplash",
+    title: "Starry Night Sky"
   },
   {
     url: "https://images.unsplash.com/photo-1418985991508-e47386d96a71?w=1920&q=85",
     credit: "Eberhard Grossgasteiger",
     link: "https://unsplash.com/@eberhardgross",
-    source: "Unsplash"
+    source: "Unsplash",
+    title: "Alpine Snow"
   },
 
   /* ── More Pexels ── */
@@ -1883,49 +1840,57 @@ const BACKGROUNDS = [
     url: "https://images.pexels.com/photos/36717/amazing-animal-beautiful-beautifull.jpg?auto=compress&cs=tinysrgb&w=1920",
     credit: "Pixabay",
     link: "https://www.pexels.com/@pixabay",
-    source: "Pexels"
+    source: "Pexels",
+    title: "Misty Mountains"
   },
   {
     url: "https://images.pexels.com/photos/3225517/pexels-photo-3225517.jpeg?auto=compress&cs=tinysrgb&w=1920",
     credit: "Michael Block",
     link: "https://www.pexels.com/@michael-block-1691617",
-    source: "Pexels"
+    source: "Pexels",
+    title: "Forest Road"
   },
   {
     url: "https://images.pexels.com/photos/1367192/pexels-photo-1367192.jpeg?auto=compress&cs=tinysrgb&w=1920",
     credit: "Eberhard Grossgasteiger",
     link: "https://www.pexels.com/@eberhardgross",
-    source: "Pexels"
+    source: "Pexels",
+    title: "Mountain Valley"
   },
   {
     url: "https://images.pexels.com/photos/1295138/pexels-photo-1295138.jpeg?auto=compress&cs=tinysrgb&w=1920",
     credit: "Emiliano Arano",
     link: "https://www.pexels.com/@emiliano-arano-167768",
-    source: "Pexels"
+    source: "Pexels",
+    title: "Dramatic Clouds"
   },
   {
     url: "https://images.pexels.com/photos/462118/pexels-photo-462118.jpeg?auto=compress&cs=tinysrgb&w=1920",
     credit: "Pixabay",
     link: "https://www.pexels.com/@pixabay",
-    source: "Pexels"
+    source: "Pexels",
+    title: "Rocky Shore"
   },
   {
     url: "https://images.pexels.com/photos/417173/pexels-photo-417173.jpeg?auto=compress&cs=tinysrgb&w=1920",
     credit: "James Wheeler",
     link: "https://www.pexels.com/@souvenirpixels",
-    source: "Pexels"
+    source: "Pexels",
+    title: "Autumn Lake"
   },
   {
     url: "https://images.pexels.com/photos/1028600/pexels-photo-1028600.jpeg?auto=compress&cs=tinysrgb&w=1920",
     credit: "Maria Tyutina",
     link: "https://www.pexels.com/@maria-tyutina-257298",
-    source: "Pexels"
+    source: "Pexels",
+    title: "Seaside Cliffs"
   },
   {
     url: "https://images.pexels.com/photos/2166553/pexels-photo-2166553.jpeg?auto=compress&cs=tinysrgb&w=1920",
     credit: "Milo Miloezger",
     link: "https://www.pexels.com/@miloezger",
-    source: "Pexels"
+    source: "Pexels",
+    title: "Winter Forest"
   },
 ];
 
@@ -1970,10 +1935,10 @@ let _lastDynamicUrl = '';
 
 function loadBackground(index) {
   const bg = BACKGROUNDS[index];
-  _applyBackground(bg.url, bg.credit, bg.link, bg.source || 'Unsplash');
+  _applyBackground(bg.url, bg.credit, bg.link, bg.source || 'Unsplash', bg.title || '');
 }
 
-function _applyBackground(url, creditText, linkUrl, source) {
+function _applyBackground(url, creditText, linkUrl, source, title = '') {
   const layer = document.getElementById('bg-layer');
   const credit = document.getElementById('img-credit');
 
@@ -1984,7 +1949,8 @@ function _applyBackground(url, creditText, linkUrl, source) {
     layer.style.backgroundImage = `url(${url})`;
     layer.classList.add('loaded');
     if (source === 'Unsplash' || source === 'Pexels') {
-      credit.innerHTML = `Photo: <a href="${linkUrl}" target="_blank" rel="noopener">${creditText}</a> · ${source}`;
+      const titlePart = title ? `«${title}» · ` : '';
+      credit.innerHTML = `Photo: ${titlePart}<a href="${linkUrl}" target="_blank" rel="noopener">${creditText}</a> · ${source}`;
     } else {
       credit.innerHTML = `<a href="${linkUrl}" target="_blank" rel="noopener">${creditText}</a> · ${source}`;
     }
@@ -2677,7 +2643,529 @@ const UI_STRINGS = {
     breakOver: "Break over — let's focus",
     readyBreak: 'Ready to break',
     readyFocus: 'Ready to focus',
-  }
+  },
+  fr: {
+    newQuote: 'Nouvelle citation',
+    newScene: 'Nouvelle scène',
+    focus: 'Concentration',
+    break: 'Pause',
+    timerSettings: 'Paramètres du minuteur',
+    focusMin: 'Concentration (min)',
+    breakMin: 'Pause (min)',
+    longBreak: 'Grande pause',
+    sessions: 'Séances',
+    jumpToPhase: 'Passer à la phase',
+    longBreakLabel: 'Grande pause',
+    sessionDone: 'Séance terminée — courte pause',
+    longBreakMsg: 'séances terminées — grande pause !',
+    breakOver: 'Pause terminée — concentrons-nous',
+    readyBreak: 'Prêt pour la pause',
+    readyFocus: 'Prêt à se concentrer',
+  },
+  es: {
+    newQuote: 'Nueva cita',
+    newScene: 'Nueva escena',
+    focus: 'Enfoque',
+    break: 'Descanso',
+    timerSettings: 'Ajustes del temporizador',
+    focusMin: 'Enfoque (min)',
+    breakMin: 'Descanso (min)',
+    longBreak: 'Descanso largo',
+    sessions: 'Sesiones',
+    jumpToPhase: 'Saltar a fase',
+    longBreakLabel: 'Descanso largo',
+    sessionDone: 'Sesión completada — descanso corto',
+    longBreakMsg: 'sesiones completadas — ¡descanso largo!',
+    breakOver: 'Descanso terminado — a concentrarse',
+    readyBreak: 'Listo para descansar',
+    readyFocus: 'Listo para concentrarse',
+  },
+  de: {
+    newQuote: 'Neues Zitat',
+    newScene: 'Neue Szene',
+    focus: 'Fokus',
+    break: 'Pause',
+    timerSettings: 'Timer-Einstellungen',
+    focusMin: 'Fokus (Min)',
+    breakMin: 'Pause (Min)',
+    longBreak: 'Lange Pause',
+    sessions: 'Sitzungen',
+    jumpToPhase: 'Zur Phase springen',
+    longBreakLabel: 'Lange Pause',
+    sessionDone: 'Sitzung beendet — kurze Pause',
+    longBreakMsg: 'Sitzungen beendet — lange Pause!',
+    breakOver: 'Pause vorbei — Zeit zum Fokussieren',
+    readyBreak: 'Bereit zur Pause',
+    readyFocus: 'Bereit zum Fokussieren',
+  },
+  it: {
+    newQuote: 'Nuova citazione',
+    newScene: 'Nuova scena',
+    focus: 'Concentrazione',
+    break: 'Pausa',
+    timerSettings: 'Impostazioni timer',
+    focusMin: 'Concentrazione (min)',
+    breakMin: 'Pausa (min)',
+    longBreak: 'Pausa lunga',
+    sessions: 'Sessioni',
+    jumpToPhase: 'Vai alla fase',
+    longBreakLabel: 'Pausa lunga',
+    sessionDone: 'Sessione completata — pausa breve',
+    longBreakMsg: 'sessioni completate — pausa lunga!',
+    breakOver: 'Pausa finita — torniamo a concentrarci',
+    readyBreak: 'Pronto per la pausa',
+    readyFocus: 'Pronto per concentrarsi',
+  },
+  pt: {
+    newQuote: 'Nova citação',
+    newScene: 'Nova cena',
+    focus: 'Foco',
+    break: 'Pausa',
+    timerSettings: 'Configurações do temporizador',
+    focusMin: 'Foco (min)',
+    breakMin: 'Pausa (min)',
+    longBreak: 'Pausa longa',
+    sessions: 'Sessões',
+    jumpToPhase: 'Ir para fase',
+    longBreakLabel: 'Pausa longa',
+    sessionDone: 'Sessão concluída — pausa curta',
+    longBreakMsg: 'sessões concluídas — pausa longa!',
+    breakOver: 'Pausa terminada — vamos focar',
+    readyBreak: 'Pronto para pausar',
+    readyFocus: 'Pronto para focar',
+  },
+  nl: {
+    newQuote: 'Nieuw citaat',
+    newScene: 'Nieuwe scène',
+    focus: 'Focus',
+    break: 'Pauze',
+    timerSettings: 'Timerinstellingen',
+    focusMin: 'Focus (min)',
+    breakMin: 'Pauze (min)',
+    longBreak: 'Lange pauze',
+    sessions: 'Sessies',
+    jumpToPhase: 'Ga naar fase',
+    longBreakLabel: 'Lange pauze',
+    sessionDone: 'Sessie klaar — korte pauze',
+    longBreakMsg: 'sessies klaar — lange pauze!',
+    breakOver: 'Pauze voorbij — tijd om te focussen',
+    readyBreak: 'Klaar voor pauze',
+    readyFocus: 'Klaar om te focussen',
+  },
+  ru: {
+    newQuote: 'Новая цитата',
+    newScene: 'Новая сцена',
+    focus: 'Фокус',
+    break: 'Перерыв',
+    timerSettings: 'Настройки таймера',
+    focusMin: 'Фокус (мин)',
+    breakMin: 'Перерыв (мин)',
+    longBreak: 'Длинный перерыв',
+    sessions: 'Сессии',
+    jumpToPhase: 'Перейти к фазе',
+    longBreakLabel: 'Длинный перерыв',
+    sessionDone: 'Сессия завершена — короткий перерыв',
+    longBreakMsg: 'сессий завершено — длинный перерыв!',
+    breakOver: 'Перерыв окончен — время фокусироваться',
+    readyBreak: 'Готов к перерыву',
+    readyFocus: 'Готов фокусироваться',
+  },
+  ja: {
+    newQuote: '新しい名言',
+    newScene: '新しい場面',
+    focus: '集中',
+    break: '休憩',
+    timerSettings: 'タイマー設定',
+    focusMin: '集中（分）',
+    breakMin: '休憩（分）',
+    longBreak: '長い休憩',
+    sessions: 'セッション',
+    jumpToPhase: 'フェーズへ移動',
+    longBreakLabel: '長い休憩',
+    sessionDone: 'セッション終了 — 短い休憩',
+    longBreakMsg: 'セッション完了 — 長い休憩！',
+    breakOver: '休憩終了 — 集中しましょう',
+    readyBreak: '休憩の準備完了',
+    readyFocus: '集中の準備完了',
+  },
+  ko: {
+    newQuote: '새 인용구',
+    newScene: '새 장면',
+    focus: '집중',
+    break: '휴식',
+    timerSettings: '타이머 설정',
+    focusMin: '집중 (분)',
+    breakMin: '휴식 (분)',
+    longBreak: '긴 휴식',
+    sessions: '세션',
+    jumpToPhase: '단계로 이동',
+    longBreakLabel: '긴 휴식',
+    sessionDone: '세션 완료 — 짧은 휴식',
+    longBreakMsg: '세션 완료 — 긴 휴식!',
+    breakOver: '휴식 종료 — 집중할 시간',
+    readyBreak: '휴식 준비 완료',
+    readyFocus: '집중 준비 완료',
+  },
+  zh: {
+    newQuote: '新名言',
+    newScene: '新场景',
+    focus: '专注',
+    break: '休息',
+    timerSettings: '计时器设置',
+    focusMin: '专注（分钟）',
+    breakMin: '休息（分钟）',
+    longBreak: '长休息',
+    sessions: '会话',
+    jumpToPhase: '跳至阶段',
+    longBreakLabel: '长休息',
+    sessionDone: '专注结束 — 短暂休息',
+    longBreakMsg: '次专注完成 — 长休息！',
+    breakOver: '休息结束 — 开始专注',
+    readyBreak: '准备休息',
+    readyFocus: '准备专注',
+  },
+  ar: {
+    newQuote: 'اقتباس جديد',
+    newScene: 'مشهد جديد',
+    focus: 'تركيز',
+    break: 'استراحة',
+    timerSettings: 'إعدادات المؤقت',
+    focusMin: 'تركيز (دقيقة)',
+    breakMin: 'استراحة (دقيقة)',
+    longBreak: 'استراحة طويلة',
+    sessions: 'جلسات',
+    jumpToPhase: 'الانتقال إلى المرحلة',
+    longBreakLabel: 'استراحة طويلة',
+    sessionDone: 'انتهت الجلسة — استراحة قصيرة',
+    longBreakMsg: 'جلسات منجزة — استراحة طويلة!',
+    breakOver: 'انتهت الاستراحة — لنركز',
+    readyBreak: 'جاهز للاستراحة',
+    readyFocus: 'جاهز للتركيز',
+  },
+  hi: {
+    newQuote: 'नया उद्धरण',
+    newScene: 'नया दृश्य',
+    focus: 'फ़ोकस',
+    break: 'विराम',
+    timerSettings: 'टाइमर सेटिंग',
+    focusMin: 'फ़ोकस (मिनट)',
+    breakMin: 'विराम (मिनट)',
+    longBreak: 'लंबा विराम',
+    sessions: 'सत्र',
+    jumpToPhase: 'चरण पर जाएं',
+    longBreakLabel: 'लंबा विराम',
+    sessionDone: 'सत्र समाप्त — छोटा विराम',
+    longBreakMsg: 'सत्र पूर्ण — लंबा विराम!',
+    breakOver: 'विराम समाप्त — ध्यान केंद्रित करें',
+    readyBreak: 'विराम के लिए तैयार',
+    readyFocus: 'फ़ोकस के लिए तैयार',
+  },
+  tr: {
+    newQuote: 'Yeni alıntı',
+    newScene: 'Yeni sahne',
+    focus: 'Odak',
+    break: 'Mola',
+    timerSettings: 'Zamanlayıcı ayarları',
+    focusMin: 'Odak (dk)',
+    breakMin: 'Mola (dk)',
+    longBreak: 'Uzun mola',
+    sessions: 'Oturumlar',
+    jumpToPhase: 'Aşamaya geç',
+    longBreakLabel: 'Uzun mola',
+    sessionDone: 'Oturum bitti — kısa mola',
+    longBreakMsg: 'oturum tamamlandı — uzun mola!',
+    breakOver: 'Mola bitti — odaklanma zamanı',
+    readyBreak: 'Molaya hazır',
+    readyFocus: 'Odaklanmaya hazır',
+  },
+  pl: {
+    newQuote: 'Nowy cytat',
+    newScene: 'Nowa scena',
+    focus: 'Skupienie',
+    break: 'Przerwa',
+    timerSettings: 'Ustawienia timera',
+    focusMin: 'Skupienie (min)',
+    breakMin: 'Przerwa (min)',
+    longBreak: 'Długa przerwa',
+    sessions: 'Sesje',
+    jumpToPhase: 'Przejdź do fazy',
+    longBreakLabel: 'Długa przerwa',
+    sessionDone: 'Sesja zakończona — krótka przerwa',
+    longBreakMsg: 'sesji ukończonych — długa przerwa!',
+    breakOver: 'Przerwa minęła — czas na skupienie',
+    readyBreak: 'Gotowy na przerwę',
+    readyFocus: 'Gotowy do skupienia',
+  },
+  uk: {
+    newQuote: 'Нова цитата',
+    newScene: 'Нова сцена',
+    focus: 'Фокус',
+    break: 'Перерва',
+    timerSettings: 'Налаштування таймера',
+    focusMin: 'Фокус (хв)',
+    breakMin: 'Перерва (хв)',
+    longBreak: 'Довга перерва',
+    sessions: 'Сесії',
+    jumpToPhase: 'Перейти до фази',
+    longBreakLabel: 'Довга перерва',
+    sessionDone: 'Сесія завершена — коротка перерва',
+    longBreakMsg: 'сесій завершено — довга перерва!',
+    breakOver: 'Перерва закінчилась — час фокусуватись',
+    readyBreak: 'Готовий до перерви',
+    readyFocus: 'Готовий до фокусу',
+  },
+  sv: {
+    newQuote: 'Nytt citat',
+    newScene: 'Ny scen',
+    focus: 'Fokus',
+    break: 'Rast',
+    timerSettings: 'Timerinställningar',
+    focusMin: 'Fokus (min)',
+    breakMin: 'Rast (min)',
+    longBreak: 'Lång rast',
+    sessions: 'Sessioner',
+    jumpToPhase: 'Gå till fas',
+    longBreakLabel: 'Lång rast',
+    sessionDone: 'Session klar — kort rast',
+    longBreakMsg: 'sessioner klara — lång rast!',
+    breakOver: 'Rasten är slut — dags att fokusera',
+    readyBreak: 'Redo för rast',
+    readyFocus: 'Redo att fokusera',
+  },
+  da: {
+    newQuote: 'Nyt citat',
+    newScene: 'Ny scene',
+    focus: 'Fokus',
+    break: 'Pause',
+    timerSettings: 'Timerindstillinger',
+    focusMin: 'Fokus (min)',
+    breakMin: 'Pause (min)',
+    longBreak: 'Lang pause',
+    sessions: 'Sessioner',
+    jumpToPhase: 'Gå til fase',
+    longBreakLabel: 'Lang pause',
+    sessionDone: 'Session færdig — kort pause',
+    longBreakMsg: 'sessioner færdige — lang pause!',
+    breakOver: 'Pausen er slut — tid til fokus',
+    readyBreak: 'Klar til pause',
+    readyFocus: 'Klar til fokus',
+  },
+  no: {
+    newQuote: 'Nytt sitat',
+    newScene: 'Ny scene',
+    focus: 'Fokus',
+    break: 'Pause',
+    timerSettings: 'Timerinnstillinger',
+    focusMin: 'Fokus (min)',
+    breakMin: 'Pause (min)',
+    longBreak: 'Lang pause',
+    sessions: 'Sesjoner',
+    jumpToPhase: 'Gå til fase',
+    longBreakLabel: 'Lang pause',
+    sessionDone: 'Sesjon fullført — kort pause',
+    longBreakMsg: 'sesjoner fullført — lang pause!',
+    breakOver: 'Pause over — tid for fokus',
+    readyBreak: 'Klar til pause',
+    readyFocus: 'Klar til fokus',
+  },
+  fi: {
+    newQuote: 'Uusi lainaus',
+    newScene: 'Uusi näkymä',
+    focus: 'Keskittyminen',
+    break: 'Tauko',
+    timerSettings: 'Ajastimen asetukset',
+    focusMin: 'Keskittyminen (min)',
+    breakMin: 'Tauko (min)',
+    longBreak: 'Pitkä tauko',
+    sessions: 'Istunnot',
+    jumpToPhase: 'Siirry vaiheeseen',
+    longBreakLabel: 'Pitkä tauko',
+    sessionDone: 'Istunto valmis — lyhyt tauko',
+    longBreakMsg: 'istuntoa valmis — pitkä tauko!',
+    breakOver: 'Tauko ohi — aika keskittyä',
+    readyBreak: 'Valmis taukoon',
+    readyFocus: 'Valmis keskittymään',
+  },
+  el: {
+    newQuote: 'Νέο απόφθεγμα',
+    newScene: 'Νέα σκηνή',
+    focus: 'Εστίαση',
+    break: 'Διάλειμμα',
+    timerSettings: 'Ρυθμίσεις χρονόμετρου',
+    focusMin: 'Εστίαση (λεπτ)',
+    breakMin: 'Διάλειμμα (λεπτ)',
+    longBreak: 'Μεγάλο διάλειμμα',
+    sessions: 'Συνεδρίες',
+    jumpToPhase: 'Μετάβαση σε φάση',
+    longBreakLabel: 'Μεγάλο διάλειμμα',
+    sessionDone: 'Συνεδρία τελείωσε — σύντομο διάλειμμα',
+    longBreakMsg: 'συνεδρίες τελείωσαν — μεγάλο διάλειμμα!',
+    breakOver: 'Το διάλειμμα τελείωσε — ώρα για εστίαση',
+    readyBreak: 'Έτοιμος για διάλειμμα',
+    readyFocus: 'Έτοιμος για εστίαση',
+  },
+  he: {
+    newQuote: 'ציטוט חדש',
+    newScene: 'סצנה חדשה',
+    focus: 'מיקוד',
+    break: 'הפסקה',
+    timerSettings: 'הגדרות טיימר',
+    focusMin: 'מיקוד (דק׳)',
+    breakMin: 'הפסקה (דק׳)',
+    longBreak: 'הפסקה ארוכה',
+    sessions: 'מפגשים',
+    jumpToPhase: 'עבור לשלב',
+    longBreakLabel: 'הפסקה ארוכה',
+    sessionDone: 'מפגש הסתיים — הפסקה קצרה',
+    longBreakMsg: 'מפגשים הסתיימו — הפסקה ארוכה!',
+    breakOver: 'ההפסקה הסתיימה — בואו נתרכז',
+    readyBreak: 'מוכן להפסקה',
+    readyFocus: 'מוכן להתרכז',
+  },
+  th: {
+    newQuote: 'คำคมใหม่',
+    newScene: 'ฉากใหม่',
+    focus: 'โฟกัส',
+    break: 'พัก',
+    timerSettings: 'ตั้งค่าตัวจับเวลา',
+    focusMin: 'โฟกัส (นาที)',
+    breakMin: 'พัก (นาที)',
+    longBreak: 'พักยาว',
+    sessions: 'รอบ',
+    jumpToPhase: 'ไปยังขั้นตอน',
+    longBreakLabel: 'พักยาว',
+    sessionDone: 'รอบเสร็จสิ้น — พักสั้น',
+    longBreakMsg: 'รอบเสร็จสิ้น — พักยาว!',
+    breakOver: 'หมดเวลาพัก — มาโฟกัสกัน',
+    readyBreak: 'พร้อมพัก',
+    readyFocus: 'พร้อมโฟกัส',
+  },
+  vi: {
+    newQuote: 'Câu trích dẫn mới',
+    newScene: 'Cảnh mới',
+    focus: 'Tập trung',
+    break: 'Nghỉ',
+    timerSettings: 'Cài đặt hẹn giờ',
+    focusMin: 'Tập trung (phút)',
+    breakMin: 'Nghỉ (phút)',
+    longBreak: 'Nghỉ dài',
+    sessions: 'Phiên',
+    jumpToPhase: 'Chuyển đến giai đoạn',
+    longBreakLabel: 'Nghỉ dài',
+    sessionDone: 'Phiên xong — nghỉ ngắn',
+    longBreakMsg: 'phiên hoàn thành — nghỉ dài!',
+    breakOver: 'Hết giờ nghỉ — hãy tập trung',
+    readyBreak: 'Sẵn sàng nghỉ',
+    readyFocus: 'Sẵn sàng tập trung',
+  },
+  id: {
+    newQuote: 'Kutipan baru',
+    newScene: 'Latar baru',
+    focus: 'Fokus',
+    break: 'Istirahat',
+    timerSettings: 'Pengaturan timer',
+    focusMin: 'Fokus (menit)',
+    breakMin: 'Istirahat (menit)',
+    longBreak: 'Istirahat panjang',
+    sessions: 'Sesi',
+    jumpToPhase: 'Pindah ke fase',
+    longBreakLabel: 'Istirahat panjang',
+    sessionDone: 'Sesi selesai — istirahat pendek',
+    longBreakMsg: 'sesi selesai — istirahat panjang!',
+    breakOver: 'Istirahat selesai — saatnya fokus',
+    readyBreak: 'Siap istirahat',
+    readyFocus: 'Siap fokus',
+  },
+  ms: {
+    newQuote: 'Petikan baharu',
+    newScene: 'Adegan baharu',
+    focus: 'Fokus',
+    break: 'Rehat',
+    timerSettings: 'Tetapan pemasa',
+    focusMin: 'Fokus (min)',
+    breakMin: 'Rehat (min)',
+    longBreak: 'Rehat panjang',
+    sessions: 'Sesi',
+    jumpToPhase: 'Pergi ke fasa',
+    longBreakLabel: 'Rehat panjang',
+    sessionDone: 'Sesi selesai — rehat pendek',
+    longBreakMsg: 'sesi selesai — rehat panjang!',
+    breakOver: 'Rehat tamat — masa untuk fokus',
+    readyBreak: 'Bersedia untuk rehat',
+    readyFocus: 'Bersedia untuk fokus',
+  },
+  ro: {
+    newQuote: 'Citat nou',
+    newScene: 'Scenă nouă',
+    focus: 'Concentrare',
+    break: 'Pauză',
+    timerSettings: 'Setări timer',
+    focusMin: 'Concentrare (min)',
+    breakMin: 'Pauză (min)',
+    longBreak: 'Pauză lungă',
+    sessions: 'Sesiuni',
+    jumpToPhase: 'Sari la fază',
+    longBreakLabel: 'Pauză lungă',
+    sessionDone: 'Sesiune terminată — pauză scurtă',
+    longBreakMsg: 'sesiuni terminate — pauză lungă!',
+    breakOver: 'Pauza s-a terminat — să ne concentrăm',
+    readyBreak: 'Gata de pauză',
+    readyFocus: 'Gata de concentrare',
+  },
+  cs: {
+    newQuote: 'Nový citát',
+    newScene: 'Nová scéna',
+    focus: 'Soustředění',
+    break: 'Přestávka',
+    timerSettings: 'Nastavení časovače',
+    focusMin: 'Soustředění (min)',
+    breakMin: 'Přestávka (min)',
+    longBreak: 'Dlouhá přestávka',
+    sessions: 'Relace',
+    jumpToPhase: 'Přejít na fázi',
+    longBreakLabel: 'Dlouhá přestávka',
+    sessionDone: 'Relace skončila — krátká přestávka',
+    longBreakMsg: 'relací hotovo — dlouhá přestávka!',
+    breakOver: 'Přestávka skončila — čas soustředit se',
+    readyBreak: 'Připraven na přestávku',
+    readyFocus: 'Připraven se soustředit',
+  },
+  hu: {
+    newQuote: 'Új idézet',
+    newScene: 'Új jelenet',
+    focus: 'Fókusz',
+    break: 'Szünet',
+    timerSettings: 'Időzítő beállítások',
+    focusMin: 'Fókusz (perc)',
+    breakMin: 'Szünet (perc)',
+    longBreak: 'Hosszú szünet',
+    sessions: 'Munkaszakaszok',
+    jumpToPhase: 'Ugrás fázishoz',
+    longBreakLabel: 'Hosszú szünet',
+    sessionDone: 'Munkaszakasz kész — rövid szünet',
+    longBreakMsg: 'munkaszakasz kész — hosszú szünet!',
+    breakOver: 'Szünet vége — ideje fókuszálni',
+    readyBreak: 'Kész a szünetre',
+    readyFocus: 'Kész a fókuszra',
+  },
+  bg: {
+    newQuote: 'Нов цитат',
+    newScene: 'Нова сцена',
+    focus: 'Фокус',
+    break: 'Почивка',
+    timerSettings: 'Настройки на таймера',
+    focusMin: 'Фокус (мин)',
+    breakMin: 'Почивка (мин)',
+    longBreak: 'Дълга почивка',
+    sessions: 'Сесии',
+    jumpToPhase: 'Преминаване към фаза',
+    longBreakLabel: 'Дълга почивка',
+    sessionDone: 'Сесията приключи — кратка почивка',
+    longBreakMsg: 'сесии приключени — дълга почивка!',
+    breakOver: 'Почивката приключи — време за фокус',
+    readyBreak: 'Готов за почивка',
+    readyFocus: 'Готов за фокус',
+  },
 };
 
 const TRANSLATION_CACHE_KEY = 'stoicflow_translations';
@@ -2838,7 +3326,7 @@ function applyUIStrings(strings) {
   document.getElementById('btn-new').textContent = strings.newQuote;
   document.getElementById('btn-bg').textContent = strings.newScene;
 
-  // Settings panel text
+  // Settings panel text (normal widget)
   const settingsPanel = document.getElementById('pomo-settings-panel');
   const h4s = settingsPanel.querySelectorAll('h4');
   if (h4s[0]) h4s[0].textContent = strings.timerSettings;
@@ -2853,6 +3341,22 @@ function applyUIStrings(strings) {
   document.getElementById('chip-focus').textContent = strings.focus;
   document.getElementById('chip-break').textContent = strings.break;
   document.getElementById('chip-long').textContent = strings.longBreakLabel;
+
+  // Fullscreen settings panel
+  const fpPanel = document.getElementById('pomo-fp-settings-panel');
+  const fpH4s = fpPanel.querySelectorAll('h4');
+  if (fpH4s[0]) fpH4s[0].textContent = strings.timerSettings;
+  if (fpH4s[1]) fpH4s[1].textContent = strings.jumpToPhase;
+
+  const fpLabels = fpPanel.querySelectorAll('.setting-row label');
+  if (fpLabels[0]) fpLabels[0].textContent = strings.focusMin;
+  if (fpLabels[1]) fpLabels[1].textContent = strings.breakMin;
+  if (fpLabels[2]) fpLabels[2].textContent = strings.longBreak;
+  if (fpLabels[3]) fpLabels[3].textContent = strings.sessions;
+
+  document.getElementById('fp-chip-focus').textContent = strings.focus;
+  document.getElementById('fp-chip-break').textContent = strings.break;
+  document.getElementById('fp-chip-long').textContent = strings.longBreakLabel;
 }
 
 // Override showToast and pomo label updates to use translated strings

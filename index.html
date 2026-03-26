@@ -483,6 +483,7 @@
     position: relative;
     z-index: 100;
     flex-shrink: 0;
+    margin-top: 0.5rem;
     animation: pomoEnter 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both;
   }
 
@@ -777,9 +778,9 @@
 
   .pomo-phase-ready-label {
     font-family: var(--font-body);
-    font-size: 0.58rem;
+    font-size: 0.54rem;
     font-weight: 500;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--pomo-work);
     text-align: center;
@@ -788,11 +789,15 @@
     max-height: 0;
     transition: opacity 0.4s ease, max-height 0.4s ease;
     overflow: hidden;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    width: 100%;
+    line-height: 1.3;
   }
 
   .pomo-phase-ready-label.visible {
     opacity: 1;
-    max-height: 1.2em;
+    max-height: 2.6em;
   }
 
   .pomo-phase-ready-label.on-break {
@@ -2297,8 +2302,129 @@ async function releaseWakeLock() {
   try { if (_wakeLock) { await _wakeLock.release(); _wakeLock = null; } } catch(e) {}
 }
 
-/* Play completion chime — async so ctx.resume() is properly awaited on mobile */
+/* ══════════════════════════════════════════════════════════════
+   BACKGROUND AUDIO SYSTEM — YouTube-style persistent audio
+   Keeps iOS/iPadOS audio session alive so chimes fire even when
+   the user switches apps, tabs, or locks the screen.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── WAV encoding helper ── */
+function _encodeWav(samples, sampleRate) {
+  const n = samples.length;
+  const buf = new ArrayBuffer(44 + n * 2);
+  const v = new DataView(buf);
+  const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  w(0,'RIFF'); v.setUint32(4, 36 + n*2, true); w(8,'WAVE');
+  w(12,'fmt '); v.setUint32(16,16,true); v.setUint16(20,1,true);
+  v.setUint16(22,1,true); v.setUint32(24,sampleRate,true);
+  v.setUint32(28,sampleRate*2,true); v.setUint16(32,2,true);
+  v.setUint16(34,16,true); w(36,'data'); v.setUint32(40,n*2,true);
+  for (let i = 0; i < n; i++) {
+    const s = Math.max(-1, Math.min(1, samples[i]));
+    v.setInt16(44 + i*2, (s < 0 ? s * 0x8000 : s * 0x7FFF) | 0, true);
+  }
+  return new Blob([buf], { type: 'audio/wav' });
+}
+
+/* ── Silent audio keeper — loops near-inaudible noise to hold the audio session ── */
+let _silentAudio = null;
+let _silentBlobUrl = null;
+
+function _generateSilentBlob() {
+  const sr = 8000, dur = 5;
+  const samples = new Float32Array(sr * dur);
+  for (let i = 0; i < samples.length; i++) samples[i] = (Math.random() - 0.5) * 0.0005;
+  return _encodeWav(samples, sr);
+}
+
+function startSilentAudioKeeper() {
+  if (_silentAudio) return;
+  try {
+    if (!_silentBlobUrl) _silentBlobUrl = URL.createObjectURL(_generateSilentBlob());
+    _silentAudio = new Audio(_silentBlobUrl);
+    _silentAudio.loop = true;
+    _silentAudio.volume = 0.01;
+    const p = _silentAudio.play();
+    if (p) p.catch(() => {});
+    _updateMediaSession();
+  } catch(e) {}
+}
+
+function stopSilentAudioKeeper() {
+  if (_silentAudio) { try { _silentAudio.pause(); } catch(e) {} _silentAudio = null; }
+  try { if ('mediaSession' in navigator) navigator.mediaSession.metadata = null; } catch(e) {}
+}
+
+/* ── Media Session API — shows timer in iOS lock screen / control center ── */
+function _updateMediaSession() {
+  if (!('mediaSession' in navigator)) return;
+  try {
+    const phase = pomo.isBreak ? (pomo.isLongBreak ? 'Long Break' : 'Break') : 'Focus';
+    const remaining = formatMinutes(getRemaining());
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: phase + ' · ' + remaining + 'm remaining',
+      artist: 'Ataraxia Pomodoro',
+    });
+    navigator.mediaSession.setActionHandler('pause', () => stopPomo());
+    navigator.mediaSession.setActionHandler('play', () => startPomo());
+  } catch(e) {}
+}
+
+/* ── Pre-rendered chime WAV blobs — played via <audio> for background reliability ── */
+let _chimeUrls = {}; // { focus: blobUrl, break: blobUrl }
+
+async function _prerenderChimes() {
+  if (_chimeUrls.focus) return;
+  try {
+    function _renderChime(wasBreak) {
+      const dur = wasBreak ? 3.5 : 4.5;
+      const sr = 44100;
+      const offline = new OfflineAudioContext(1, sr * dur, sr);
+      function bowlTone(freq, startTime, vol, decay) {
+        const t0 = startTime;
+        const master = offline.createGain();
+        master.connect(offline.destination);
+        master.gain.setValueAtTime(0, t0);
+        master.gain.linearRampToValueAtTime(vol, t0 + 0.008);
+        master.gain.exponentialRampToValueAtTime(0.0001, t0 + decay);
+        [[1,1],[2.756,0.28],[5.404,0.12]].forEach(([ratio, relVol]) => {
+          const osc = offline.createOscillator();
+          const g = offline.createGain();
+          osc.type = 'sine'; osc.frequency.value = freq * ratio;
+          g.gain.value = relVol; osc.connect(g); g.connect(master);
+          osc.start(t0); osc.stop(t0 + decay);
+        });
+      }
+      if (wasBreak) {
+        bowlTone(783.99, 0, 0.18, 3.0);
+        bowlTone(659.25, 0.45, 0.12, 2.6);
+      } else {
+        bowlTone(523.25, 0, 0.20, 3.8);
+        bowlTone(659.25, 0.50, 0.16, 3.4);
+        bowlTone(783.99, 1.00, 0.13, 3.0);
+      }
+      return offline.startRendering();
+    }
+    const [focusBuf, breakBuf] = await Promise.all([_renderChime(false), _renderChime(true)]);
+    _chimeUrls.focus = URL.createObjectURL(_encodeWav(focusBuf.getChannelData(0), 44100));
+    _chimeUrls.break = URL.createObjectURL(_encodeWav(breakBuf.getChannelData(0), 44100));
+  } catch(e) {}
+}
+
+/* ── Play completion chime ── */
 async function playCompletionChime(wasBreak) {
+  // Primary: <audio> element — works in background on iOS (like YouTube)
+  try {
+    const url = _chimeUrls[wasBreak ? 'break' : 'focus'];
+    if (url) {
+      const audio = new Audio(url);
+      audio.volume = 1.0;
+      const p = audio.play();
+      if (p) p.catch(() => {});
+    }
+  } catch(e) {}
+
+  // Secondary: Web Audio API — richer harmonics when tab is in foreground
   try {
     const ctx = initAudioCtx();
     if (!ctx) return;
@@ -2350,6 +2476,7 @@ function defaultPomoState() {
     pausedRemaining: null, // seconds remaining when paused
     totalSeconds: 25 * 60,
     phaseDuration: 25 * 60, // full duration of the current phase (for stop/reset)
+    isLongBreak: false,
   };
 }
 
@@ -2412,10 +2539,11 @@ function PomoUI() {
   if (miniTime) miniTime.textContent = minStr + 'm';
   if (miniDot) miniDot.classList.toggle('on-break', pomo.isBreak);
 
-  // Update browser tab title with stage and time
-  const stageLabel = pomo.isBreak ? 'Break' : 'Focus';
+  // Update browser tab title with stage and time (emojis for quick recognition)
+  const stageLabel = pomo.isBreak ? (pomo.isLongBreak ? 'Long Break' : 'Break') : 'Focus';
+  const stageEmoji = pomo.isBreak ? (pomo.isLongBreak ? '🌿' : '☕') : '🎯';
   const pausedMark = !pomo.isRunning && (pomo.pausedRemaining != null || pomo.startedAt != null) ? '⏸ ' : '';
-  document.title = `${pausedMark}${stageLabel} · ${minStr}m · Ataraxia`;
+  document.title = `${pausedMark}${stageEmoji} ${stageLabel} · ${minStr}m · Ataraxia`;
 
   const fraction = 1 - (remaining / pomo.totalSeconds);
   progress.style.strokeDasharray = CIRCUMFERENCE;
@@ -2423,7 +2551,7 @@ function PomoUI() {
 
   if (pomo.isBreak) {
     progress.classList.add('on-break');
-    label.textContent = 'Break';
+    label.textContent = pomo.isLongBreak ? 'Long Break' : 'Break';
     playBtn.classList.add('on-break');
     pauseBtn.classList.add('on-break');
   } else {
@@ -2488,7 +2616,7 @@ function PomoUI() {
       fpProgress.style.strokeDashoffset = CIRCUMFERENCE * (1 - fraction);
       fpProgress.classList.toggle('on-break', pomo.isBreak);
     }
-    if (fpLabel) fpLabel.textContent = pomo.isBreak ? 'Break' : 'Focus';
+    if (fpLabel) fpLabel.textContent = pomo.isBreak ? (pomo.isLongBreak ? 'Long Break' : 'Break') : 'Focus';
     if (fpPlay) { fpPlay.classList.toggle('on-break', pomo.isBreak); }
     if (fpPause) { fpPause.classList.toggle('on-break', pomo.isBreak); }
     if (fpDots) {
@@ -2525,6 +2653,7 @@ function PomoUI() {
 function onSegmentComplete() {
   pomo.isRunning = false;
   releaseWakeLock();
+  stopSilentAudioKeeper();
   const wasBreak = pomo.isBreak; // capture before phase flip
 
   // Notification — requireInteraction keeps it visible on Android lock screen
@@ -2547,11 +2676,13 @@ function onSegmentComplete() {
     pomo.completedSessions++;
     const isLong = pomo.completedSessions % pomo.sessionsBeforeLong === 0;
     pomo.isBreak = true;
+    pomo.isLongBreak = isLong;
     pomo.totalSeconds = (isLong ? pomo.longBreakMin : pomo.breakMin) * 60;
     pomo.phaseDuration = pomo.totalSeconds;
     showToast(isLong ? `${pomo.completedSessions} sessions done — long break!` : 'Session done — short break');
   } else {
     pomo.isBreak = false;
+    pomo.isLongBreak = false;
     pomo.totalSeconds = pomo.workMin * 60;
     pomo.phaseDuration = pomo.totalSeconds;
     showToast('Break over — let\'s focus');
@@ -2572,6 +2703,8 @@ function startPomo() {
   pomo.phaseJustCompleted = false;
   savePomoState();
   initAudioCtx(); // ensure AudioContext is live after user gesture
+  _prerenderChimes(); // pre-render chime WAVs for background playback (async, cached)
+  startSilentAudioKeeper(); // keep iOS audio session alive in background
   requestWakeLock(); // keep screen on so audio fires reliably
 
   // Request notification permission
@@ -2588,6 +2721,7 @@ function stopPomo() {
   pomo.pausedRemaining = full;
   pomo.totalSeconds = full;
   releaseWakeLock();
+  stopSilentAudioKeeper();
   savePomoState();
 }
 
@@ -2595,11 +2729,13 @@ function resetPomo() {
   pomo.isRunning = false;
   pomo.startedAt = null;
   pomo.isBreak = false;
+  pomo.isLongBreak = false;
   pomo.totalSeconds = pomo.workMin * 60;
   pomo.phaseDuration = pomo.totalSeconds;
   pomo.pausedRemaining = pomo.totalSeconds;
   pomo.phaseJustCompleted = false;
   releaseWakeLock();
+  stopSilentAudioKeeper();
   savePomoState();
 }
 
@@ -2609,12 +2745,15 @@ function jumpToPhase(phase) {
   pomo.phaseJustCompleted = false;
   if (phase === 'focus') {
     pomo.isBreak = false;
+    pomo.isLongBreak = false;
     pomo.totalSeconds = pomo.workMin * 60;
   } else if (phase === 'break') {
     pomo.isBreak = true;
+    pomo.isLongBreak = false;
     pomo.totalSeconds = pomo.breakMin * 60;
   } else {
     pomo.isBreak = true;
+    pomo.isLongBreak = true;
     pomo.totalSeconds = pomo.longBreakMin * 60;
   }
   pomo.phaseDuration = pomo.totalSeconds;
@@ -2783,9 +2922,23 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   tick();
 
+  // Background timer check — ensures completion fires on iOS/iPad when tab is throttled
+  setInterval(() => {
+    if (pomo.isRunning) {
+      // Update lock-screen / control center metadata
+      _updateMediaSession();
+      if (getRemaining() <= 0) {
+        if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
+        onSegmentComplete();
+      }
+    }
+  }, 1000);
+
   // Also update on visibility change (when user returns to tab)
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
+      // Resume AudioContext — iOS suspends it when tab is hidden
+      if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
       PomoUI();
       // Re-request wake lock — it's auto-released when the page is hidden
       if (pomo.isRunning) requestWakeLock();
@@ -3726,7 +3879,8 @@ const _origLabel = null;
     origFn();
     const s = getTranslatedPomoStrings();
     const label = document.getElementById('pomo-label');
-    label.textContent = pomo.isBreak ? s.break : s.focus;
+    const breakLabel = pomo.isLongBreak ? (s.longBreakLabel || s.break) : s.break;
+    label.textContent = pomo.isBreak ? breakLabel : s.focus;
 
     const readyLabel = document.getElementById('pomo-phase-ready');
     if (pomo.phaseJustCompleted && !pomo.isRunning && readyLabel) {
@@ -3735,14 +3889,18 @@ const _origLabel = null;
 
     // Translate fullpage overlay labels
     const fpLabel = document.getElementById('pomo-fp-label');
-    if (fpLabel) fpLabel.textContent = pomo.isBreak ? s.break : s.focus;
+    if (fpLabel) fpLabel.textContent = pomo.isBreak ? breakLabel : s.focus;
     const fpReady = document.getElementById('pomo-fp-phase-ready');
     if (pomo.phaseJustCompleted && !pomo.isRunning && fpReady) {
       fpReady.textContent = pomo.isBreak ? s.readyBreak : s.readyFocus;
     }
 
-    // Translate tab title
-    document.title = document.title.replace(/Break/, s.break).replace(/Focus/, s.focus);
+    // Translate tab title — preserve emoji prefix and structure
+    const stageEmoji = pomo.isBreak ? (pomo.isLongBreak ? '🌿' : '☕') : '🎯';
+    const translatedStage = pomo.isBreak ? breakLabel : s.focus;
+    const pausedMark = !pomo.isRunning && (pomo.pausedRemaining != null || pomo.startedAt != null) ? '⏸ ' : '';
+    const minStr = formatMinutes(getRemaining());
+    document.title = `${pausedMark}${stageEmoji} ${translatedStage} · ${minStr}m · Ataraxia`;
   };
   // Reassign for the tick loop
   PomoUI = window.PomoUI;
@@ -3752,11 +3910,17 @@ const _origLabel = null;
 const _origOnSegmentComplete = onSegmentComplete;
 window.onSegmentComplete = function() {
   _origOnSegmentComplete();
-  // Re-show toast in current language
+  // Re-show toast in the current language (original shows English)
   const s = getTranslatedPomoStrings();
-  // The toast was already shown by original; we re-show with translation
-  if (!pomo.isBreak) {
-    // Just flipped to break
+  if (pomo.isBreak) {
+    // Just flipped from focus → break
+    const msg = pomo.isLongBreak
+      ? `${pomo.completedSessions} ${s.longBreakMsg}`
+      : s.sessionDone;
+    showToast(msg);
+  } else {
+    // Just flipped from break → focus
+    showToast(s.breakOver);
   }
 };
 onSegmentComplete = window.onSegmentComplete;

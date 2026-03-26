@@ -2303,21 +2303,14 @@ async function releaseWakeLock() {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   AUDIO SYSTEM — platform-aware timer audio
+   AUDIO SYSTEM — ultrasonic keepalive + completion chime
 
-   iOS/iPadOS: A looping ultrasonic WAV keeps the audio session
-   alive so timers fire reliably when the screen is off. The tone
-   is at 19.5 kHz (above human hearing) at minimal amplitude.
-   The completion chime is played via Web Audio API.
-
-   Android/Desktop: No continuous audio — avoids stealing audio
-   focus from Spotify, podcasts, or other apps/tabs. The timer
-   runs via setInterval; the chime plays via Web Audio API at
-   completion. Media Session metadata is updated independently.
+   A short looping WAV with a 19.5 kHz ultrasonic sine wave keeps
+   the audio session alive across all platforms (iOS lock screen,
+   Android background, etc.) without any audible sound. The tone
+   is above human hearing (~20 kHz limit) at minimal amplitude.
+   The completion chime plays via Web Audio API when time is up.
    ══════════════════════════════════════════════════════════════ */
-
-const _isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
-  || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
 /* ── WAV encoding helper ── */
 function _encodeWav(samples, sampleRate) {
@@ -2337,7 +2330,7 @@ function _encodeWav(samples, sampleRate) {
   return new Blob([buf], { type: 'audio/wav' });
 }
 
-/* ── iOS keepalive: short looping ultrasonic WAV ── */
+/* ── Keepalive: short looping ultrasonic WAV ── */
 let _timerAudio = null;
 let _timerBlobUrl = null;
 
@@ -2356,11 +2349,6 @@ function _generateKeepaliveWav() {
 
 function startTimerAudio(remainingSec) {
   stopTimerAudio();
-  // Only iOS needs continuous audio to keep the tab alive in background
-  if (!_isIOS) {
-    _updateMediaSession();
-    return;
-  }
   try {
     const blob = _generateKeepaliveWav();
     _timerBlobUrl = URL.createObjectURL(blob);

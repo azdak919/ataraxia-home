@@ -6,6 +6,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ataraxia — Daily Quotes & Focus Timer</title>
 
+<!-- Favicons — all platforms -->
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#8b6f4e">
+
 <!-- Open Source Fonts from Google Fonts -->
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1195,6 +1205,92 @@
     .radial-item { --distance: clamp(100px, 28vw, 140px) !important; }
   }
 
+  .pomo-fp-settings-close {
+    display: none;
+  }
+
+  /* Phone-only: replace radial layout with clean grid for fullpage settings */
+  @media (max-width: 600px) and (pointer: coarse) {
+    .pomo-fullpage-overlay .pomo-radial-settings.open {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2rem 2rem;
+      position: fixed;
+      inset: 0;
+      place-content: center;
+      justify-items: center;
+      z-index: 910;
+      background: var(--bg-glass);
+      backdrop-filter: blur(32px) saturate(1.4);
+      -webkit-backdrop-filter: blur(32px) saturate(1.4);
+      padding: 2rem 2.5rem;
+      pointer-events: auto;
+    }
+
+    .pomo-fullpage-overlay .pomo-radial-settings .radial-item {
+      position: static !important;
+      transform: none !important;
+      animation: none !important;
+      opacity: 1 !important;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .pomo-fullpage-overlay .pomo-radial-settings .radial-item label {
+      margin-bottom: 0.3rem;
+      font-size: 0.7rem;
+    }
+
+    .pomo-fullpage-overlay .pomo-radial-settings .radial-item input[type="number"] {
+      width: 72px;
+      padding: 0.5rem 0.3rem;
+      font-size: 1rem;
+    }
+
+    .pomo-fullpage-overlay .pomo-radial-settings .radial-chip {
+      justify-self: center;
+    }
+
+    .pomo-fullpage-overlay .pomo-radial-settings .radial-chip .phase-chip {
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+    }
+
+    /* Last chip (3rd) spans full width and centers */
+    .pomo-fullpage-overlay .pomo-radial-settings .radial-item:last-child {
+      grid-column: 1 / -1;
+    }
+
+    .pomo-fp-settings-close {
+      grid-column: 1 / -1;
+      justify-self: end;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--border-glass);
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s ease;
+      margin-bottom: -0.5rem;
+    }
+
+    .pomo-fp-settings-close svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    .pomo-fp-settings-close:hover {
+      background: var(--bg-glass-hover);
+      color: var(--text-primary);
+    }
+  }
+
   .pomo-ring-wrapper {
     cursor: pointer;
   }
@@ -1464,6 +1560,9 @@
   </div>
   <!-- Fullpage radial settings -->
   <div class="pomo-radial-settings" id="pomo-fp-settings-panel">
+    <button class="pomo-fp-settings-close" id="pomo-fp-settings-close" aria-label="Close settings">
+      <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </button>
     <div class="radial-item" style="--angle: 320deg; --distance: 250px; --delay: 0s">
       <label>Focus</label>
       <input type="number" id="fp-setting-work" min="1" max="90" value="25">
@@ -2660,6 +2759,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('fp-chip-focus').addEventListener('click', () => jumpToPhase('focus'));
   document.getElementById('fp-chip-break').addEventListener('click', () => jumpToPhase('break'));
   document.getElementById('fp-chip-long').addEventListener('click', () => jumpToPhase('long'));
+
+  // Close fp settings via close button (phone layout)
+  document.getElementById('pomo-fp-settings-close').addEventListener('click', (e) => {
+    e.stopPropagation();
+    fpSettingsPanel.classList.remove('open');
+  });
 
   // Close fp settings on outside click within overlay
   fpOverlay.addEventListener('click', (e) => {

@@ -546,6 +546,7 @@
   /* Minimized pomo state */
   .pomo-widget.minimized {
     width: auto;
+    min-width: 56px;
     padding: 0.6rem;
     border-radius: 28px;
     cursor: pointer;
@@ -1490,8 +1491,8 @@
       <button class="pomo-btn pomo-btn--primary" id="pomo-play" aria-label="Start timer">
         <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
       </button>
-      <button class="pomo-btn pomo-btn--primary" id="pomo-pause" aria-label="Pause timer" style="display:none">
-        <svg viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+      <button class="pomo-btn pomo-btn--primary" id="pomo-pause" aria-label="Stop timer" style="display:none">
+        <svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
       </button>
       <button class="pomo-btn pomo-btn--secondary" id="pomo-settings-btn" aria-label="Timer settings">
         <svg viewBox="0 0 24 24"><path d="M19.14 12.94a7.07 7.07 0 000-1.88l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.04 7.04 0 00-1.63-.94l-.36-2.54a.48.48 0 00-.48-.41h-3.84a.48.48 0 00-.48.41l-.36 2.54c-.59.24-1.13.57-1.63.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87a.48.48 0 00.12.61l2.03 1.58a7.07 7.07 0 000 1.88l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.05.24.26.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.57 1.63-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.49.49 0 00-.12-.61l-2.03-1.58zM12 15.6A3.6 3.6 0 1115.6 12 3.6 3.6 0 0112 15.6z"/></svg>
@@ -1566,8 +1567,8 @@
     <button class="pomo-btn pomo-btn--primary" id="pomo-fp-play" aria-label="Start timer">
       <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
     </button>
-    <button class="pomo-btn pomo-btn--primary" id="pomo-fp-pause" aria-label="Pause timer" style="display:none">
-      <svg viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+    <button class="pomo-btn pomo-btn--primary" id="pomo-fp-pause" aria-label="Stop timer" style="display:none">
+      <svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
     </button>
     <button class="pomo-btn pomo-btn--secondary" id="pomo-fp-settings-btn" aria-label="Timer settings">
       <svg viewBox="0 0 24 24"><path d="M19.14 12.94a7.07 7.07 0 000-1.88l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.04 7.04 0 00-1.63-.94l-.36-2.54a.48.48 0 00-.48-.41h-3.84a.48.48 0 00-.48.41l-.36 2.54c-.59.24-1.13.57-1.63.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87a.48.48 0 00.12.61l2.03 1.58a7.07 7.07 0 000 1.88l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.05.24.26.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.57 1.63-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.49.49 0 00-.12-.61l-2.03-1.58zM12 15.6A3.6 3.6 0 1115.6 12 3.6 3.6 0 0112 15.6z"/></svg>
@@ -2245,6 +2246,20 @@ function initAudioCtx() {
   return _audioCtx;
 }
 
+/* ── Screen Wake Lock — keeps screen on while timer runs so audio fires reliably ── */
+let _wakeLock = null;
+async function requestWakeLock() {
+  try {
+    if ('wakeLock' in navigator && document.visibilityState === 'visible') {
+      _wakeLock = await navigator.wakeLock.request('screen');
+      _wakeLock.addEventListener('release', () => { _wakeLock = null; });
+    }
+  } catch(e) {}
+}
+async function releaseWakeLock() {
+  try { if (_wakeLock) { await _wakeLock.release(); _wakeLock = null; } } catch(e) {}
+}
+
 /* Play completion chime — async so ctx.resume() is properly awaited on mobile */
 async function playCompletionChime(wasBreak) {
   try {
@@ -2297,6 +2312,7 @@ function defaultPomoState() {
     startedAt: null,       // timestamp when current segment started
     pausedRemaining: null, // seconds remaining when paused
     totalSeconds: 25 * 60,
+    phaseDuration: 25 * 60, // full duration of the current phase (for stop/reset)
   };
 }
 
@@ -2471,15 +2487,21 @@ function PomoUI() {
 
 function onSegmentComplete() {
   pomo.isRunning = false;
+  releaseWakeLock();
   const wasBreak = pomo.isBreak; // capture before phase flip
 
-  // Notification
+  // Notification — requireInteraction keeps it visible on Android lock screen
   if ('Notification' in window && Notification.permission === 'granted') {
     new Notification(wasBreak ? 'Break over — time to focus!' : 'Session complete — take a break!', {
       icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🏛️</text></svg>',
-      tag: 'stoicflow-pomo'
+      tag: 'stoicflow-pomo',
+      requireInteraction: true,
+      silent: false
     });
   }
+
+  // Haptic feedback — works even when AudioContext is suspended on mobile
+  if (navigator.vibrate) navigator.vibrate(wasBreak ? [150, 80, 150] : [200, 100, 200, 100, 400]);
 
   // Bell chime — async so AudioContext.resume() is properly awaited on mobile
   playCompletionChime(wasBreak);
@@ -2489,10 +2511,12 @@ function onSegmentComplete() {
     const isLong = pomo.completedSessions % pomo.sessionsBeforeLong === 0;
     pomo.isBreak = true;
     pomo.totalSeconds = (isLong ? pomo.longBreakMin : pomo.breakMin) * 60;
+    pomo.phaseDuration = pomo.totalSeconds;
     showToast(isLong ? `${pomo.completedSessions} sessions done — long break!` : 'Session done — short break');
   } else {
     pomo.isBreak = false;
     pomo.totalSeconds = pomo.workMin * 60;
+    pomo.phaseDuration = pomo.totalSeconds;
     showToast('Break over — let\'s focus');
   }
 
@@ -2511,6 +2535,7 @@ function startPomo() {
   pomo.phaseJustCompleted = false;
   savePomoState();
   initAudioCtx(); // ensure AudioContext is live after user gesture
+  requestWakeLock(); // keep screen on so audio fires reliably
 
   // Request notification permission
   if ('Notification' in window && Notification.permission === 'default') {
@@ -2518,10 +2543,14 @@ function startPomo() {
   }
 }
 
-function pausePomo() {
-  pomo.pausedRemaining = getRemaining();
+function stopPomo() {
   pomo.isRunning = false;
   pomo.startedAt = null;
+  // Reset to the beginning of the current phase
+  const full = pomo.phaseDuration || (pomo.isBreak ? pomo.breakMin * 60 : pomo.workMin * 60);
+  pomo.pausedRemaining = full;
+  pomo.totalSeconds = full;
+  releaseWakeLock();
   savePomoState();
 }
 
@@ -2530,8 +2559,10 @@ function resetPomo() {
   pomo.startedAt = null;
   pomo.isBreak = false;
   pomo.totalSeconds = pomo.workMin * 60;
+  pomo.phaseDuration = pomo.totalSeconds;
   pomo.pausedRemaining = pomo.totalSeconds;
   pomo.phaseJustCompleted = false;
+  releaseWakeLock();
   savePomoState();
 }
 
@@ -2549,6 +2580,7 @@ function jumpToPhase(phase) {
     pomo.isBreak = true;
     pomo.totalSeconds = pomo.longBreakMin * 60;
   }
+  pomo.phaseDuration = pomo.totalSeconds;
   pomo.pausedRemaining = pomo.totalSeconds;
   savePomoState();
   // Close settings panels
@@ -2577,6 +2609,7 @@ function applySettings() {
 
   if (!pomo.isRunning && !pomo.isBreak) {
     pomo.totalSeconds = pomo.workMin * 60;
+    pomo.phaseDuration = pomo.totalSeconds;
     pomo.pausedRemaining = pomo.totalSeconds;
   }
   savePomoState();
@@ -2603,6 +2636,7 @@ function applyFpSettings() {
 
   if (!pomo.isRunning && !pomo.isBreak) {
     pomo.totalSeconds = pomo.workMin * 60;
+    pomo.phaseDuration = pomo.totalSeconds;
     pomo.pausedRemaining = pomo.totalSeconds;
   }
   savePomoState();
@@ -2676,7 +2710,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Pomodoro buttons
   document.getElementById('pomo-play').addEventListener('click', () => { initAudioCtx(); startPomo(); });
-  document.getElementById('pomo-pause').addEventListener('click', pausePomo);
+  document.getElementById('pomo-pause').addEventListener('click', stopPomo);
   document.getElementById('pomo-reset').addEventListener('click', resetPomo);
 
   // Settings toggle
@@ -2714,7 +2748,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Also update on visibility change (when user returns to tab)
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) PomoUI();
+    if (!document.hidden) {
+      PomoUI();
+      // Re-request wake lock — it's auto-released when the page is hidden
+      if (pomo.isRunning) requestWakeLock();
+    }
   });
 
   // Keyboard shortcuts
@@ -2724,7 +2762,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'b' || e.key === 'B') nextBackground();
     if (e.key === ' ') {
       e.preventDefault();
-      pomo.isRunning ? pausePomo() : startPomo();
+      pomo.isRunning ? stopPomo() : startPomo();
     }
   });
 
@@ -2756,7 +2794,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Full-page controls
   document.getElementById('pomo-fp-play').addEventListener('click', () => { initAudioCtx(); startPomo(); });
-  document.getElementById('pomo-fp-pause').addEventListener('click', pausePomo);
+  document.getElementById('pomo-fp-pause').addEventListener('click', stopPomo);
   document.getElementById('pomo-fp-reset').addEventListener('click', resetPomo);
   const fpSettingsPanel = document.getElementById('pomo-fp-settings-panel');
   document.getElementById('pomo-fp-settings-btn').addEventListener('click', (e) => {

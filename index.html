@@ -2302,25 +2302,129 @@ async function releaseWakeLock() {
   try { if (_wakeLock) { await _wakeLock.release(); _wakeLock = null; } } catch(e) {}
 }
 
-/* ── Silent audio keeper — keeps iOS/iPadOS audio session alive in background ── */
+/* ══════════════════════════════════════════════════════════════
+   BACKGROUND AUDIO SYSTEM — YouTube-style persistent audio
+   Keeps iOS/iPadOS audio session alive so chimes fire even when
+   the user switches apps, tabs, or locks the screen.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── WAV encoding helper ── */
+function _encodeWav(samples, sampleRate) {
+  const n = samples.length;
+  const buf = new ArrayBuffer(44 + n * 2);
+  const v = new DataView(buf);
+  const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  w(0,'RIFF'); v.setUint32(4, 36 + n*2, true); w(8,'WAVE');
+  w(12,'fmt '); v.setUint32(16,16,true); v.setUint16(20,1,true);
+  v.setUint16(22,1,true); v.setUint32(24,sampleRate,true);
+  v.setUint32(28,sampleRate*2,true); v.setUint16(32,2,true);
+  v.setUint16(34,16,true); w(36,'data'); v.setUint32(40,n*2,true);
+  for (let i = 0; i < n; i++) {
+    const s = Math.max(-1, Math.min(1, samples[i]));
+    v.setInt16(44 + i*2, (s < 0 ? s * 0x8000 : s * 0x7FFF) | 0, true);
+  }
+  return new Blob([buf], { type: 'audio/wav' });
+}
+
+/* ── Silent audio keeper — loops near-inaudible noise to hold the audio session ── */
 let _silentAudio = null;
+let _silentBlobUrl = null;
+
+function _generateSilentBlob() {
+  const sr = 8000, dur = 5;
+  const samples = new Float32Array(sr * dur);
+  for (let i = 0; i < samples.length; i++) samples[i] = (Math.random() - 0.5) * 0.0005;
+  return _encodeWav(samples, sr);
+}
+
 function startSilentAudioKeeper() {
   if (_silentAudio) return;
   try {
-    // Tiny looping silence keeps the audio session alive so chimes fire in background on iPad
-    _silentAudio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA');
+    if (!_silentBlobUrl) _silentBlobUrl = URL.createObjectURL(_generateSilentBlob());
+    _silentAudio = new Audio(_silentBlobUrl);
     _silentAudio.loop = true;
-    _silentAudio.volume = 0.001;
+    _silentAudio.volume = 0.01;
     const p = _silentAudio.play();
     if (p) p.catch(() => {});
+    _updateMediaSession();
   } catch(e) {}
 }
+
 function stopSilentAudioKeeper() {
   if (_silentAudio) { try { _silentAudio.pause(); } catch(e) {} _silentAudio = null; }
+  try { if ('mediaSession' in navigator) navigator.mediaSession.metadata = null; } catch(e) {}
 }
 
-/* Play completion chime — async so ctx.resume() is properly awaited on mobile */
+/* ── Media Session API — shows timer in iOS lock screen / control center ── */
+function _updateMediaSession() {
+  if (!('mediaSession' in navigator)) return;
+  try {
+    const phase = pomo.isBreak ? (pomo.isLongBreak ? 'Long Break' : 'Break') : 'Focus';
+    const remaining = formatMinutes(getRemaining());
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: phase + ' · ' + remaining + 'm remaining',
+      artist: 'Ataraxia Pomodoro',
+    });
+    navigator.mediaSession.setActionHandler('pause', () => stopPomo());
+    navigator.mediaSession.setActionHandler('play', () => startPomo());
+  } catch(e) {}
+}
+
+/* ── Pre-rendered chime WAV blobs — played via <audio> for background reliability ── */
+let _chimeUrls = {}; // { focus: blobUrl, break: blobUrl }
+
+async function _prerenderChimes() {
+  if (_chimeUrls.focus) return;
+  try {
+    function _renderChime(wasBreak) {
+      const dur = wasBreak ? 3.5 : 4.5;
+      const sr = 44100;
+      const offline = new OfflineAudioContext(1, sr * dur, sr);
+      function bowlTone(freq, startTime, vol, decay) {
+        const t0 = startTime;
+        const master = offline.createGain();
+        master.connect(offline.destination);
+        master.gain.setValueAtTime(0, t0);
+        master.gain.linearRampToValueAtTime(vol, t0 + 0.008);
+        master.gain.exponentialRampToValueAtTime(0.0001, t0 + decay);
+        [[1,1],[2.756,0.28],[5.404,0.12]].forEach(([ratio, relVol]) => {
+          const osc = offline.createOscillator();
+          const g = offline.createGain();
+          osc.type = 'sine'; osc.frequency.value = freq * ratio;
+          g.gain.value = relVol; osc.connect(g); g.connect(master);
+          osc.start(t0); osc.stop(t0 + decay);
+        });
+      }
+      if (wasBreak) {
+        bowlTone(783.99, 0, 0.18, 3.0);
+        bowlTone(659.25, 0.45, 0.12, 2.6);
+      } else {
+        bowlTone(523.25, 0, 0.20, 3.8);
+        bowlTone(659.25, 0.50, 0.16, 3.4);
+        bowlTone(783.99, 1.00, 0.13, 3.0);
+      }
+      return offline.startRendering();
+    }
+    const [focusBuf, breakBuf] = await Promise.all([_renderChime(false), _renderChime(true)]);
+    _chimeUrls.focus = URL.createObjectURL(_encodeWav(focusBuf.getChannelData(0), 44100));
+    _chimeUrls.break = URL.createObjectURL(_encodeWav(breakBuf.getChannelData(0), 44100));
+  } catch(e) {}
+}
+
+/* ── Play completion chime ── */
 async function playCompletionChime(wasBreak) {
+  // Primary: <audio> element — works in background on iOS (like YouTube)
+  try {
+    const url = _chimeUrls[wasBreak ? 'break' : 'focus'];
+    if (url) {
+      const audio = new Audio(url);
+      audio.volume = 1.0;
+      const p = audio.play();
+      if (p) p.catch(() => {});
+    }
+  } catch(e) {}
+
+  // Secondary: Web Audio API — richer harmonics when tab is in foreground
   try {
     const ctx = initAudioCtx();
     if (!ctx) return;
@@ -2599,6 +2703,7 @@ function startPomo() {
   pomo.phaseJustCompleted = false;
   savePomoState();
   initAudioCtx(); // ensure AudioContext is live after user gesture
+  _prerenderChimes(); // pre-render chime WAVs for background playback (async, cached)
   startSilentAudioKeeper(); // keep iOS audio session alive in background
   requestWakeLock(); // keep screen on so audio fires reliably
 
@@ -2819,10 +2924,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Background timer check — ensures completion fires on iOS/iPad when tab is throttled
   setInterval(() => {
-    if (pomo.isRunning && getRemaining() <= 0) {
-      // Resume AudioContext before playing chime (iOS suspends it in background)
-      if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
-      onSegmentComplete();
+    if (pomo.isRunning) {
+      // Update lock-screen / control center metadata
+      _updateMediaSession();
+      if (getRemaining() <= 0) {
+        if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
+        onSegmentComplete();
+      }
     }
   }, 1000);
 

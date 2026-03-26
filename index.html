@@ -282,7 +282,8 @@
     left: calc(1.5rem + var(--pomo-offset, 184px));
     top: auto;
     transform: none;
-    width: 76px;
+    min-width: 76px;
+    width: auto;
     padding: 0.6rem;
     border-radius: 28px;
     cursor: pointer;
@@ -367,6 +368,7 @@
     font-weight: 500;
     color: var(--text-muted);
     letter-spacing: 0.05em;
+    white-space: nowrap;
   }
 
   .quote-card:hover {
@@ -504,11 +506,6 @@
     justify-content: center;
     transition: all 0.25s ease;
     z-index: 2;
-    opacity: 0;
-  }
-
-  .pomo-widget:hover .pomo-minimize-btn {
-    opacity: 1;
   }
 
   .pomo-minimize-btn:hover {
@@ -524,7 +521,8 @@
 
   /* Minimized pomo state */
   .pomo-widget.minimized {
-    width: 76px;
+    min-width: 76px;
+    width: auto;
     padding: 0.6rem;
     border-radius: 28px;
     cursor: pointer;
@@ -568,6 +566,7 @@
     color: var(--text-muted);
     letter-spacing: 0.05em;
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
   }
 
   /* Large ring */
@@ -992,6 +991,7 @@
     visibility: hidden;
     pointer-events: none;
     overflow-y: auto;
+    overflow-x: hidden;
     transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
                 visibility 0.4s cubic-bezier(0.22, 1, 0.36, 1);
   }
@@ -1193,6 +1193,10 @@
     .radial-item { --distance: 175px !important; }
   }
 
+  @media (max-width: 420px) {
+    .radial-item { --distance: 140px !important; }
+  }
+
   .pomo-ring-wrapper {
     cursor: pointer;
   }
@@ -1323,7 +1327,7 @@
     </button>
     <div class="quote-mini-indicator">
       <span class="quote-mini-mark">&ldquo;</span>
-      <span class="quote-mini-label">Quote</span>
+      <span class="quote-mini-label" id="quote-mini-label">Quote</span>
     </div>
     <div class="quote-inner">
       <div class="quote-mark">"</div>
@@ -2534,21 +2538,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const pomoMinBtn = document.getElementById('pomo-minimize-btn');
   const pomoMiniTime = document.getElementById('pomo-mini-time');
   const pomoMiniDot = document.getElementById('pomo-mini-dot');
+  window.updatePomoOffset = function() {
+    requestAnimationFrame(() => {
+      const w = pomoWidget.offsetWidth;
+      document.documentElement.style.setProperty('--pomo-offset', (w + 12) + 'px');
+    });
+  };
   if (localStorage.getItem('ataraxia_pomo_minimized') === 'true') {
     pomoWidget.classList.add('minimized');
-    document.documentElement.style.setProperty('--pomo-offset', '88px');
+    updatePomoOffset();
   }
   pomoMinBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     pomoWidget.classList.add('minimized');
     localStorage.setItem('ataraxia_pomo_minimized', 'true');
-    document.documentElement.style.setProperty('--pomo-offset', '88px');
+    updatePomoOffset();
   });
   pomoWidget.addEventListener('click', (e) => {
     if (pomoWidget.classList.contains('minimized')) {
       pomoWidget.classList.remove('minimized');
       localStorage.setItem('ataraxia_pomo_minimized', 'false');
-      document.documentElement.style.setProperty('--pomo-offset', '184px');
+      updatePomoOffset();
     }
   });
 
@@ -2740,6 +2750,7 @@ const UI_STRINGS = {
     breakOver: "Break over — let's focus",
     readyBreak: 'Ready to break',
     readyFocus: 'Ready to focus',
+    quote: 'Quote',
   },
   fr: {
     newQuote: 'Nouvelle citation',
@@ -2758,6 +2769,7 @@ const UI_STRINGS = {
     breakOver: 'Pause terminée — concentrons-nous',
     readyBreak: 'Prêt pour la pause',
     readyFocus: 'Prêt à se concentrer',
+    quote: 'Citation',
   },
   es: {
     newQuote: 'Nueva cita',
@@ -2776,6 +2788,7 @@ const UI_STRINGS = {
     breakOver: 'Descanso terminado — a concentrarse',
     readyBreak: 'Listo para descansar',
     readyFocus: 'Listo para concentrarse',
+    quote: 'Cita',
   },
   de: {
     newQuote: 'Neues Zitat',
@@ -2794,6 +2807,7 @@ const UI_STRINGS = {
     breakOver: 'Pause vorbei — Zeit zum Fokussieren',
     readyBreak: 'Bereit zur Pause',
     readyFocus: 'Bereit zum Fokussieren',
+    quote: 'Zitat',
   },
   it: {
     newQuote: 'Nuova citazione',
@@ -2812,6 +2826,7 @@ const UI_STRINGS = {
     breakOver: 'Pausa finita — torniamo a concentrarci',
     readyBreak: 'Pronto per la pausa',
     readyFocus: 'Pronto per concentrarsi',
+    quote: 'Citazione',
   },
   pt: {
     newQuote: 'Nova citação',
@@ -2830,6 +2845,7 @@ const UI_STRINGS = {
     breakOver: 'Pausa terminada — vamos focar',
     readyBreak: 'Pronto para pausar',
     readyFocus: 'Pronto para focar',
+    quote: 'Citação',
   },
   nl: {
     newQuote: 'Nieuw citaat',
@@ -2848,6 +2864,7 @@ const UI_STRINGS = {
     breakOver: 'Pauze voorbij — tijd om te focussen',
     readyBreak: 'Klaar voor pauze',
     readyFocus: 'Klaar om te focussen',
+    quote: 'Citaat',
   },
   ru: {
     newQuote: 'Новая цитата',
@@ -2866,6 +2883,7 @@ const UI_STRINGS = {
     breakOver: 'Перерыв окончен — время фокусироваться',
     readyBreak: 'Готов к перерыву',
     readyFocus: 'Готов фокусироваться',
+    quote: 'Цитата',
   },
   ja: {
     newQuote: '新しい名言',
@@ -2884,6 +2902,7 @@ const UI_STRINGS = {
     breakOver: '休憩終了 — 集中しましょう',
     readyBreak: '休憩の準備完了',
     readyFocus: '集中の準備完了',
+    quote: '名言',
   },
   ko: {
     newQuote: '새 인용구',
@@ -2902,6 +2921,7 @@ const UI_STRINGS = {
     breakOver: '휴식 종료 — 집중할 시간',
     readyBreak: '휴식 준비 완료',
     readyFocus: '집중 준비 완료',
+    quote: '인용',
   },
   zh: {
     newQuote: '新名言',
@@ -2920,6 +2940,7 @@ const UI_STRINGS = {
     breakOver: '休息结束 — 开始专注',
     readyBreak: '准备休息',
     readyFocus: '准备专注',
+    quote: '名言',
   },
   ar: {
     newQuote: 'اقتباس جديد',
@@ -2938,6 +2959,7 @@ const UI_STRINGS = {
     breakOver: 'انتهت الاستراحة — لنركز',
     readyBreak: 'جاهز للاستراحة',
     readyFocus: 'جاهز للتركيز',
+    quote: 'اقتباس',
   },
   hi: {
     newQuote: 'नया उद्धरण',
@@ -2956,6 +2978,7 @@ const UI_STRINGS = {
     breakOver: 'विराम समाप्त — ध्यान केंद्रित करें',
     readyBreak: 'विराम के लिए तैयार',
     readyFocus: 'फ़ोकस के लिए तैयार',
+    quote: 'उद्धरण',
   },
   tr: {
     newQuote: 'Yeni alıntı',
@@ -2974,6 +2997,7 @@ const UI_STRINGS = {
     breakOver: 'Mola bitti — odaklanma zamanı',
     readyBreak: 'Molaya hazır',
     readyFocus: 'Odaklanmaya hazır',
+    quote: 'Alıntı',
   },
   pl: {
     newQuote: 'Nowy cytat',
@@ -2992,6 +3016,7 @@ const UI_STRINGS = {
     breakOver: 'Przerwa minęła — czas na skupienie',
     readyBreak: 'Gotowy na przerwę',
     readyFocus: 'Gotowy do skupienia',
+    quote: 'Cytat',
   },
   uk: {
     newQuote: 'Нова цитата',
@@ -3010,6 +3035,7 @@ const UI_STRINGS = {
     breakOver: 'Перерва закінчилась — час фокусуватись',
     readyBreak: 'Готовий до перерви',
     readyFocus: 'Готовий до фокусу',
+    quote: 'Цитата',
   },
   sv: {
     newQuote: 'Nytt citat',
@@ -3028,6 +3054,7 @@ const UI_STRINGS = {
     breakOver: 'Rasten är slut — dags att fokusera',
     readyBreak: 'Redo för rast',
     readyFocus: 'Redo att fokusera',
+    quote: 'Citat',
   },
   da: {
     newQuote: 'Nyt citat',
@@ -3046,6 +3073,7 @@ const UI_STRINGS = {
     breakOver: 'Pausen er slut — tid til fokus',
     readyBreak: 'Klar til pause',
     readyFocus: 'Klar til fokus',
+    quote: 'Citat',
   },
   no: {
     newQuote: 'Nytt sitat',
@@ -3064,6 +3092,7 @@ const UI_STRINGS = {
     breakOver: 'Pause over — tid for fokus',
     readyBreak: 'Klar til pause',
     readyFocus: 'Klar til fokus',
+    quote: 'Sitat',
   },
   fi: {
     newQuote: 'Uusi lainaus',
@@ -3082,6 +3111,7 @@ const UI_STRINGS = {
     breakOver: 'Tauko ohi — aika keskittyä',
     readyBreak: 'Valmis taukoon',
     readyFocus: 'Valmis keskittymään',
+    quote: 'Lainaus',
   },
   el: {
     newQuote: 'Νέο απόφθεγμα',
@@ -3100,6 +3130,7 @@ const UI_STRINGS = {
     breakOver: 'Το διάλειμμα τελείωσε — ώρα για εστίαση',
     readyBreak: 'Έτοιμος για διάλειμμα',
     readyFocus: 'Έτοιμος για εστίαση',
+    quote: 'Απόσπασμα',
   },
   he: {
     newQuote: 'ציטוט חדש',
@@ -3118,6 +3149,7 @@ const UI_STRINGS = {
     breakOver: 'ההפסקה הסתיימה — בואו נתרכז',
     readyBreak: 'מוכן להפסקה',
     readyFocus: 'מוכן להתרכז',
+    quote: 'ציטוט',
   },
   th: {
     newQuote: 'คำคมใหม่',
@@ -3136,6 +3168,7 @@ const UI_STRINGS = {
     breakOver: 'หมดเวลาพัก — มาโฟกัสกัน',
     readyBreak: 'พร้อมพัก',
     readyFocus: 'พร้อมโฟกัส',
+    quote: 'คำคม',
   },
   vi: {
     newQuote: 'Câu trích dẫn mới',
@@ -3154,6 +3187,7 @@ const UI_STRINGS = {
     breakOver: 'Hết giờ nghỉ — hãy tập trung',
     readyBreak: 'Sẵn sàng nghỉ',
     readyFocus: 'Sẵn sàng tập trung',
+    quote: 'Trích dẫn',
   },
   id: {
     newQuote: 'Kutipan baru',
@@ -3172,6 +3206,7 @@ const UI_STRINGS = {
     breakOver: 'Istirahat selesai — saatnya fokus',
     readyBreak: 'Siap istirahat',
     readyFocus: 'Siap fokus',
+    quote: 'Kutipan',
   },
   ms: {
     newQuote: 'Petikan baharu',
@@ -3190,6 +3225,7 @@ const UI_STRINGS = {
     breakOver: 'Rehat tamat — masa untuk fokus',
     readyBreak: 'Bersedia untuk rehat',
     readyFocus: 'Bersedia untuk fokus',
+    quote: 'Petikan',
   },
   ro: {
     newQuote: 'Citat nou',
@@ -3208,6 +3244,7 @@ const UI_STRINGS = {
     breakOver: 'Pauza s-a terminat — să ne concentrăm',
     readyBreak: 'Gata de pauză',
     readyFocus: 'Gata de concentrare',
+    quote: 'Citat',
   },
   cs: {
     newQuote: 'Nový citát',
@@ -3226,6 +3263,7 @@ const UI_STRINGS = {
     breakOver: 'Přestávka skončila — čas soustředit se',
     readyBreak: 'Připraven na přestávku',
     readyFocus: 'Připraven se soustředit',
+    quote: 'Citát',
   },
   hu: {
     newQuote: 'Új idézet',
@@ -3244,6 +3282,7 @@ const UI_STRINGS = {
     breakOver: 'Szünet vége — ideje fókuszálni',
     readyBreak: 'Kész a szünetre',
     readyFocus: 'Kész a fókuszra',
+    quote: 'Idézet',
   },
   bg: {
     newQuote: 'Нов цитат',
@@ -3262,6 +3301,7 @@ const UI_STRINGS = {
     breakOver: 'Почивката приключи — време за фокус',
     readyBreak: 'Готов за почивка',
     readyFocus: 'Готов за фокус',
+    quote: 'Цитат',
   },
 };
 
@@ -3454,6 +3494,23 @@ function applyUIStrings(strings) {
   document.getElementById('fp-chip-focus').textContent = strings.focus;
   document.getElementById('fp-chip-break').textContent = strings.break;
   document.getElementById('fp-chip-long').textContent = strings.longBreakLabel;
+
+  // Minimized quote label
+  const qml = document.getElementById('quote-mini-label');
+  if (qml) qml.textContent = strings.quote;
+
+  // Fullscreen radial input labels
+  const fpRadialLabels = fpPanel.querySelectorAll(':scope > .radial-item:not(.radial-chip) label');
+  if (fpRadialLabels[0]) fpRadialLabels[0].textContent = strings.focus;
+  if (fpRadialLabels[1]) fpRadialLabels[1].textContent = strings.break;
+  if (fpRadialLabels[2]) fpRadialLabels[2].textContent = strings.longBreak;
+  if (fpRadialLabels[3]) fpRadialLabels[3].textContent = strings.sessions;
+
+  // Recalculate pomo offset if minimized (text width may have changed)
+  const pw = document.getElementById('pomo-widget');
+  if (pw && pw.classList.contains('minimized') && typeof window.updatePomoOffset === 'function') {
+    window.updatePomoOffset();
+  }
 }
 
 // Override showToast and pomo label updates to use translated strings

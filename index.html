@@ -1445,72 +1445,169 @@
     .quote-card.minimized { left: calc(0.75rem + var(--pomo-offset, 160px)); bottom: 0.75rem; }
   }
 
-  /* Landscape on small devices — side-by-side */
+  /* ═══════════════════════════════════════════════════════════
+     PHONE LANDSCAPE — Normal View (dual-panel dashboard)
+     Isolated: only fires on short landscape screens (phones)
+     ═══════════════════════════════════════════════════════════ */
   @media (max-height: 520px) and (orientation: landscape) {
-    .page-layout { flex-direction: row; align-items: stretch; }
-    .page-bottom {
-      flex-direction: column;
-      justify-content: flex-end;
-      align-items: flex-start;
-      width: auto;
-      padding: 0.75rem;
-      gap: 0.5rem;
+    .page-layout {
+      flex-direction: row;
+      align-items: stretch;
+      gap: 0;
     }
+
+    /* Left panel: Quote — ~55% */
     .content {
-      flex: 1;
-      padding: 0.75rem;
+      order: 1;
+      flex: 1 1 55%;
       max-width: none;
+      padding: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .bottom-badges {
-      bottom: 0.75rem;
-      right: 0.75rem;
+
+    /* Right panel: Pomo — ~45% */
+    .page-bottom {
+      order: 2;
+      flex: 1 1 45%;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: auto;
+      padding: 0.5rem;
+      gap: 0.4rem;
     }
-    .img-credit {
-      max-width: 160px;
-      white-space: normal;
+
+    /* Quote card — compact for landscape */
+    .quote-card {
+      padding: 0.9rem 1rem;
+      border-radius: 14px;
+      max-height: calc(100dvh - 1.5rem);
+      overflow-y: auto;
     }
-    .pomo-widget { width: 144px; padding: 1rem 0.9rem 0.9rem; }
-    .quote-card.minimized { bottom: 0.75rem; left: calc(0.75rem + var(--pomo-offset, 160px)); }
-    .pomo-ring-wrapper { width: 104px; height: 104px; }
-    .pomo-ring { width: 104px; height: 104px; }
-    .pomo-time-inside { font-size: 2.2rem; }
+    .quote-text { font-size: clamp(0.78rem, 2.2vw, 0.95rem); line-height: 1.5; }
+    .quote-mark { font-size: 1.8rem; margin-bottom: 0.25rem; }
+    .quote-author { font-size: 0.65rem; margin-top: 0.4rem; }
+    .quote-action-row { gap: 0.4rem; margin-top: 0.5rem; }
+    .quote-action-row .btn { font-size: 0.6rem; padding: 0.3rem 0.6rem; }
+
+    /* Pomo widget — compact, centered in its panel */
+    .pomo-widget { width: 140px; padding: 0.6rem 0.75rem 0.6rem; }
+    .pomo-ring-wrapper { width: 100px; height: 100px; }
+    .pomo-ring { width: 100px; height: 100px; }
+    .pomo-time-inside { font-size: 2rem; }
+    .pomo-label { font-size: 0.55rem; }
+    .pomo-controls { gap: 0.35rem; margin-top: 0.25rem; }
+    .pomo-btn--primary { width: 32px; height: 32px; }
+    .pomo-btn--secondary { width: 26px; height: 26px; }
+    .pomo-btn--primary svg { width: 14px; height: 14px; }
+    .pomo-btn--secondary svg { width: 11px; height: 11px; }
+    .pomo-phase-ready-label { font-size: 0.5rem; }
+    .pomo-dots { margin-top: 0.1rem; }
+    .pomo-dot { width: 5px; height: 5px; }
+
+    /* Settings panel — slides out to the right of pomo */
     .pomo-settings {
       bottom: auto;
-      top: 0;
+      top: 50%;
       left: calc(100% + 0.5rem);
-      max-height: calc(100dvh - 40px);
+      transform: translateY(-50%);
+      max-height: calc(100dvh - 1rem);
+      min-width: 180px;
     }
+
+    /* Badges — tuck small into corner */
+    .bottom-badges {
+      position: fixed;
+      bottom: 0.25rem;
+      right: 0.5rem;
+    }
+    .img-credit { max-width: 140px; white-space: normal; font-size: 0.55rem; }
+
+    /* Minimized quote */
+    .quote-card.minimized { bottom: 0.5rem; left: 0.5rem; }
+
+    /* Hide minimize btn — not useful in landscape */
+    .pomo-minimize-btn { display: none; }
   }
 
-  /* Phone landscape — fullscreen overlay layout */
+  /* ═══════════════════════════════════════════════════════════
+     PHONE LANDSCAPE — Fullscreen Pomo Overlay
+     Pomo centered, settings populate the remaining side space
+     ═══════════════════════════════════════════════════════════ */
   @media (max-height: 520px) and (orientation: landscape) {
     .pomo-fullpage-overlay {
       flex-direction: row;
-      gap: 1.5rem;
-      padding: 1rem 2rem;
+      gap: 1rem;
+      padding: 0.75rem 1.5rem;
       justify-content: center;
       align-items: center;
     }
     .pomo-fullpage-overlay .pomo-ring-wrapper {
-      width: clamp(120px, 35vh, 180px);
-      height: clamp(120px, 35vh, 180px);
+      width: clamp(100px, 32vh, 160px);
+      height: clamp(100px, 32vh, 160px);
     }
     .pomo-fullpage-overlay .pomo-ring {
-      width: clamp(120px, 35vh, 180px);
-      height: clamp(120px, 35vh, 180px);
+      width: clamp(100px, 32vh, 160px);
+      height: clamp(100px, 32vh, 160px);
     }
-    .pomo-fullpage-overlay .pomo-time-inside { font-size: clamp(2rem, 8vh, 3.5rem); }
-    .pomo-fullpage-overlay .pomo-time-unit { font-size: 0.9rem; }
-    .pomo-fullpage-overlay .pomo-label { font-size: 0.75rem; }
-    .pomo-fullpage-overlay .pomo-controls { gap: 0.75rem; }
-    .pomo-fullpage-overlay .pomo-btn--primary { width: 50px; height: 50px; }
-    .pomo-fullpage-overlay .pomo-btn--primary svg { width: 22px; height: 22px; }
-    .pomo-fullpage-overlay .pomo-btn--secondary { width: 38px; height: 38px; }
-    .pomo-fullpage-overlay .pomo-btn--secondary svg { width: 16px; height: 16px; }
-    .pomo-fullpage-overlay .pomo-phase-ready-label { font-size: 0.65rem; }
-    .pomo-fullpage-overlay .pomo-dots { margin-top: 0.25rem; }
-    .pomo-fullpage-close { top: 0.5rem; right: 0.5rem; width: 34px; height: 34px; }
-    .pomo-fullpage-close svg { width: 16px; height: 16px; }
+    .pomo-fullpage-overlay .pomo-time-inside { font-size: clamp(1.8rem, 7vh, 3rem); }
+    .pomo-fullpage-overlay .pomo-time-unit { font-size: 0.8rem; }
+    .pomo-fullpage-overlay .pomo-label { font-size: 0.65rem; }
+    .pomo-fullpage-overlay .pomo-controls { gap: 0.6rem; }
+    .pomo-fullpage-overlay .pomo-btn--primary { width: 44px; height: 44px; }
+    .pomo-fullpage-overlay .pomo-btn--primary svg { width: 20px; height: 20px; }
+    .pomo-fullpage-overlay .pomo-btn--secondary { width: 34px; height: 34px; }
+    .pomo-fullpage-overlay .pomo-btn--secondary svg { width: 14px; height: 14px; }
+    .pomo-fullpage-overlay .pomo-phase-ready-label { font-size: 0.6rem; }
+    .pomo-fullpage-overlay .pomo-dots { margin-top: 0.15rem; }
+    .pomo-fullpage-close { top: 0.4rem; right: 0.4rem; width: 30px; height: 30px; }
+    .pomo-fullpage-close svg { width: 14px; height: 14px; }
+
+    /* Radial settings in landscape: flex grid instead of radial circle */
+    .pomo-fullpage-overlay .pomo-radial-settings.open {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-content: center;
+      gap: 0.6rem;
+      position: absolute;
+      inset: 0;
+      pointer-events: auto;
+      background: var(--bg-glass);
+      backdrop-filter: blur(32px) saturate(1.4);
+      -webkit-backdrop-filter: blur(32px) saturate(1.4);
+      padding: 0.5rem 1.5rem;
+      z-index: 910;
+    }
+    .pomo-fullpage-overlay .pomo-radial-settings .radial-item {
+      position: static !important;
+      transform: none !important;
+      animation: none !important;
+      opacity: 1 !important;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .pomo-fullpage-overlay .pomo-radial-settings .radial-item label {
+      font-size: 0.6rem;
+      margin-bottom: 0.2rem;
+    }
+    .pomo-fullpage-overlay .pomo-radial-settings .radial-item input[type="number"] {
+      width: 52px;
+      font-size: 0.8rem;
+      padding: 0.3rem;
+    }
+    .pomo-fullpage-overlay .pomo-radial-settings .radial-chip .phase-chip {
+      font-size: 0.65rem;
+      padding: 0.3rem 0.6rem;
+    }
+    .pomo-fp-settings-close {
+      display: flex !important;
+      width: 30px;
+      height: 30px;
+    }
   }
 
   /* Very small phones */
@@ -1924,6 +2021,45 @@ const QUOTES = [
   { text: "Seven sacred teachings guide the Anishinaabe: Truth, Humility, Respect, Courage, Wisdom, Honesty, and Love.", author: "Anishinaabe Teaching" },
   { text: "We are all connected through the circle of life. Our choices affect all my relations.", author: "Anishinaabe Principle" },
   { text: "Listen to the elders. In their words is the knowledge passed down through generations.", author: "Anishinaabe Wisdom" },
+
+  // ── Indigenous Cosmologies — Quebec & Canada ────────────────
+  // Creation narratives and origin stories from the nations of this land
+
+  // Wendat (Huron-Wendat) — Wendake, Quebec
+  { text: "Aataentsic fell from the Sky World through a hole left when the great celestial tree was uprooted. The water animals dove deep to bring up earth, and the turtle offered its back. Upon Turtle's shell, the earth was spread, and so our world began.", author: "Wendat Creation — Aataentsic and Turtle Island" },
+  { text: "Iouskeha, grandson of Aataentsic, shaped the rivers so they would flow in both directions, making travel easy. But his twin Tawiscaron made the waters rush one way and scattered rocks to create rapids. From their rivalry, the world gained its balance of ease and challenge.", author: "Wendat Creation — The Twin Grandsons" },
+
+  // Anishinaabe — Great Lakes, Quebec, Ontario
+  { text: "When the great flood covered the earth, Nanabozho clung to a log with the animals. He asked each to dive for soil. The muskrat finally surfaced with a pawful of mud, and from that small gift, Nanabozho rebuilt the entire world on the turtle's back.", author: "Anishinaabe Creation — Nanabozho and the Flood" },
+  { text: "Nanabozho was given a sacred task: to walk the earth and name every plant, every stone, every creature. In the naming, he learned that to truly know something, you must first be still enough to hear what it calls itself.", author: "Anishinaabe Teaching — The Naming of the World" },
+
+  // Innu (Montagnais-Naskapi) — Northern Quebec, Labrador
+  { text: "Tshakapesh was raised by his elder sister after their parents were devoured by a great bear. Though small, he grew to outwit every danger the forest sent. He climbed to the moon on a great tree and remains there still, watching over the Innu people below.", author: "Innu Story — Tshakapesh and the Moon" },
+  { text: "The Innu say that Caribou Spirit, Papakassik, decides when the herds will come. A hunter must approach with a respectful heart and empty hands, for the caribou give themselves only to those who honour the bond between hunter and hunted.", author: "Innu Cosmology — Papakassik, Master of the Caribou" },
+  { text: "In the time before this time, Meshapush the trickster rearranged the rivers of Nitassinan so that the fish would swim in circles and the Innu would always have food. But he also hid the best fishing spots behind riddles, so that only the patient would find them.", author: "Innu Story — Meshapush and the Rivers" },
+
+  // Haudenosaunee — Southern Quebec, Ontario, New York
+  { text: "The Peacemaker came across the great lake in a white stone canoe, carrying the message of the Great Law. He planted the Tree of Peace — a great white pine — and beneath its roots, the nations buried their weapons. The eagle atop watches still for any threat to that peace.", author: "Haudenosaunee — The Great Law of Peace" },
+  { text: "Sky Woman danced on the turtle's back, and as she danced, the earth grew beneath her feet. She scattered seeds from the Sky World, and from them grew the Three Sisters — corn, beans, and squash — who hold each other up as true sisters do.", author: "Haudenosaunee Creation — Sky Woman and the Three Sisters" },
+
+  // Algonquin — Ottawa Valley, Western Quebec
+  { text: "Wisakedjak, the trickster, tried to catch the sun in a snare to make the days longer. When the sun begged to be freed, Wisakedjak relented — but not before he had learned that even the most powerful forces are bound by the same web of relationships as the smallest creature.", author: "Algonquin Story — Wisakedjak and the Sun Snare" },
+  { text: "The Algonquin say the northern lights are the fires of the ancestors, dancing to remind us they are near. When the sky burns green and violet, the old ones are celebrating, and we are invited to remember that the boundary between worlds is thinner than we think.", author: "Algonquin Cosmology — The Ancestors' Fires" },
+
+  // Mi'kmaq — Maritime provinces, Gaspésie
+  { text: "Glooscap shaped the land of the Maritimes with his great power. He turned his enemies into stone, carved rivers with his paddle, and called the animals to council. When he left, he promised to return when the Mi'kmaq needed him most, and the whales still sing of his coming.", author: "Mi'kmaq Creation — Glooscap the Shaper" },
+  { text: "Glooscap asked the Great Spirit for companions, and from the foam of the ocean waves, a woman was formed. From the red clay of the earth, a man was shaped. Together they were given the gift of dreams, so they could see beyond what the waking eye can hold.", author: "Mi'kmaq Creation — The First Man and Woman" },
+
+  // Cree — Northern Quebec (Eeyou Istchee), Ontario, Prairies
+  { text: "Wesakechak floated on the endless water after the great flood, weeping for the drowned world. He sent the otter, the beaver, and finally the muskrat to find soil. The muskrat returned half-drowned, clutching a tiny ball of earth. From that small courage, the whole land was reborn.", author: "Cree Creation — Wesakechak and the Great Flood" },
+  { text: "The Cree say that when you walk through the boreal forest in deep winter, the trees crack and groan because they are speaking. The cold makes their voices sharp, but if you listen well, they are telling you where the animals have gone and which path leads home.", author: "Cree Teaching — The Speaking Trees" },
+
+  // Abenaki — Eastern Townships, Vermont, Maine
+  { text: "Tabaldak, the Owner of All, made the world from nothing but his own thought. He shaped the people from the living bark of the ash tree, and breathed into them the wind from the four directions. That is why the Abenaki feel the pull of the forest — they were born from it.", author: "Abenaki Creation — Tabaldak and the Ash Tree" },
+  { text: "Gluskabe shot arrows into the ash tree, and from the bark emerged the first Abenaki people. He then set to work making the world safer: he shrank the giant squirrel, tamed the great wind eagle, and taught the rivers to slow down. The world, he said, should be difficult enough to keep people strong, but gentle enough to let them rest.", author: "Abenaki Story — Gluskabe Shapes the World" },
+
+  // Atikamekw — Haute-Mauricie, Central Quebec
+  { text: "The Atikamekw say the forest is not a place you enter — it is a relative you visit. Every tree remembers every season, and the moss keeps the footprints of all who have passed. To walk in Nitaskinan is to walk through a living memory that stretches back to the first morning.", author: "Atikamekw Teaching — The Living Forest" },
 
   // ── Vipassana Tradition ──────────────────────────────────
   { text: "The entire path of Dhamma is a path of living by example, not of proselytizing.", author: "S.N. Goenka" },

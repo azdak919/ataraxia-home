@@ -2305,14 +2305,25 @@ async function releaseWakeLock() {
 /* ══════════════════════════════════════════════════════════════
    AUDIO SYSTEM — ultrasonic keepalive + completion chime
 
-   A short looping WAV with a 19.5 kHz ultrasonic sine wave keeps
-   the audio session alive across all platforms (iOS lock screen,
-   Android background, etc.) without any audible sound. The tone
-   is above human hearing (~20 kHz limit) at minimal amplitude.
-   The completion chime plays via Web Audio API when time is up.
+   Keeps the AudioContext alive so the completion chime fires
+   reliably, even when the screen is off or the tab is background.
+
+   iOS/iPadOS: Uses a looping <audio> element with an ultrasonic
+   WAV — the only reliable way to prevent iOS from suspending the
+   tab in the background.
+
+   Android/Desktop: Uses a Web Audio API OscillatorNode at 19.5 kHz.
+   Unlike <audio>, the Web Audio API does NOT claim exclusive audio
+   focus — so Spotify, podcasts, and other apps keep playing.
+
+   Both approaches use 19.5 kHz (above human hearing) so the
+   keepalive is completely inaudible.
    ══════════════════════════════════════════════════════════════ */
 
-/* ── WAV encoding helper ── */
+const _isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+  || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+/* ── WAV encoding helper (iOS only) ── */
 function _encodeWav(samples, sampleRate) {
   const n = samples.length;
   const buf = new ArrayBuffer(44 + n * 2);
@@ -2330,9 +2341,11 @@ function _encodeWav(samples, sampleRate) {
   return new Blob([buf], { type: 'audio/wav' });
 }
 
-/* ── Keepalive: short looping ultrasonic WAV ── */
-let _timerAudio = null;
-let _timerBlobUrl = null;
+/* ── Keepalive state ── */
+let _timerAudio = null;   // <audio> element (iOS)
+let _timerBlobUrl = null;  // blob URL for iOS WAV
+let _keepaliveOsc = null;  // OscillatorNode (Android/Desktop)
+let _keepaliveGain = null; // GainNode for the oscillator
 
 function _generateKeepaliveWav() {
   // 2-second loop at 44.1 kHz — ultrasonic 19.5 kHz sine, ~86 KB
@@ -2340,7 +2353,7 @@ function _generateKeepaliveWav() {
   const dur = 2;
   const n = sr * dur;
   const samples = new Float32Array(n);
-  const freq = 19500; // above human hearing (~20 kHz limit)
+  const freq = 19500;
   for (let i = 0; i < n; i++) {
     samples[i] = Math.sin(2 * Math.PI * freq * i / sr) * 0.001;
   }
@@ -2349,24 +2362,55 @@ function _generateKeepaliveWav() {
 
 function startTimerAudio(remainingSec) {
   stopTimerAudio();
-  try {
-    const blob = _generateKeepaliveWav();
-    _timerBlobUrl = URL.createObjectURL(blob);
-    _timerAudio = new Audio(_timerBlobUrl);
-    _timerAudio.volume = 1.0;
-    _timerAudio.loop = true; // loop the short clip instead of one huge WAV
-    var p = _timerAudio.play();
-    if (p) p.catch(function() {});
-    _updateMediaSession();
-  } catch(e) {}
+
+  if (_isIOS) {
+    // iOS: looping <audio> element — only way to keep tab alive in background
+    try {
+      const blob = _generateKeepaliveWav();
+      _timerBlobUrl = URL.createObjectURL(blob);
+      _timerAudio = new Audio(_timerBlobUrl);
+      _timerAudio.volume = 1.0;
+      _timerAudio.loop = true;
+      var p = _timerAudio.play();
+      if (p) p.catch(function() {});
+    } catch(e) {}
+  } else {
+    // Android/Desktop: Web Audio API oscillator — does NOT steal audio focus
+    try {
+      const ctx = initAudioCtx();
+      if (ctx) {
+        if (ctx.state === 'suspended') ctx.resume();
+        _keepaliveGain = ctx.createGain();
+        _keepaliveGain.gain.value = 0.001; // minimal amplitude
+        _keepaliveGain.connect(ctx.destination);
+        _keepaliveOsc = ctx.createOscillator();
+        _keepaliveOsc.type = 'sine';
+        _keepaliveOsc.frequency.value = 19500; // ultrasonic — inaudible
+        _keepaliveOsc.connect(_keepaliveGain);
+        _keepaliveOsc.start();
+      }
+    } catch(e) {}
+  }
+
+  _updateMediaSession();
 }
 
 function stopTimerAudio() {
+  // Stop iOS <audio> keepalive
   if (_timerAudio) {
     try { _timerAudio.pause(); _timerAudio.removeAttribute('src'); _timerAudio.load(); } catch(e) {}
     _timerAudio = null;
   }
   if (_timerBlobUrl) { try { URL.revokeObjectURL(_timerBlobUrl); } catch(e) {} _timerBlobUrl = null; }
+  // Stop Android/Desktop oscillator keepalive
+  if (_keepaliveOsc) {
+    try { _keepaliveOsc.stop(); } catch(e) {}
+    _keepaliveOsc = null;
+  }
+  if (_keepaliveGain) {
+    try { _keepaliveGain.disconnect(); } catch(e) {}
+    _keepaliveGain = null;
+  }
   try { if ('mediaSession' in navigator) navigator.mediaSession.metadata = null; } catch(e) {}
 }
 

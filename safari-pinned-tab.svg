@@ -1,5 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <circle cx="256" cy="256" r="240" fill="#000"/>
-  <circle cx="256" cy="256" r="190" fill="none" stroke="#fff" stroke-width="6" opacity="0.35"/>
-  <text x="256" y="290" text-anchor="middle" font-family="Georgia,serif" font-size="220" font-weight="400" fill="#fff" letter-spacing="-8">A</text>
+  <circle cx="256" cy="256" r="248" fill="#000"/>
+  <circle cx="256" cy="256" r="232" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.3"/>
+  <circle cx="256" cy="256" r="192" fill="none" stroke="#fff" stroke-width="2.5" opacity="0.25"/>
+  <text x="256" y="300" text-anchor="middle" font-family="'Garamond','Georgia','Times New Roman',serif" font-size="240" font-weight="400" fill="#fff" letter-spacing="-6">A</text>
+  <line x1="196" y1="340" x2="316" y2="340" stroke="#fff" stroke-width="1.5" opacity="0.2" stroke-linecap="round"/>
 </svg>

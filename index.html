@@ -2303,14 +2303,21 @@ async function releaseWakeLock() {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   AUDIO SYSTEM — unified timer audio with embedded notification
-   A single WAV file spans the full remaining time: near-inaudible
-   noise keeps the iOS/iPadOS audio session alive (YouTube-style),
-   and the bowl-tone notification chime is baked into the final
-   seconds. The chime plays naturally when the file reaches that
-   point — no JavaScript timing dependency. Works cross-platform:
-   iOS, Android, Windows, macOS, and Linux.
+   AUDIO SYSTEM — platform-aware timer audio
+
+   iOS/iPadOS: A looping ultrasonic WAV keeps the audio session
+   alive so timers fire reliably when the screen is off. The tone
+   is at 19.5 kHz (above human hearing) at minimal amplitude.
+   The completion chime is played via Web Audio API.
+
+   Android/Desktop: No continuous audio — avoids stealing audio
+   focus from Spotify, podcasts, or other apps/tabs. The timer
+   runs via setInterval; the chime plays via Web Audio API at
+   completion. Media Session metadata is updated independently.
    ══════════════════════════════════════════════════════════════ */
+
+const _isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+  || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
 /* ── WAV encoding helper ── */
 function _encodeWav(samples, sampleRate) {
@@ -2330,81 +2337,36 @@ function _encodeWav(samples, sampleRate) {
   return new Blob([buf], { type: 'audio/wav' });
 }
 
-/* ══════════════════════════════════════════════════════════════
-   UNIFIED TIMER AUDIO — single file = near-silence + end chime
-   Generates one WAV whose length = remaining time + chime tail.
-   Near-inaudible noise keeps the iOS/iPadOS audio session alive
-   (YouTube-style); the notification chime is baked into the end
-   of the same file so it plays naturally without JS timing.
-   Cross-platform: iOS, Android, Windows, macOS, Linux.
-   ══════════════════════════════════════════════════════════════ */
+/* ── iOS keepalive: short looping ultrasonic WAV ── */
 let _timerAudio = null;
 let _timerBlobUrl = null;
 
-function _generateTimerWav(durationSec, isBreak) {
-  const sr = 8000;
-  const chimeDur = isBreak ? 3.5 : 4.5;
-  const totalDur = durationSec + chimeDur;
-  const totalSamples = Math.ceil(sr * totalDur);
-  const samples = new Float32Array(totalSamples);
-
-  // Near-inaudible noise keeps audio session alive on iOS/iPadOS
-  for (let i = 0; i < totalSamples; i++) {
-    samples[i] = (Math.random() - 0.5) * 0.0005;
+function _generateKeepaliveWav() {
+  // 2-second loop at 44.1 kHz — ultrasonic 19.5 kHz sine, ~86 KB
+  const sr = 44100;
+  const dur = 2;
+  const n = sr * dur;
+  const samples = new Float32Array(n);
+  const freq = 19500; // above human hearing (~20 kHz limit)
+  for (let i = 0; i < n; i++) {
+    samples[i] = Math.sin(2 * Math.PI * freq * i / sr) * 0.001;
   }
-
-  // Bowl-tone chime embedded at the end (same style as previous notification)
-  const chimeStart = Math.floor(sr * durationSec);
-  const attackLen = Math.floor(sr * 0.008);
-
-  function addBowlTone(freq, offsetSec, vol, decay) {
-    const start = chimeStart + Math.floor(sr * offsetSec);
-    const len = Math.min(Math.floor(sr * decay), totalSamples - start);
-    if (len <= 0) return;
-    const decayDur = decay - 0.008;
-    // Harmonic partials — skip any above Nyquist (sr * 0.45 safety margin)
-    const harmonics = [[1, 1], [2.756, 0.28], [5.404, 0.12]];
-    for (const [ratio, relVol] of harmonics) {
-      const f = freq * ratio;
-      if (f >= sr * 0.45) continue;
-      for (let i = 0; i < len; i++) {
-        const t = i / sr;
-        let env;
-        if (i < attackLen) {
-          env = vol * (i / attackLen);
-        } else {
-          env = vol * Math.pow(0.0001 / vol, (t - 0.008) / decayDur);
-        }
-        samples[start + i] += Math.sin(2 * Math.PI * f * t) * env * relVol;
-      }
-    }
-  }
-
-  // Same bowl-tone patterns as the previous notification chime style
-  if (isBreak) {
-    addBowlTone(783.99, 0, 0.18, 3.0);
-    addBowlTone(659.25, 0.45, 0.12, 2.6);
-  } else {
-    addBowlTone(523.25, 0, 0.20, 3.8);
-    addBowlTone(659.25, 0.50, 0.16, 3.4);
-    addBowlTone(783.99, 1.00, 0.13, 3.0);
-  }
-
   return _encodeWav(samples, sr);
 }
 
 function startTimerAudio(remainingSec) {
   stopTimerAudio();
+  // Only iOS needs continuous audio to keep the tab alive in background
+  if (!_isIOS) {
+    _updateMediaSession();
+    return;
+  }
   try {
-    const blob = _generateTimerWav(remainingSec, pomo.isBreak);
+    const blob = _generateKeepaliveWav();
     _timerBlobUrl = URL.createObjectURL(blob);
     _timerAudio = new Audio(_timerBlobUrl);
     _timerAudio.volume = 1.0;
-    // Auto-cleanup when audio finishes (chime has played)
-    _timerAudio.addEventListener('ended', function() {
-      _timerAudio = null;
-      if (_timerBlobUrl) { URL.revokeObjectURL(_timerBlobUrl); _timerBlobUrl = null; }
-    });
+    _timerAudio.loop = true; // loop the short clip instead of one huge WAV
     var p = _timerAudio.play();
     if (p) p.catch(function() {});
     _updateMediaSession();
@@ -2429,20 +2391,18 @@ function _updateMediaSession() {
     navigator.mediaSession.metadata = new MediaMetadata({
       title: phase + ' · ' + remaining + 'm remaining',
       artist: 'Ataraxia Pomodoro',
+      artwork: [
+        { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
+        { src: 'icon-512.png', sizes: '512x512', type: 'image/png' }
+      ]
     });
     navigator.mediaSession.setActionHandler('pause', () => stopPomo());
     navigator.mediaSession.setActionHandler('play', () => startPomo());
   } catch(e) {}
 }
 
-/* ── Fallback chime — Web Audio API synthesis if timer audio was interrupted ── */
+/* ── Completion chime — Web Audio API synthesis ── */
 async function playCompletionChime(wasBreak) {
-  // If the unified timer audio is still playing (it has the chime embedded),
-  // skip the fallback — the chime is already being handled by the audio file
-  if (_timerAudio && !_timerAudio.paused && !_timerAudio.ended) return;
-
-  // Fallback: real-time Web Audio API synthesis for cases where the timer
-  // audio was interrupted (phone call, OS killed audio session, etc.)
   try {
     const ctx = initAudioCtx();
     if (!ctx) return;
@@ -2678,8 +2638,9 @@ function onSegmentComplete() {
   // Notification — requireInteraction keeps it visible on Android lock screen
   if ('Notification' in window && Notification.permission === 'granted') {
     new Notification(wasBreak ? 'Break over — time to focus!' : 'Session complete — take a break!', {
-      icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🏛️</text></svg>',
-      tag: 'stoicflow-pomo',
+      icon: 'icon-192.png',
+      badge: 'favicon-96x96.png',
+      tag: 'ataraxia-pomo',
       requireInteraction: true,
       silent: false
     });
@@ -2722,7 +2683,7 @@ function startPomo() {
   pomo.phaseJustCompleted = false;
   savePomoState();
   initAudioCtx(); // ensure AudioContext is live after user gesture
-  startTimerAudio(remaining); // unified audio: silence + chime at end
+  startTimerAudio(remaining); // iOS: keepalive audio; all: media session
   requestWakeLock(); // keep screen on so audio fires reliably
 
   // Request notification permission

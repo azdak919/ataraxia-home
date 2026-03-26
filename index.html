@@ -2303,9 +2303,13 @@ async function releaseWakeLock() {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   BACKGROUND AUDIO SYSTEM — YouTube-style persistent audio
-   Keeps iOS/iPadOS audio session alive so chimes fire even when
-   the user switches apps, tabs, or locks the screen.
+   AUDIO SYSTEM — unified timer audio with embedded notification
+   A single WAV file spans the full remaining time: near-inaudible
+   noise keeps the iOS/iPadOS audio session alive (YouTube-style),
+   and the bowl-tone notification chime is baked into the final
+   seconds. The chime plays naturally when the file reaches that
+   point — no JavaScript timing dependency. Works cross-platform:
+   iOS, Android, Windows, macOS, and Linux.
    ══════════════════════════════════════════════════════════════ */
 
 /* ── WAV encoding helper ── */
@@ -2326,32 +2330,93 @@ function _encodeWav(samples, sampleRate) {
   return new Blob([buf], { type: 'audio/wav' });
 }
 
-/* ── Silent audio keeper — loops near-inaudible noise to hold the audio session ── */
-let _silentAudio = null;
-let _silentBlobUrl = null;
+/* ══════════════════════════════════════════════════════════════
+   UNIFIED TIMER AUDIO — single file = near-silence + end chime
+   Generates one WAV whose length = remaining time + chime tail.
+   Near-inaudible noise keeps the iOS/iPadOS audio session alive
+   (YouTube-style); the notification chime is baked into the end
+   of the same file so it plays naturally without JS timing.
+   Cross-platform: iOS, Android, Windows, macOS, Linux.
+   ══════════════════════════════════════════════════════════════ */
+let _timerAudio = null;
+let _timerBlobUrl = null;
 
-function _generateSilentBlob() {
-  const sr = 8000, dur = 5;
-  const samples = new Float32Array(sr * dur);
-  for (let i = 0; i < samples.length; i++) samples[i] = (Math.random() - 0.5) * 0.0005;
+function _generateTimerWav(durationSec, isBreak) {
+  const sr = 8000;
+  const chimeDur = isBreak ? 3.5 : 4.5;
+  const totalDur = durationSec + chimeDur;
+  const totalSamples = Math.ceil(sr * totalDur);
+  const samples = new Float32Array(totalSamples);
+
+  // Near-inaudible noise keeps audio session alive on iOS/iPadOS
+  for (let i = 0; i < totalSamples; i++) {
+    samples[i] = (Math.random() - 0.5) * 0.0005;
+  }
+
+  // Bowl-tone chime embedded at the end (same style as previous notification)
+  const chimeStart = Math.floor(sr * durationSec);
+  const attackLen = Math.floor(sr * 0.008);
+
+  function addBowlTone(freq, offsetSec, vol, decay) {
+    const start = chimeStart + Math.floor(sr * offsetSec);
+    const len = Math.min(Math.floor(sr * decay), totalSamples - start);
+    if (len <= 0) return;
+    const decayDur = decay - 0.008;
+    // Harmonic partials — skip any above Nyquist (sr * 0.45 safety margin)
+    const harmonics = [[1, 1], [2.756, 0.28], [5.404, 0.12]];
+    for (const [ratio, relVol] of harmonics) {
+      const f = freq * ratio;
+      if (f >= sr * 0.45) continue;
+      for (let i = 0; i < len; i++) {
+        const t = i / sr;
+        let env;
+        if (i < attackLen) {
+          env = vol * (i / attackLen);
+        } else {
+          env = vol * Math.pow(0.0001 / vol, (t - 0.008) / decayDur);
+        }
+        samples[start + i] += Math.sin(2 * Math.PI * f * t) * env * relVol;
+      }
+    }
+  }
+
+  // Same bowl-tone patterns as the previous notification chime style
+  if (isBreak) {
+    addBowlTone(783.99, 0, 0.18, 3.0);
+    addBowlTone(659.25, 0.45, 0.12, 2.6);
+  } else {
+    addBowlTone(523.25, 0, 0.20, 3.8);
+    addBowlTone(659.25, 0.50, 0.16, 3.4);
+    addBowlTone(783.99, 1.00, 0.13, 3.0);
+  }
+
   return _encodeWav(samples, sr);
 }
 
-function startSilentAudioKeeper() {
-  if (_silentAudio) return;
+function startTimerAudio(remainingSec) {
+  stopTimerAudio();
   try {
-    if (!_silentBlobUrl) _silentBlobUrl = URL.createObjectURL(_generateSilentBlob());
-    _silentAudio = new Audio(_silentBlobUrl);
-    _silentAudio.loop = true;
-    _silentAudio.volume = 0.01;
-    const p = _silentAudio.play();
-    if (p) p.catch(() => {});
+    const blob = _generateTimerWav(remainingSec, pomo.isBreak);
+    _timerBlobUrl = URL.createObjectURL(blob);
+    _timerAudio = new Audio(_timerBlobUrl);
+    _timerAudio.volume = 1.0;
+    // Auto-cleanup when audio finishes (chime has played)
+    _timerAudio.addEventListener('ended', function() {
+      _timerAudio = null;
+      if (_timerBlobUrl) { URL.revokeObjectURL(_timerBlobUrl); _timerBlobUrl = null; }
+    });
+    var p = _timerAudio.play();
+    if (p) p.catch(function() {});
     _updateMediaSession();
   } catch(e) {}
 }
 
-function stopSilentAudioKeeper() {
-  if (_silentAudio) { try { _silentAudio.pause(); } catch(e) {} _silentAudio = null; }
+function stopTimerAudio() {
+  if (_timerAudio) {
+    try { _timerAudio.pause(); _timerAudio.removeAttribute('src'); _timerAudio.load(); } catch(e) {}
+    _timerAudio = null;
+  }
+  if (_timerBlobUrl) { try { URL.revokeObjectURL(_timerBlobUrl); } catch(e) {} _timerBlobUrl = null; }
   try { if ('mediaSession' in navigator) navigator.mediaSession.metadata = null; } catch(e) {}
 }
 
@@ -2370,61 +2435,14 @@ function _updateMediaSession() {
   } catch(e) {}
 }
 
-/* ── Pre-rendered chime WAV blobs — played via <audio> for background reliability ── */
-let _chimeUrls = {}; // { focus: blobUrl, break: blobUrl }
-
-async function _prerenderChimes() {
-  if (_chimeUrls.focus) return;
-  try {
-    function _renderChime(wasBreak) {
-      const dur = wasBreak ? 3.5 : 4.5;
-      const sr = 44100;
-      const offline = new OfflineAudioContext(1, sr * dur, sr);
-      function bowlTone(freq, startTime, vol, decay) {
-        const t0 = startTime;
-        const master = offline.createGain();
-        master.connect(offline.destination);
-        master.gain.setValueAtTime(0, t0);
-        master.gain.linearRampToValueAtTime(vol, t0 + 0.008);
-        master.gain.exponentialRampToValueAtTime(0.0001, t0 + decay);
-        [[1,1],[2.756,0.28],[5.404,0.12]].forEach(([ratio, relVol]) => {
-          const osc = offline.createOscillator();
-          const g = offline.createGain();
-          osc.type = 'sine'; osc.frequency.value = freq * ratio;
-          g.gain.value = relVol; osc.connect(g); g.connect(master);
-          osc.start(t0); osc.stop(t0 + decay);
-        });
-      }
-      if (wasBreak) {
-        bowlTone(783.99, 0, 0.18, 3.0);
-        bowlTone(659.25, 0.45, 0.12, 2.6);
-      } else {
-        bowlTone(523.25, 0, 0.20, 3.8);
-        bowlTone(659.25, 0.50, 0.16, 3.4);
-        bowlTone(783.99, 1.00, 0.13, 3.0);
-      }
-      return offline.startRendering();
-    }
-    const [focusBuf, breakBuf] = await Promise.all([_renderChime(false), _renderChime(true)]);
-    _chimeUrls.focus = URL.createObjectURL(_encodeWav(focusBuf.getChannelData(0), 44100));
-    _chimeUrls.break = URL.createObjectURL(_encodeWav(breakBuf.getChannelData(0), 44100));
-  } catch(e) {}
-}
-
-/* ── Play completion chime ── */
+/* ── Fallback chime — Web Audio API synthesis if timer audio was interrupted ── */
 async function playCompletionChime(wasBreak) {
-  // Primary: <audio> element — works in background on iOS (like YouTube)
-  try {
-    const url = _chimeUrls[wasBreak ? 'break' : 'focus'];
-    if (url) {
-      const audio = new Audio(url);
-      audio.volume = 1.0;
-      const p = audio.play();
-      if (p) p.catch(() => {});
-    }
-  } catch(e) {}
+  // If the unified timer audio is still playing (it has the chime embedded),
+  // skip the fallback — the chime is already being handled by the audio file
+  if (_timerAudio && !_timerAudio.paused && !_timerAudio.ended) return;
 
-  // Secondary: Web Audio API — richer harmonics when tab is in foreground
+  // Fallback: real-time Web Audio API synthesis for cases where the timer
+  // audio was interrupted (phone call, OS killed audio session, etc.)
   try {
     const ctx = initAudioCtx();
     if (!ctx) return;
@@ -2653,7 +2671,8 @@ function PomoUI() {
 function onSegmentComplete() {
   pomo.isRunning = false;
   releaseWakeLock();
-  stopSilentAudioKeeper();
+  // Don't stop timer audio here — the embedded chime is playing right now.
+  // It will auto-cleanup via its 'ended' event when the chime finishes.
   const wasBreak = pomo.isBreak; // capture before phase flip
 
   // Notification — requireInteraction keeps it visible on Android lock screen
@@ -2703,8 +2722,7 @@ function startPomo() {
   pomo.phaseJustCompleted = false;
   savePomoState();
   initAudioCtx(); // ensure AudioContext is live after user gesture
-  _prerenderChimes(); // pre-render chime WAVs for background playback (async, cached)
-  startSilentAudioKeeper(); // keep iOS audio session alive in background
+  startTimerAudio(remaining); // unified audio: silence + chime at end
   requestWakeLock(); // keep screen on so audio fires reliably
 
   // Request notification permission
@@ -2721,7 +2739,7 @@ function stopPomo() {
   pomo.pausedRemaining = full;
   pomo.totalSeconds = full;
   releaseWakeLock();
-  stopSilentAudioKeeper();
+  stopTimerAudio();
   savePomoState();
 }
 
@@ -2735,7 +2753,7 @@ function resetPomo() {
   pomo.pausedRemaining = pomo.totalSeconds;
   pomo.phaseJustCompleted = false;
   releaseWakeLock();
-  stopSilentAudioKeeper();
+  stopTimerAudio();
   savePomoState();
 }
 

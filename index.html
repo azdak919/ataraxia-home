@@ -1445,72 +1445,252 @@
     .quote-card.minimized { left: calc(0.75rem + var(--pomo-offset, 160px)); bottom: 0.75rem; }
   }
 
-  /* Landscape on small devices — side-by-side */
+  /* ═══════════════════════════════════════════════════════════
+     PHONE LANDSCAPE — entirely new compact layout
+     Keeps column flow, transforms pomo into horizontal pill,
+     compact quote card, everything visible without scroll.
+     ═══════════════════════════════════════════════════════════ */
   @media (max-height: 520px) and (orientation: landscape) {
-    .page-layout { flex-direction: row; align-items: stretch; }
-    .page-bottom {
-      flex-direction: column;
-      justify-content: flex-end;
-      align-items: flex-start;
-      width: auto;
-      padding: 0.75rem;
-      gap: 0.5rem;
-    }
-    .content {
-      flex: 1;
-      padding: 0.75rem;
-      max-width: none;
-    }
-    .bottom-badges {
-      bottom: 0.75rem;
-      right: 0.75rem;
-    }
-    .img-credit {
-      max-width: 160px;
-      white-space: normal;
-    }
-    .pomo-widget { width: 144px; padding: 1rem 0.9rem 0.9rem; }
-    .quote-card.minimized { bottom: 0.75rem; left: calc(0.75rem + var(--pomo-offset, 160px)); }
-    .pomo-ring-wrapper { width: 104px; height: 104px; }
-    .pomo-ring { width: 104px; height: 104px; }
-    .pomo-time-inside { font-size: 2.2rem; }
-    .pomo-settings {
-      bottom: auto;
-      top: 0;
-      left: calc(100% + 0.5rem);
-      max-height: calc(100dvh - 40px);
-    }
-  }
 
-  /* Phone landscape — fullscreen overlay layout */
-  @media (max-height: 520px) and (orientation: landscape) {
+    /* ── Page structure: column, tight fit ── */
+    .page-layout {
+      flex-direction: column;
+      justify-content: center;
+      gap: 0;
+    }
+
+    .content {
+      flex: 1 1 auto;
+      min-height: 0;
+      padding: 0.4rem 2rem 0.25rem;
+      max-width: none;
+      justify-content: center;
+    }
+
+    /* ── Quote card: compact wide format ── */
+    .quote-card {
+      padding: 0.65rem 1.4rem 0.55rem;
+      border-radius: 14px;
+      max-width: 72vw;
+      margin: 0 auto;
+    }
+
+    .quote-card:hover { transform: none; }
+
+    .quote-mark {
+      font-size: 1.5rem;
+      margin-bottom: -0.2rem;
+      opacity: 0.22;
+    }
+
+    .quote-text {
+      font-size: clamp(0.78rem, 2.4vh, 1.05rem);
+      line-height: 1.3;
+      margin-bottom: 0.3rem;
+    }
+
+    .quote-inner {
+      max-height: calc(100dvh - 85px);
+      overflow-y: auto;
+    }
+
+    .quote-author {
+      font-size: 0.58rem;
+      letter-spacing: 0.13em;
+    }
+
+    .quote-action-row {
+      margin-top: 0.45rem;
+      gap: 0.35rem;
+    }
+
+    .quote-action-row .btn {
+      padding: 0.22rem 0.65rem;
+      font-size: 0.52rem;
+      letter-spacing: 0.1em;
+    }
+
+    .quote-minimize-btn {
+      top: 0.3rem;
+      right: 0.3rem;
+      width: 20px;
+      height: 20px;
+    }
+    .quote-minimize-btn svg { width: 11px; height: 11px; }
+
+    /* Minimized quote: top-left pill */
+    .quote-card.minimized {
+      position: fixed;
+      bottom: auto;
+      top: 0.4rem;
+      left: 0.6rem;
+      z-index: 100;
+    }
+
+    /* ── Bottom bar: slim horizontal strip ── */
+    .page-bottom {
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      padding: 0 0.75rem 0.3rem;
+      gap: 0.6rem;
+      flex-shrink: 0;
+    }
+
+    /* ── Pomo widget: horizontal inline pill ── */
+    .pomo-container { margin-top: 0; }
+
+    .pomo-widget {
+      flex-direction: row;
+      width: auto;
+      padding: 0.3rem 0.55rem 0.3rem 0.35rem;
+      border-radius: 18px;
+      gap: 0.45rem;
+      align-items: center;
+    }
+
+    .pomo-widget:hover {
+      box-shadow: 0 8px 36px var(--shadow-soft), 0 2px 8px var(--shadow-soft);
+    }
+
+    /* Hide fullscreen/minimize buttons — not needed in landscape pill */
+    .pomo-widget .pomo-fullscreen-btn,
+    .pomo-widget .pomo-minimize-btn {
+      display: none;
+    }
+
+    /* Tiny inline ring */
+    .pomo-ring-wrapper { width: 40px; height: 40px; flex-shrink: 0; }
+    .pomo-ring { width: 40px; height: 40px; }
+
+    .pomo-label {
+      font-size: 0;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+    }
+
+    .pomo-time-inside { font-size: 0.9rem; }
+    .pomo-time-unit { font-size: 0.4rem; margin-left: 0; }
+    .pomo-dots { margin-top: 0; gap: 2px; }
+    .pomo-dot { width: 2.5px; height: 2.5px; }
+
+    .pomo-phase-ready-label {
+      font-size: 0.48rem;
+      white-space: nowrap;
+      position: static;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Compact controls inline */
+    .pomo-controls { gap: 0.2rem; }
+    .pomo-btn--primary { width: 30px; height: 30px; }
+    .pomo-btn--primary svg { width: 14px; height: 14px; }
+    .pomo-btn--secondary { width: 24px; height: 24px; }
+    .pomo-btn--secondary svg { width: 11px; height: 11px; }
+
+    /* Minimized pomo: stays as small pill */
+    .pomo-widget.minimized {
+      flex-direction: row;
+      padding: 0.3rem 0.5rem;
+      gap: 0.25rem;
+      min-width: auto;
+    }
+    .pomo-widget.minimized .pomo-mini-indicator {
+      flex-direction: row;
+      gap: 0.3rem;
+    }
+    .pomo-mini-dot { width: 16px; height: 16px; }
+    .pomo-mini-time { font-size: 0.7rem; }
+
+    /* Settings panel: centered above the pill */
+    .pomo-settings {
+      bottom: calc(100% + 0.4rem);
+      left: 50%;
+      transform: translateX(-50%);
+      right: auto;
+      top: auto;
+      max-height: calc(100dvh - 65px);
+      min-width: 190px;
+    }
+
+    /* ── Bottom badges: inline ── */
+    .bottom-badges {
+      position: static;
+      flex-shrink: 0;
+      flex-direction: column;
+      gap: 0.15rem;
+      align-items: flex-end;
+    }
+
+    .img-credit {
+      max-width: 110px;
+      white-space: normal;
+      font-size: 0.48rem;
+      line-height: 1.25;
+    }
+
+    .license-badge { font-size: 0.48rem; padding: 0.15rem 0.4rem; }
+
+    /* ── Language selector ── */
+    .lang-selector { top: 0.25rem; right: 0.4rem; }
+    .lang-btn { font-size: 0.58rem; padding: 0.18rem 0.4rem; }
+
+    /* ════════════════════════════════════════
+       FULLSCREEN OVERLAY — landscape phone
+       Side-by-side: ring left, controls right
+       ════════════════════════════════════════ */
     .pomo-fullpage-overlay {
       flex-direction: row;
-      gap: 1.5rem;
-      padding: 1rem 2rem;
+      gap: 1.25rem;
+      padding: 0.6rem 1.5rem;
       justify-content: center;
       align-items: center;
     }
+
     .pomo-fullpage-overlay .pomo-ring-wrapper {
-      width: clamp(120px, 35vh, 180px);
-      height: clamp(120px, 35vh, 180px);
+      width: clamp(90px, 30vh, 150px);
+      height: clamp(90px, 30vh, 150px);
     }
     .pomo-fullpage-overlay .pomo-ring {
-      width: clamp(120px, 35vh, 180px);
-      height: clamp(120px, 35vh, 180px);
+      width: clamp(90px, 30vh, 150px);
+      height: clamp(90px, 30vh, 150px);
     }
-    .pomo-fullpage-overlay .pomo-time-inside { font-size: clamp(2rem, 8vh, 3.5rem); }
-    .pomo-fullpage-overlay .pomo-time-unit { font-size: 0.9rem; }
-    .pomo-fullpage-overlay .pomo-label { font-size: 0.75rem; }
-    .pomo-fullpage-overlay .pomo-controls { gap: 0.75rem; }
-    .pomo-fullpage-overlay .pomo-btn--primary { width: 50px; height: 50px; }
-    .pomo-fullpage-overlay .pomo-btn--primary svg { width: 22px; height: 22px; }
-    .pomo-fullpage-overlay .pomo-btn--secondary { width: 38px; height: 38px; }
-    .pomo-fullpage-overlay .pomo-btn--secondary svg { width: 16px; height: 16px; }
-    .pomo-fullpage-overlay .pomo-phase-ready-label { font-size: 0.65rem; }
-    .pomo-fullpage-overlay .pomo-dots { margin-top: 0.25rem; }
-    .pomo-fullpage-close { top: 0.5rem; right: 0.5rem; width: 34px; height: 34px; }
-    .pomo-fullpage-close svg { width: 16px; height: 16px; }
+
+    .pomo-fullpage-overlay .pomo-label {
+      font-size: 0.6rem;
+      width: auto;
+      height: auto;
+      overflow: visible;
+    }
+
+    .pomo-fullpage-overlay .pomo-time-inside {
+      font-size: clamp(1.6rem, 7vh, 2.8rem);
+    }
+    .pomo-fullpage-overlay .pomo-time-unit { font-size: 0.75rem; }
+
+    .pomo-fullpage-overlay .pomo-dots { margin-top: 0.15rem; }
+    .pomo-fullpage-overlay .pomo-dot { width: 5px; height: 5px; }
+
+    .pomo-fullpage-overlay .pomo-phase-ready-label {
+      font-size: 0.58rem;
+      position: static;
+    }
+
+    .pomo-fullpage-overlay .pomo-controls { gap: 0.6rem; }
+    .pomo-fullpage-overlay .pomo-btn--primary { width: 44px; height: 44px; }
+    .pomo-fullpage-overlay .pomo-btn--primary svg { width: 20px; height: 20px; }
+    .pomo-fullpage-overlay .pomo-btn--secondary { width: 34px; height: 34px; }
+    .pomo-fullpage-overlay .pomo-btn--secondary svg { width: 14px; height: 14px; }
+
+    .pomo-fullpage-close {
+      top: 0.35rem;
+      right: 0.35rem;
+      width: 28px;
+      height: 28px;
+    }
+    .pomo-fullpage-close svg { width: 13px; height: 13px; }
   }
 
   /* Very small phones */

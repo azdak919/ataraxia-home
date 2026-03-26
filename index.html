@@ -277,18 +277,24 @@
   }
 
   .quote-card.minimized {
-    padding: 0.6rem 1.5rem;
-    border-radius: 24px;
+    position: fixed;
+    bottom: 1.5rem;
+    left: calc(1.5rem + 80px);
+    top: auto;
+    transform: none;
+    width: 68px;
+    padding: 0.6rem;
+    border-radius: 28px;
     cursor: pointer;
-    width: auto;
-    position: absolute;
-    top: 1.25rem;
-    left: 50%;
-    transform: translateX(-50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
   }
 
   .quote-card.minimized:hover {
-    transform: translateX(-50%) translateY(-1px);
+    transform: translateY(-1px);
   }
 
   .quote-card .quote-inner {
@@ -334,14 +340,33 @@
   }
 
   .quote-card.minimized .quote-minimize-btn {
-    position: static;
-    border: none;
-    width: 24px;
-    height: 24px;
+    display: none;
   }
 
-  .quote-card.minimized .quote-minimize-btn svg {
-    transform: rotate(180deg);
+  .quote-mini-indicator {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+  }
+
+  .quote-card.minimized .quote-mini-indicator {
+    display: flex;
+  }
+
+  .quote-mini-mark {
+    font-size: 1.1rem;
+    line-height: 1;
+    color: var(--text-muted);
+    font-family: var(--font-heading);
+  }
+
+  .quote-mini-label {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
   }
 
   .quote-card:hover {
@@ -875,11 +900,11 @@
     transition: opacity 0.3s ease, background 0.3s ease;
     letter-spacing: 0.02em;
     max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: normal;
+    overflow: visible;
     flex-shrink: 1;
     min-width: 0;
+    z-index: 1;
   }
 
   .img-credit:hover {
@@ -904,6 +929,7 @@
     min-width: 0;
     opacity: 0;
     transition: opacity 0.6s ease;
+    z-index: 1;
   }
   .bottom-badges.visible {
     opacity: 1;
@@ -943,6 +969,8 @@
     line-height: 1;
     flex-shrink: 0;
     opacity: 0.9;
+    display: inline-block;
+    transform: scaleX(-1);
   }
 
   /* ═══════════════════════
@@ -1062,48 +1090,107 @@
     fill: currentColor;
   }
 
-  /* Fullpage settings panel */
-  .pomo-fp-settings-panel {
+  /* Fullpage radial settings */
+  .pomo-radial-settings {
     display: none;
-    background: var(--settings-bg);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--settings-border);
-    border-radius: 18px;
-    padding: 1.25rem;
-    min-width: 240px;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.22);
-    animation: fpSettingsIn 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
   }
 
-  .pomo-fp-settings-panel.open { display: block; }
-
-  @keyframes fpSettingsIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
+  .pomo-radial-settings.open {
+    display: block;
   }
 
-  .pomo-fp-settings-panel .setting-row input[type="number"] {
+  .radial-item {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%)
+               rotate(var(--angle))
+               translateY(calc(-1 * var(--distance)))
+               rotate(calc(-1 * var(--angle)));
+    pointer-events: auto;
+    opacity: 0;
+    animation: radialIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0s) forwards;
+  }
+
+  .pomo-radial-settings:not(.open) .radial-item {
+    animation: none;
+    opacity: 0;
+  }
+
+  @keyframes radialIn {
+    from { opacity: 0; transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(-0.6 * var(--distance))) rotate(calc(-1 * var(--angle))); }
+    to   { opacity: 1; transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(-1 * var(--distance))) rotate(calc(-1 * var(--angle))); }
+  }
+
+  .radial-item label {
+    display: block;
+    font-family: var(--font-body);
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.3rem;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .radial-item input[type="number"] {
     width: 56px;
     padding: 0.35rem 0.25rem;
-    border-radius: 10px;
+    border-radius: 12px;
     border: 1px solid var(--settings-border);
-    background: rgba(0,0,0,0.04);
+    background: var(--settings-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     color: var(--text-primary);
     font-family: var(--font-body);
     font-size: 0.85rem;
     text-align: center;
     outline: none;
     transition: border-color 0.25s, box-shadow 0.25s;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
   }
 
-  .pomo-fp-settings-panel .setting-row input[type="number"]:focus {
+  .radial-item input[type="number"]:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 0 2px var(--accent-glow);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12), 0 0 0 2px var(--accent-glow);
+  }
+
+  .radial-chip .phase-chip {
+    padding: 0.35rem 0.65rem;
+    border-radius: 10px;
+    border: 1px solid var(--settings-border);
+    background: var(--settings-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 400;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  }
+
+  .radial-chip .phase-chip:hover {
+    background: var(--bg-glass-hover);
+    color: var(--text-primary);
+    border-color: var(--accent);
   }
 
   @media (prefers-color-scheme: dark) {
-    .pomo-fp-settings-panel .setting-row input[type="number"] { background: rgba(255,255,255,0.06); }
+    .radial-item input[type="number"] { background: rgba(255,255,255,0.06); }
+    .radial-chip .phase-chip { background: rgba(255,255,255,0.06); }
+  }
+
+  @media (max-width: 600px) {
+    .radial-item { --distance: 135px !important; }
   }
 
   .pomo-ring-wrapper {
@@ -1160,7 +1247,8 @@
     .pomo-ring-wrapper { width: 108px; height: 108px; }
     .pomo-ring { width: 108px; height: 108px; }
     .pomo-time-inside { font-size: 2.3rem; }
-    .img-credit { font-size: 0.6rem; max-width: 50%; }
+    .img-credit { font-size: 0.6rem; }
+    .quote-card.minimized { left: calc(0.75rem + 78px); bottom: 0.75rem; }
   }
 
   /* Landscape on small devices — side-by-side */
@@ -1188,6 +1276,7 @@
       white-space: normal;
     }
     .pomo-widget { width: 144px; padding: 1rem 0.9rem 0.9rem; }
+    .quote-card.minimized { bottom: 0.75rem; left: calc(0.75rem + 78px); }
     .pomo-ring-wrapper { width: 104px; height: 104px; }
     .pomo-ring { width: 104px; height: 104px; }
     .pomo-time-inside { font-size: 2.2rem; }
@@ -1232,6 +1321,10 @@
     <button class="quote-minimize-btn" id="quote-minimize-btn" aria-label="Minimize quote">
       <svg viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
     </button>
+    <div class="quote-mini-indicator">
+      <span class="quote-mini-mark">&ldquo;</span>
+      <span class="quote-mini-label">Quote</span>
+    </div>
     <div class="quote-inner">
       <div class="quote-mark">"</div>
       <p class="quote-text" id="quote-text">We suffer more often in imagination than in reality.</p>
@@ -1328,7 +1421,7 @@
 <div class="bottom-badges">
   <div class="img-credit" id="img-credit"></div>
   <a class="license-badge" href="https://www.gnu.org/licenses/gpl-2.0.html" target="_blank" rel="noopener">
-    <span class="copyleft-symbol">🄯</span>
+    <span class="copyleft-symbol" aria-label="Copyleft">&copy;</span>
     <span>GPL v2</span>
   </a>
 </div>
@@ -1367,30 +1460,31 @@
       <svg viewBox="0 0 24 24"><path d="M19.14 12.94a7.07 7.07 0 000-1.88l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.04 7.04 0 00-1.63-.94l-.36-2.54a.48.48 0 00-.48-.41h-3.84a.48.48 0 00-.48.41l-.36 2.54c-.59.24-1.13.57-1.63.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87a.48.48 0 00.12.61l2.03 1.58a7.07 7.07 0 000 1.88l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.05.24.26.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.57 1.63-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.49.49 0 00-.12-.61l-2.03-1.58zM12 15.6A3.6 3.6 0 1115.6 12 3.6 3.6 0 0112 15.6z"/></svg>
     </button>
   </div>
-  <!-- Fullpage settings panel -->
-  <div class="pomo-fp-settings-panel" id="pomo-fp-settings-panel">
-    <h4>Timer Settings</h4>
-    <div class="setting-row">
-      <label>Focus (min)</label>
+  <!-- Fullpage radial settings -->
+  <div class="pomo-radial-settings" id="pomo-fp-settings-panel">
+    <div class="radial-item" style="--angle: 320deg; --distance: 200px; --delay: 0s">
+      <label>Focus</label>
       <input type="number" id="fp-setting-work" min="1" max="90" value="25">
     </div>
-    <div class="setting-row">
-      <label>Break (min)</label>
+    <div class="radial-item" style="--angle: 40deg; --distance: 200px; --delay: 0.05s">
+      <label>Break</label>
       <input type="number" id="fp-setting-break" min="1" max="30" value="5">
     </div>
-    <div class="setting-row">
-      <label>Long break</label>
+    <div class="radial-item" style="--angle: 220deg; --distance: 200px; --delay: 0.1s">
+      <label>Long</label>
       <input type="number" id="fp-setting-long" min="1" max="60" value="15">
     </div>
-    <div class="setting-row">
+    <div class="radial-item" style="--angle: 140deg; --distance: 200px; --delay: 0.15s">
       <label>Sessions</label>
       <input type="number" id="fp-setting-sessions" min="1" max="12" value="4">
     </div>
-    <div class="setting-divider"></div>
-    <h4>Jump to phase</h4>
-    <div class="setting-phase-chips">
+    <div class="radial-item radial-chip" style="--angle: 180deg; --distance: 200px; --delay: 0.2s">
       <button class="phase-chip" id="fp-chip-focus">Focus</button>
+    </div>
+    <div class="radial-item radial-chip" style="--angle: 0deg; --distance: 200px; --delay: 0.25s">
       <button class="phase-chip" id="fp-chip-break">Break</button>
+    </div>
+    <div class="radial-item radial-chip" style="--angle: 90deg; --distance: 200px; --delay: 0.3s">
       <button class="phase-chip" id="fp-chip-long">Long Break</button>
     </div>
   </div>

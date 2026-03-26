@@ -282,7 +282,6 @@
     left: calc(1.5rem + var(--pomo-offset, 184px));
     top: auto;
     transform: none;
-    min-width: 76px;
     width: auto;
     padding: 0.6rem;
     border-radius: 28px;
@@ -305,8 +304,7 @@
   }
 
   .quote-card.minimized .quote-inner {
-    opacity: 0;
-    max-height: 0;
+    display: none;
     pointer-events: none;
   }
 
@@ -314,8 +312,8 @@
     position: absolute;
     top: 0.75rem;
     right: 0.75rem;
-    width: 32px;
-    height: 32px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
     border: 1px solid var(--border-glass);
     background: transparent;
@@ -334,8 +332,8 @@
   }
 
   .quote-minimize-btn svg {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     fill: currentColor;
     transition: transform 0.3s ease;
   }
@@ -494,8 +492,8 @@
     position: absolute;
     top: 0.5rem;
     right: 0.5rem;
-    width: 22px;
-    height: 22px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
     border: 1px solid var(--border-glass);
     background: transparent;
@@ -514,14 +512,14 @@
   }
 
   .pomo-minimize-btn svg {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     fill: currentColor;
+    transition: transform 0.3s ease;
   }
 
   /* Minimized pomo state */
   .pomo-widget.minimized {
-    min-width: 76px;
     width: auto;
     padding: 0.6rem;
     border-radius: 28px;
@@ -1194,7 +1192,7 @@
   }
 
   @media (max-width: 420px) {
-    .radial-item { --distance: 140px !important; }
+    .radial-item { --distance: clamp(100px, 28vw, 140px) !important; }
   }
 
   .pomo-ring-wrapper {
@@ -1350,7 +1348,7 @@
 <div class="pomo-container">
   <div class="pomo-widget" id="pomo-widget" style="position:relative">
     <button class="pomo-minimize-btn" id="pomo-minimize-btn" aria-label="Minimize timer">
-      <svg viewBox="0 0 24 24"><path d="M19 13H5v-2h14v2z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
     </button>
     <div class="pomo-mini-indicator" id="pomo-mini-indicator">
       <span class="pomo-mini-dot" id="pomo-mini-dot"></span>
@@ -2250,7 +2248,7 @@ function PomoUI() {
   // Update browser tab title with stage and time
   const stageLabel = pomo.isBreak ? 'Break' : 'Focus';
   const pausedMark = !pomo.isRunning && (pomo.pausedRemaining != null || pomo.startedAt != null) ? '⏸ ' : '';
-  document.title = `${pausedMark}${stageLabel} · ${minStr}m — Ataraxia`;
+  document.title = `${pausedMark}${stageLabel} · ${minStr}m · Ataraxia`;
 
   const fraction = 1 - (remaining / pomo.totalSeconds);
   progress.style.strokeDasharray = CIRCUMFERENCE;

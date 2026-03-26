@@ -279,10 +279,10 @@
   .quote-card.minimized {
     position: fixed;
     bottom: 1.5rem;
-    left: calc(1.5rem + 80px);
+    left: calc(1.5rem + var(--pomo-offset, 184px));
     top: auto;
     transform: none;
-    width: 68px;
+    width: 76px;
     padding: 0.6rem;
     border-radius: 28px;
     cursor: pointer;
@@ -355,7 +355,7 @@
   }
 
   .quote-mini-mark {
-    font-size: 1.1rem;
+    font-size: 1.4rem;
     line-height: 1;
     color: var(--text-muted);
     font-family: var(--font-heading);
@@ -363,7 +363,7 @@
 
   .quote-mini-label {
     font-family: var(--font-body);
-    font-size: 0.72rem;
+    font-size: 0.8rem;
     font-weight: 500;
     color: var(--text-muted);
     letter-spacing: 0.05em;
@@ -524,7 +524,7 @@
 
   /* Minimized pomo state */
   .pomo-widget.minimized {
-    width: 68px;
+    width: 76px;
     padding: 0.6rem;
     border-radius: 28px;
     cursor: pointer;
@@ -550,8 +550,8 @@
   }
 
   .pomo-mini-dot {
-    width: 18px;
-    height: 18px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     background: var(--pomo-work);
     transition: background 0.3s ease;
@@ -563,7 +563,7 @@
 
   .pomo-mini-time {
     font-family: var(--font-body);
-    font-size: 0.72rem;
+    font-size: 0.8rem;
     font-weight: 500;
     color: var(--text-muted);
     letter-spacing: 0.05em;
@@ -1190,7 +1190,7 @@
   }
 
   @media (max-width: 600px) {
-    .radial-item { --distance: 135px !important; }
+    .radial-item { --distance: 175px !important; }
   }
 
   .pomo-ring-wrapper {
@@ -1248,7 +1248,7 @@
     .pomo-ring { width: 108px; height: 108px; }
     .pomo-time-inside { font-size: 2.3rem; }
     .img-credit { font-size: 0.6rem; }
-    .quote-card.minimized { left: calc(0.75rem + 78px); bottom: 0.75rem; }
+    .quote-card.minimized { left: calc(0.75rem + var(--pomo-offset, 160px)); bottom: 0.75rem; }
   }
 
   /* Landscape on small devices — side-by-side */
@@ -1276,7 +1276,7 @@
       white-space: normal;
     }
     .pomo-widget { width: 144px; padding: 1rem 0.9rem 0.9rem; }
-    .quote-card.minimized { bottom: 0.75rem; left: calc(0.75rem + 78px); }
+    .quote-card.minimized { bottom: 0.75rem; left: calc(0.75rem + var(--pomo-offset, 160px)); }
     .pomo-ring-wrapper { width: 104px; height: 104px; }
     .pomo-ring { width: 104px; height: 104px; }
     .pomo-time-inside { font-size: 2.2rem; }
@@ -1462,29 +1462,29 @@
   </div>
   <!-- Fullpage radial settings -->
   <div class="pomo-radial-settings" id="pomo-fp-settings-panel">
-    <div class="radial-item" style="--angle: 320deg; --distance: 200px; --delay: 0s">
+    <div class="radial-item" style="--angle: 320deg; --distance: 250px; --delay: 0s">
       <label>Focus</label>
       <input type="number" id="fp-setting-work" min="1" max="90" value="25">
     </div>
-    <div class="radial-item" style="--angle: 40deg; --distance: 200px; --delay: 0.05s">
+    <div class="radial-item" style="--angle: 40deg; --distance: 250px; --delay: 0.05s">
       <label>Break</label>
       <input type="number" id="fp-setting-break" min="1" max="30" value="5">
     </div>
-    <div class="radial-item" style="--angle: 220deg; --distance: 200px; --delay: 0.1s">
+    <div class="radial-item" style="--angle: 220deg; --distance: 250px; --delay: 0.1s">
       <label>Long</label>
       <input type="number" id="fp-setting-long" min="1" max="60" value="15">
     </div>
-    <div class="radial-item" style="--angle: 140deg; --distance: 200px; --delay: 0.15s">
+    <div class="radial-item" style="--angle: 140deg; --distance: 250px; --delay: 0.15s">
       <label>Sessions</label>
       <input type="number" id="fp-setting-sessions" min="1" max="12" value="4">
     </div>
-    <div class="radial-item radial-chip" style="--angle: 180deg; --distance: 200px; --delay: 0.2s">
+    <div class="radial-item radial-chip" style="--angle: 180deg; --distance: 250px; --delay: 0.2s">
       <button class="phase-chip" id="fp-chip-focus">Focus</button>
     </div>
-    <div class="radial-item radial-chip" style="--angle: 0deg; --distance: 200px; --delay: 0.25s">
+    <div class="radial-item radial-chip" style="--angle: 0deg; --distance: 250px; --delay: 0.25s">
       <button class="phase-chip" id="fp-chip-break">Break</button>
     </div>
-    <div class="radial-item radial-chip" style="--angle: 90deg; --distance: 200px; --delay: 0.3s">
+    <div class="radial-item radial-chip" style="--angle: 90deg; --distance: 250px; --delay: 0.3s">
       <button class="phase-chip" id="fp-chip-long">Long Break</button>
     </div>
   </div>
@@ -2536,16 +2536,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const pomoMiniDot = document.getElementById('pomo-mini-dot');
   if (localStorage.getItem('ataraxia_pomo_minimized') === 'true') {
     pomoWidget.classList.add('minimized');
+    document.documentElement.style.setProperty('--pomo-offset', '88px');
   }
   pomoMinBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     pomoWidget.classList.add('minimized');
     localStorage.setItem('ataraxia_pomo_minimized', 'true');
+    document.documentElement.style.setProperty('--pomo-offset', '88px');
   });
   pomoWidget.addEventListener('click', (e) => {
     if (pomoWidget.classList.contains('minimized')) {
       pomoWidget.classList.remove('minimized');
       localStorage.setItem('ataraxia_pomo_minimized', 'false');
+      document.documentElement.style.setProperty('--pomo-offset', '184px');
     }
   });
 
@@ -3474,6 +3477,17 @@ const _origLabel = null;
     if (pomo.phaseJustCompleted && !pomo.isRunning && readyLabel) {
       readyLabel.textContent = pomo.isBreak ? s.readyBreak : s.readyFocus;
     }
+
+    // Translate fullpage overlay labels
+    const fpLabel = document.getElementById('pomo-fp-label');
+    if (fpLabel) fpLabel.textContent = pomo.isBreak ? s.break : s.focus;
+    const fpReady = document.getElementById('pomo-fp-phase-ready');
+    if (pomo.phaseJustCompleted && !pomo.isRunning && fpReady) {
+      fpReady.textContent = pomo.isBreak ? s.readyBreak : s.readyFocus;
+    }
+
+    // Translate tab title
+    document.title = document.title.replace(/Break/, s.break).replace(/Focus/, s.focus);
   };
   // Reassign for the tick loop
   PomoUI = window.PomoUI;

@@ -116,6 +116,7 @@
     top: max(1rem, env(safe-area-inset-top, 0px));
     right: max(1rem, env(safe-area-inset-right, 0px));
     z-index: 100;
+    animation: uiEnter 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
   }
   .lang-btn {
     font-family: var(--font-body);
@@ -299,7 +300,7 @@
   .quote-card.minimized {
     position: fixed;
     bottom: 1.5rem;
-    left: calc(1.5rem + var(--pomo-offset, 0px));
+    left: 1.5rem;
     top: auto;
     transform: none;
     width: auto;
@@ -402,6 +403,11 @@
     to   { opacity: 1; transform: translateY(0) scale(1); }
   }
 
+  @keyframes uiEnter {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: none; }
+  }
+
   .quote-mark {
     font-family: var(--font-display);
     font-size: 4rem;
@@ -502,8 +508,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
-    width: 172px;
+    gap: 0.7rem;
+    width: 186px;
     box-shadow: 0 8px 36px var(--shadow-soft), 0 2px 8px var(--shadow-soft);
     transition: box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
     cursor: default;
@@ -582,6 +588,10 @@
 
   /* Minimized pomo state */
   .pomo-widget.minimized {
+    position: fixed;
+    bottom: 1.5rem;
+    left: calc(1.5rem + var(--quote-offset, 0px));
+    z-index: 200;
     width: auto;
     min-width: 56px;
     padding: 0.6rem;
@@ -633,14 +643,14 @@
   /* Large ring */
   .pomo-ring-wrapper {
     position: relative;
-    width: 130px;
-    height: 130px;
+    width: 144px;
+    height: 144px;
     flex-shrink: 0;
   }
 
   .pomo-ring {
-    width: 130px;
-    height: 130px;
+    width: 144px;
+    height: 144px;
     transform: rotate(-90deg);
   }
 
@@ -682,6 +692,10 @@
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--text-muted);
+    max-width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .pomo-time-inside {
@@ -1442,8 +1456,8 @@
 
     /* Adaptive ring — scales with available viewport space, larger now with more room */
     .pomo-ring-wrapper {
-      width: clamp(120px, min(36vw, 22vh), 175px);
-      height: clamp(120px, min(36vw, 22vh), 175px);
+      width: clamp(132px, min(36vw, 22vh), 188px);
+      height: clamp(132px, min(36vw, 22vh), 188px);
     }
     .pomo-ring { width: 100%; height: 100%; }
     .pomo-time-inside { font-size: clamp(2.2rem, min(7vw, 4.5vh), 3.2rem); }
@@ -1460,14 +1474,14 @@
 
     .img-credit { font-size: 0.6rem; }
 
-    /* Minimized pills — anchor above the credits */
+    /* Minimized pills — anchor above the credits, side-by-side */
     .pomo-widget.minimized {
       position: fixed;
       bottom: 4.5rem;
-      left: max(0.75rem, env(safe-area-inset-left, 0px));
+      left: calc(max(0.75rem, env(safe-area-inset-left, 0px)) + var(--quote-offset, 0px));
       width: auto;
     }
-    .quote-card.minimized { left: calc(0.75rem + var(--pomo-offset, 0px)); right: auto; bottom: 4.5rem; }
+    .quote-card.minimized { left: max(0.75rem, env(safe-area-inset-left, 0px)); right: auto; bottom: 4.5rem; }
   }
 
   /* ═══════════════════════════════════════════════════════════
@@ -1593,22 +1607,22 @@
     .bottom-badges .license-badge { order: 1; }
     .bottom-badges .img-credit { order: 2; max-width: none; white-space: nowrap; font-size: 0.55rem; }
 
-    /* Minimized pills — stacked vertically at bottom-left, flush with edge */
+    /* Minimized pills — side-by-side at bottom-left, flush with edge */
     .pomo-widget.minimized {
       position: fixed;
       bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
-      left: 0.5rem;
+      left: calc(0.5rem + var(--quote-offset, 0px));
       width: auto;
       height: auto;
       min-width: 56px;
       z-index: 200;
       background: var(--bg-glass);
     }
-    /* Quote pill: always on the left, stacks above pomo pill via --pomo-height-offset */
+    /* Quote pill: anchored at left edge, side-by-side with pomo */
     .quote-card.minimized {
       left: 0.5rem;
       right: auto;
-      bottom: calc(max(0.5rem, env(safe-area-inset-bottom, 0px)) + var(--pomo-height-offset, 0px));
+      bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
       height: auto;
       z-index: 200;
       background: var(--bg-glass);
@@ -3636,8 +3650,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // Collapsible quote card
   const quoteCard = document.getElementById('quote-card');
   const quoteMinBtn = document.getElementById('quote-minimize-btn');
+  window.updateQuoteOffset = function() {
+    requestAnimationFrame(() => {
+      if (quoteCard.classList.contains('minimized')) {
+        document.documentElement.style.setProperty('--quote-offset', (quoteCard.offsetWidth + 12) + 'px');
+      } else {
+        document.documentElement.style.setProperty('--quote-offset', '0px');
+      }
+    });
+  };
   if (localStorage.getItem('ataraxia_quote_minimized') === 'true') {
     quoteCard.classList.add('minimized');
+    updateQuoteOffset();
   }
   quoteMinBtn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -3645,12 +3669,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const isMin = quoteCard.classList.contains('minimized');
     quoteMinBtn.setAttribute('aria-label', isMin ? 'Expand quote' : 'Minimize quote');
     localStorage.setItem('ataraxia_quote_minimized', isMin);
+    updateQuoteOffset();
   });
   quoteCard.addEventListener('click', (e) => {
     if (quoteCard.classList.contains('minimized')) {
       quoteCard.classList.remove('minimized');
       quoteMinBtn.setAttribute('aria-label', 'Minimize quote');
       localStorage.setItem('ataraxia_quote_minimized', 'false');
+      updateQuoteOffset();
     }
   });
 
@@ -3670,6 +3696,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.documentElement.style.setProperty('--pomo-offset', '0px');
         document.documentElement.style.setProperty('--pomo-height-offset', '0px');
       }
+      if (typeof updateQuoteOffset === 'function') updateQuoteOffset();
     });
   };
   if (localStorage.getItem('ataraxia_pomo_minimized') === 'true') {

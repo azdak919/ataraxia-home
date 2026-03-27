@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Ataraxia — Daily Quotes & Focus Timer</title>
 
 <!-- Favicons — universal, all platforms -->
@@ -113,8 +113,8 @@
      ═══════════════════════ */
   .lang-selector {
     position: fixed;
-    top: 1rem;
-    right: 1rem;
+    top: max(1rem, env(safe-area-inset-top, 0px));
+    right: max(1rem, env(safe-area-inset-right, 0px));
     z-index: 100;
   }
   .lang-btn {
@@ -208,6 +208,7 @@
     font-family: var(--font-body);
     color: var(--text-primary);
     background: var(--bg-primary);
+    min-height: 100vh;
     min-height: 100dvh;
     display: flex;
     flex-direction: column;
@@ -247,6 +248,7 @@
     position: relative;
     z-index: 10;
     width: 100%;
+    height: 100vh;
     height: 100dvh;
     display: flex;
     flex-direction: column;
@@ -857,6 +859,7 @@
     border-radius: 18px;
     padding: 1.25rem;
     min-width: 210px;
+    max-height: calc(100vh - 220px);
     max-height: calc(100dvh - 220px);
     overflow-y: auto;
     box-shadow: 0 12px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
@@ -999,8 +1002,8 @@
      ═══════════════════════ */
   .bottom-badges {
     position: fixed;
-    bottom: 1.5rem;
-    right: 1.5rem;
+    bottom: max(1.5rem, env(safe-area-inset-bottom, 0px));
+    right: max(1.5rem, env(safe-area-inset-right, 0px));
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -1366,7 +1369,7 @@
      ═══════════════════════ */
   .toast {
     position: fixed;
-    top: 1.5rem;
+    top: max(1.5rem, env(safe-area-inset-top, 0px));
     left: 50%;
     transform: translateX(-50%) translateY(-100%);
     z-index: 1000;
@@ -1419,7 +1422,7 @@
      RESPONSIVE
      ═══════════════════════ */
   @media (max-width: 600px) {
-    .lang-selector { top: 0.5rem; right: 0.5rem; }
+    .lang-selector { top: max(0.5rem, env(safe-area-inset-top, 0px)); right: max(0.5rem, env(safe-area-inset-right, 0px)); }
     .lang-btn { font-size: 0.7rem; padding: 0.3rem 0.55rem; }
 
     /* Quote in upper portion, pomo fills remaining space below */
@@ -1438,8 +1441,8 @@
     }
     .bottom-badges {
       position: fixed;
-      bottom: 0.75rem;
-      right: 0.75rem;
+      bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+      right: max(0.75rem, env(safe-area-inset-right, 0px));
       max-width: calc(100vw - 6.5rem);
     }
     .img-credit { white-space: normal; text-align: right; }
@@ -1484,7 +1487,7 @@
     .pomo-widget.minimized {
       position: fixed;
       bottom: 4.5rem;
-      left: 0.75rem;
+      left: max(0.75rem, env(safe-area-inset-left, 0px));
       width: auto;
     }
     .quote-card.minimized { left: calc(0.75rem + var(--pomo-offset, 0px)); right: auto; bottom: 4.5rem; }
@@ -1531,6 +1534,7 @@
       width: 100%;
       padding: 0.75rem 1rem;
       border-radius: 14px;
+      max-height: calc(100vh - 1rem);
       max-height: calc(100dvh - 1rem);
       overflow-y: auto;
       box-sizing: border-box;
@@ -1577,6 +1581,7 @@
       top: 50%;
       left: calc(100% + 0.5rem);
       transform: translateY(-50%);
+      max-height: calc(100vh - 1rem);
       max-height: calc(100dvh - 1rem);
       min-width: 180px;
     }
@@ -1584,8 +1589,8 @@
     /* Badges — horizontal row at bottom-right */
     .bottom-badges {
       position: fixed;
-      bottom: 0.25rem;
-      right: 0.5rem;
+      bottom: max(0.25rem, env(safe-area-inset-bottom, 0px));
+      right: max(0.5rem, env(safe-area-inset-right, 0px));
       left: auto;
       flex-direction: row;
       align-items: center;
@@ -1599,8 +1604,8 @@
     /* Minimized pills — bottom-left, same as portrait */
     .pomo-widget.minimized {
       position: fixed;
-      bottom: 0.5rem;
-      left: 0.5rem;
+      bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+      left: max(0.5rem, env(safe-area-inset-left, 0px));
       width: auto;
       min-width: 56px;
     }

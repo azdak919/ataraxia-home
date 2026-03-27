@@ -492,6 +492,9 @@
     margin-top: 0.5rem;
     animation: pomoEnter 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both;
   }
+  .pomo-container.anim-done {
+    animation: none;
+  }
 
   @keyframes pomoEnter {
     from { opacity: 0; transform: translateY(20px) scale(0.92); }
@@ -1435,7 +1438,7 @@
       position: fixed;
       bottom: 0.75rem;
       right: 0.75rem;
-      max-width: calc(100vw - 1.5rem);
+      max-width: calc(100vw - 6.5rem);
     }
     .img-credit { white-space: normal; text-align: right; }
 
@@ -3546,6 +3549,15 @@ document.addEventListener('DOMContentLoaded', () => {
   currentQuoteIdx = Math.floor(Math.random() * QUOTES.length);
   document.getElementById('quote-text').textContent = QUOTES[currentQuoteIdx].text;
   document.getElementById('quote-author').textContent = QUOTES[currentQuoteIdx].author;
+
+  // Remove pomo-container animation after it ends so it doesn't create a
+  // containing block that breaks position:fixed on minimized children.
+  const pomoContainer = document.querySelector('.pomo-container');
+  if (pomoContainer) {
+    pomoContainer.addEventListener('animationend', () => {
+      pomoContainer.classList.add('anim-done');
+    }, { once: true });
+  }
 
   // Quote buttons
   document.getElementById('btn-new').addEventListener('click', showRandomQuote);

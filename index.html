@@ -509,7 +509,7 @@
     flex-direction: column;
     align-items: center;
     gap: 0.7rem;
-    width: 186px;
+    width: 210px;
     box-shadow: 0 8px 36px var(--shadow-soft), 0 2px 8px var(--shadow-soft);
     transition: box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
     cursor: default;
@@ -643,14 +643,14 @@
   /* Large ring */
   .pomo-ring-wrapper {
     position: relative;
-    width: 144px;
-    height: 144px;
+    width: 162px;
+    height: 162px;
     flex-shrink: 0;
   }
 
   .pomo-ring {
-    width: 144px;
-    height: 144px;
+    width: 162px;
+    height: 162px;
     transform: rotate(-90deg);
   }
 
@@ -692,7 +692,7 @@
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--text-muted);
-    max-width: 90%;
+    max-width: 82%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -3681,6 +3681,11 @@ document.addEventListener('DOMContentLoaded', () => {
       updateQuoteOffset();
     }
   });
+
+  // Keep --quote-offset in sync whenever the quote pill resizes (font load, language change, etc.)
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(() => updateQuoteOffset()).observe(quoteCard);
+  }
 
   // Minimizable pomodoro widget
   const pomoWidget = document.getElementById('pomo-widget');

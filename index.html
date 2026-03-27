@@ -116,15 +116,20 @@
      ═══════════════════════ */
   .top-right-actions {
     position: fixed;
-    top: max(1.25rem, env(safe-area-inset-top, 0px));
-    right: max(1.25rem, env(safe-area-inset-right, 0px));
+    top: 0;
+    left: 0;
+    right: 0;
     z-index: 100;
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    flex-wrap: wrap;
     gap: 0.5rem;
+    padding: max(1.25rem, env(safe-area-inset-top, 0px)) max(1.25rem, env(safe-area-inset-right, 0px)) 0 max(1.25rem, env(safe-area-inset-left, 0px));
+    pointer-events: none;
     animation: uiEnter 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.9s both;
+  }
+  .top-right-actions > * {
+    pointer-events: auto;
   }
 
   .coffee-btn {
@@ -1459,7 +1464,7 @@
      RESPONSIVE
      ═══════════════════════ */
   @media (max-width: 600px) {
-    .top-right-actions { top: max(0.5rem, env(safe-area-inset-top, 0px)); right: max(0.5rem, env(safe-area-inset-right, 0px)); gap: 0.35rem; }
+    .top-right-actions { padding: max(0.5rem, env(safe-area-inset-top, 0px)) max(0.5rem, env(safe-area-inset-right, 0px)) 0 max(0.5rem, env(safe-area-inset-left, 0px)); gap: 0.35rem; }
     .lang-btn, .coffee-btn { font-size: 0.7rem; padding: 0.3rem 0.55rem; }
 
     /* Quote in upper portion, pomo below it — both in .content */
@@ -4030,6 +4035,7 @@ const UI_STRINGS = {
     readyBreak: 'Prêt pour la pause',
     readyFocus: 'Prêt à se concentrer',
     quote: 'Citation',
+    coffeeBtn: 'Offrir un café',
   },
   es: {
     newQuote: 'Nueva cita',
@@ -4049,6 +4055,7 @@ const UI_STRINGS = {
     readyBreak: 'Listo para descansar',
     readyFocus: 'Listo para concentrarse',
     quote: 'Cita',
+    coffeeBtn: 'Invítame un café',
   },
   de: {
     newQuote: 'Neues Zitat',
@@ -4068,6 +4075,7 @@ const UI_STRINGS = {
     readyBreak: 'Bereit zur Pause',
     readyFocus: 'Bereit zum Fokussieren',
     quote: 'Zitat',
+    coffeeBtn: 'Kauf mir einen Kaffee',
   },
   it: {
     newQuote: 'Nuova citazione',
@@ -4087,6 +4095,7 @@ const UI_STRINGS = {
     readyBreak: 'Pronto per la pausa',
     readyFocus: 'Pronto per concentrarsi',
     quote: 'Citazione',
+    coffeeBtn: 'Offrimi un caffè',
   },
   pt: {
     newQuote: 'Nova citação',
@@ -4106,6 +4115,7 @@ const UI_STRINGS = {
     readyBreak: 'Pronto para pausar',
     readyFocus: 'Pronto para focar',
     quote: 'Citação',
+    coffeeBtn: 'Pague-me um café',
   },
   nl: {
     newQuote: 'Nieuw citaat',
@@ -4125,6 +4135,7 @@ const UI_STRINGS = {
     readyBreak: 'Klaar voor pauze',
     readyFocus: 'Klaar om te focussen',
     quote: 'Citaat',
+    coffeeBtn: 'Koop een koffie voor mij',
   },
   ru: {
     newQuote: 'Новая цитата',
@@ -4144,6 +4155,7 @@ const UI_STRINGS = {
     readyBreak: 'Готов к перерыву',
     readyFocus: 'Готов фокусироваться',
     quote: 'Цитата',
+    coffeeBtn: 'Угостите кофе',
   },
   ja: {
     newQuote: '新しい名言',
@@ -4163,6 +4175,7 @@ const UI_STRINGS = {
     readyBreak: '休憩の準備完了',
     readyFocus: '集中の準備完了',
     quote: '名言',
+    coffeeBtn: 'コーヒーをおごる',
   },
   ko: {
     newQuote: '새 인용구',
@@ -4182,6 +4195,7 @@ const UI_STRINGS = {
     readyBreak: '휴식 준비 완료',
     readyFocus: '집중 준비 완료',
     quote: '인용',
+    coffeeBtn: '커피 한 잔 사주기',
   },
   zh: {
     newQuote: '新名言',
@@ -4201,6 +4215,7 @@ const UI_STRINGS = {
     readyBreak: '准备休息',
     readyFocus: '准备专注',
     quote: '名言',
+    coffeeBtn: '请我喝杯咖啡',
   },
   ar: {
     newQuote: 'اقتباس جديد',
@@ -4220,6 +4235,7 @@ const UI_STRINGS = {
     readyBreak: 'جاهز للاستراحة',
     readyFocus: 'جاهز للتركيز',
     quote: 'اقتباس',
+    coffeeBtn: 'اشترِ لي قهوة',
   },
   hi: {
     newQuote: 'नया उद्धरण',
@@ -4239,6 +4255,7 @@ const UI_STRINGS = {
     readyBreak: 'विराम के लिए तैयार',
     readyFocus: 'फ़ोकस के लिए तैयार',
     quote: 'उद्धरण',
+    coffeeBtn: 'मुझे कॉफ़ी दिलाएं',
   },
   tr: {
     newQuote: 'Yeni alıntı',
@@ -4258,6 +4275,7 @@ const UI_STRINGS = {
     readyBreak: 'Molaya hazır',
     readyFocus: 'Odaklanmaya hazır',
     quote: 'Alıntı',
+    coffeeBtn: 'Bana bir kahve ısmarla',
   },
   pl: {
     newQuote: 'Nowy cytat',
@@ -4277,6 +4295,7 @@ const UI_STRINGS = {
     readyBreak: 'Gotowy na przerwę',
     readyFocus: 'Gotowy do skupienia',
     quote: 'Cytat',
+    coffeeBtn: 'Postaw mi kawę',
   },
   uk: {
     newQuote: 'Нова цитата',
@@ -4296,6 +4315,7 @@ const UI_STRINGS = {
     readyBreak: 'Готовий до перерви',
     readyFocus: 'Готовий до фокусу',
     quote: 'Цитата',
+    coffeeBtn: 'Пригостіть кавою',
   },
   sv: {
     newQuote: 'Nytt citat',
@@ -4315,6 +4335,7 @@ const UI_STRINGS = {
     readyBreak: 'Redo för rast',
     readyFocus: 'Redo att fokusera',
     quote: 'Citat',
+    coffeeBtn: 'Bjud mig på kaffe',
   },
   da: {
     newQuote: 'Nyt citat',
@@ -4334,6 +4355,7 @@ const UI_STRINGS = {
     readyBreak: 'Klar til pause',
     readyFocus: 'Klar til fokus',
     quote: 'Citat',
+    coffeeBtn: 'Køb mig en kaffe',
   },
   no: {
     newQuote: 'Nytt sitat',
@@ -4353,6 +4375,7 @@ const UI_STRINGS = {
     readyBreak: 'Klar til pause',
     readyFocus: 'Klar til fokus',
     quote: 'Sitat',
+    coffeeBtn: 'Kjøp meg en kaffe',
   },
   fi: {
     newQuote: 'Uusi lainaus',
@@ -4372,6 +4395,7 @@ const UI_STRINGS = {
     readyBreak: 'Valmis taukoon',
     readyFocus: 'Valmis keskittymään',
     quote: 'Lainaus',
+    coffeeBtn: 'Osta minulle kahvi',
   },
   el: {
     newQuote: 'Νέο απόφθεγμα',
@@ -4391,6 +4415,7 @@ const UI_STRINGS = {
     readyBreak: 'Έτοιμος για διάλειμμα',
     readyFocus: 'Έτοιμος για εστίαση',
     quote: 'Απόσπασμα',
+    coffeeBtn: 'Κέρασέ μου έναν καφέ',
   },
   he: {
     newQuote: 'ציטוט חדש',
@@ -4410,6 +4435,7 @@ const UI_STRINGS = {
     readyBreak: 'מוכן להפסקה',
     readyFocus: 'מוכן להתרכז',
     quote: 'ציטוט',
+    coffeeBtn: 'קנו לי קפה',
   },
   th: {
     newQuote: 'คำคมใหม่',
@@ -4429,6 +4455,7 @@ const UI_STRINGS = {
     readyBreak: 'พร้อมพัก',
     readyFocus: 'พร้อมโฟกัส',
     quote: 'คำคม',
+    coffeeBtn: 'เลี้ยงกาแฟหน่อย',
   },
   vi: {
     newQuote: 'Câu trích dẫn mới',
@@ -4448,6 +4475,7 @@ const UI_STRINGS = {
     readyBreak: 'Sẵn sàng nghỉ',
     readyFocus: 'Sẵn sàng tập trung',
     quote: 'Trích dẫn',
+    coffeeBtn: 'Mua cho tôi ly cà phê',
   },
   id: {
     newQuote: 'Kutipan baru',
@@ -4467,6 +4495,7 @@ const UI_STRINGS = {
     readyBreak: 'Siap istirahat',
     readyFocus: 'Siap fokus',
     quote: 'Kutipan',
+    coffeeBtn: 'Belikan saya kopi',
   },
   ms: {
     newQuote: 'Petikan baharu',
@@ -4486,6 +4515,7 @@ const UI_STRINGS = {
     readyBreak: 'Bersedia untuk rehat',
     readyFocus: 'Bersedia untuk fokus',
     quote: 'Petikan',
+    coffeeBtn: 'Belanja saya kopi',
   },
   ro: {
     newQuote: 'Citat nou',
@@ -4505,6 +4535,7 @@ const UI_STRINGS = {
     readyBreak: 'Gata de pauză',
     readyFocus: 'Gata de concentrare',
     quote: 'Citat',
+    coffeeBtn: 'Cumpără-mi o cafea',
   },
   cs: {
     newQuote: 'Nový citát',
@@ -4524,6 +4555,7 @@ const UI_STRINGS = {
     readyBreak: 'Připraven na přestávku',
     readyFocus: 'Připraven se soustředit',
     quote: 'Citát',
+    coffeeBtn: 'Kupte mi kávu',
   },
   hu: {
     newQuote: 'Új idézet',
@@ -4543,6 +4575,7 @@ const UI_STRINGS = {
     readyBreak: 'Kész a szünetre',
     readyFocus: 'Kész a fókuszra',
     quote: 'Idézet',
+    coffeeBtn: 'Vegyél nekem egy kávét',
   },
   bg: {
     newQuote: 'Нов цитат',
@@ -4562,6 +4595,7 @@ const UI_STRINGS = {
     readyBreak: 'Готов за почивка',
     readyFocus: 'Готов за фокус',
     quote: 'Цитат',
+    coffeeBtn: 'Купете ми кафе',
   },
 };
 
@@ -4728,7 +4762,7 @@ async function translateUIStrings(lang) {
 function applyUIStrings(strings) {
   document.getElementById('btn-new').textContent = strings.newQuote;
   document.getElementById('btn-bg').textContent = strings.newScene;
-  document.getElementById('coffee-btn-label').textContent = strings.coffeeBtn;
+  document.getElementById('coffee-btn-label').textContent = strings.coffeeBtn || 'Buy me a coffee';
 
   // Settings panel text (normal widget)
   const settingsPanel = document.getElementById('pomo-settings-panel');

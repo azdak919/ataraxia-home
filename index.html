@@ -1048,6 +1048,26 @@
     background: rgba(0, 0, 0, 0.32);
   }
 
+  /* ═══════════════════════
+     VERSION BADGE
+     ═══════════════════════ */
+  .version-badge {
+    display: inline-block;
+    font-family: var(--font-body);
+    font-size: 0.6rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.72);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.18);
+    padding: 0.22rem 0.6rem;
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    opacity: 0.72;
+    letter-spacing: 0.04em;
+  }
+
   .copyleft-symbol {
     font-size: 0.8rem;
     line-height: 1;
@@ -1609,7 +1629,8 @@
     }
     .bottom-badges * { pointer-events: auto; }
     .bottom-badges .license-badge { order: 1; }
-    .bottom-badges .img-credit { order: 2; max-width: none; white-space: nowrap; font-size: 0.55rem; }
+    .bottom-badges .version-badge { order: 2; }
+    .bottom-badges .img-credit    { order: 3; max-width: none; white-space: nowrap; font-size: 0.55rem; }
 
     /* Minimized pills — side-by-side at bottom-left, flush with edge */
     .pomo-widget.minimized {
@@ -1864,9 +1885,10 @@
 
 </div><!-- /.content -->
 
-<!-- Badges: Image Credit + License -->
+<!-- Badges: Image Credit + Version + License -->
 <div class="bottom-badges">
   <div class="img-credit" id="img-credit"></div>
+  <span class="version-badge" id="version-badge"></span>
   <a class="license-badge" href="https://www.gnu.org/licenses/gpl-2.0.html" target="_blank" rel="noopener">
     <span>Charles Tison</span>
     <span class="copyleft-symbol" aria-label="Copyleft">&copy;</span>
@@ -1941,6 +1963,11 @@
 </div>
 
 <script>
+/* ═══════════════════════════════════════
+   VERSION
+   ═══════════════════════════════════════ */
+const VERSION = 'v1.0.0';
+
 /* ═══════════════════════════════════════
    STOIC QUOTES DATABASE
    ═══════════════════════════════════════ */
@@ -3639,6 +3666,8 @@ function applyFpSettings() {
    INIT & EVENT LISTENERS
    ═══════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('version-badge').textContent = VERSION;
+
   // Random start
   currentBgIdx = Math.floor(Math.random() * BACKGROUNDS.length);
   loadBackground(currentBgIdx);

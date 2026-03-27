@@ -1,0 +1,44 @@
+name: Tag Release — Bump Version Badge
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: write
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Extract version from tag
+        id: ver
+        run: echo "VERSION=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Rewrite VERSION constant in index.html
+        run: |
+          sed -i "s/const VERSION = 'v[^']*'/const VERSION = '${{ steps.ver.outputs.VERSION }}'/" index.html
+
+      - name: Verify the replacement landed
+        run: grep "const VERSION" index.html
+
+      - name: Commit updated index.html
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "chore: bump version to ${{ steps.ver.outputs.VERSION }}"
+          git push origin main
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Ataraxia ${{ steps.ver.outputs.VERSION }}"
+          generate_release_notes: true

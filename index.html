@@ -1542,7 +1542,15 @@
      ═══════════════════════════════════════════════════════════ */
   @media (max-height: 520px) and (orientation: landscape) {
     .top-right-actions {
-      padding: max(0.4rem, env(safe-area-inset-top, 0px)) max(0.6rem, env(safe-area-inset-right, 0px)) 0.4rem 0.6rem;
+      padding: max(0.25rem, env(safe-area-inset-top, 0px)) max(0.4rem, env(safe-area-inset-right, 0px)) 0.25rem 0.4rem;
+    }
+    .coffee-btn {
+      font-size: 0.68rem;
+      padding: 0.25rem 0.45rem;
+    }
+    .lang-btn {
+      font-size: 0.68rem;
+      padding: 0.25rem 0.45rem;
     }
     .page-layout {
       flex-direction: column;
@@ -1576,11 +1584,7 @@
       width: 50%;
       height: 100%;
       margin-top: 0;
-      padding: 3% 1.5% 3% calc(56px + 1rem);
-    }
-    /* When quote is minimized, center the timer symmetrically */
-    .quote-card.minimized ~ .pomo-container {
-      padding-left: 1.5%;
+      padding: 2% 1.5%;
     }
 
     /* Right panel: Quote */
@@ -1591,7 +1595,7 @@
       flex: 1 1 50%;
       width: auto;
       height: 100%;
-      margin: calc(1.4rem + max(2%, env(safe-area-inset-top, 0px))) 2% calc(1.6rem + env(safe-area-inset-bottom, 0px)) 1%;
+      margin: calc(2rem + max(2%, env(safe-area-inset-top, 0px))) 1.5% calc(0.4rem + env(safe-area-inset-bottom, 0px)) 0.5%;
       padding: 0.5rem 0.65rem;
       border-radius: 14px;
       overflow: hidden;
@@ -1653,7 +1657,8 @@
     /* Badges — small pill at bottom-right in landscape */
     .bottom-badges {
       bottom: max(0.25rem, env(safe-area-inset-bottom, 0px));
-      right: max(0.5rem, env(safe-area-inset-right, 0px));
+      right: auto;
+      left: max(0.5rem, env(safe-area-inset-left, 0px));
       font-size: 0.5rem;
       padding: 0.15rem 0.5rem;
     }

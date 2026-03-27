@@ -226,12 +226,16 @@
   .lang-option:hover { background: var(--accent-glow); }
   .lang-option.active { color: var(--accent); font-weight: 500; }
   .lang-translating {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
     font-size: 0.65rem;
     color: var(--text-muted);
-    text-align: center;
+    text-align: right;
     padding: 0.2rem 0;
     opacity: 0;
     transition: opacity 0.3s;
+    white-space: nowrap;
   }
   .lang-translating.visible { opacity: 1; }
 

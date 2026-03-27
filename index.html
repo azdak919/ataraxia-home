@@ -309,7 +309,7 @@
   .quote-card.minimized {
     position: fixed;
     bottom: 1.5rem;
-    left: calc(1.5rem + var(--pomo-offset, 184px));
+    left: calc(1.5rem + var(--pomo-offset, 0px));
     top: auto;
     transform: none;
     width: auto;
@@ -499,6 +499,7 @@
   }
 
   .pomo-widget {
+    position: relative;
     background: var(--bg-glass);
     backdrop-filter: blur(28px) saturate(1.5);
     -webkit-backdrop-filter: blur(28px) saturate(1.5);
@@ -1476,7 +1477,7 @@
       left: 0.75rem;
       width: auto;
     }
-    .quote-card.minimized { left: calc(0.75rem + var(--pomo-offset, 184px)); right: auto; bottom: 0.75rem; }
+    .quote-card.minimized { left: calc(0.75rem + var(--pomo-offset, 0px)); right: auto; bottom: 0.75rem; }
   }
 
   /* ═══════════════════════════════════════════════════════════
@@ -1585,8 +1586,15 @@
     .bottom-badges * { pointer-events: auto; }
     .img-credit { max-width: none; white-space: nowrap; font-size: 0.55rem; }
 
-    /* Minimized quote */
-    .quote-card.minimized { bottom: 0.5rem; left: 0.5rem; }
+    /* Minimized pills — bottom-left, same as portrait */
+    .pomo-widget.minimized {
+      position: fixed;
+      bottom: 0.5rem;
+      left: 0.5rem;
+      width: auto;
+      min-width: 56px;
+    }
+    .quote-card.minimized { left: calc(0.5rem + var(--pomo-offset, 0px)); right: auto; bottom: 0.5rem; }
 
     /* Minimize btn — keep visible in landscape */
   }
@@ -1731,7 +1739,7 @@
 <!-- Pomodoro Timer -->
 
 <div class="pomo-container">
-  <div class="pomo-widget" id="pomo-widget" style="position:relative">
+  <div class="pomo-widget" id="pomo-widget">
     <button class="pomo-fullscreen-btn" id="pomo-fullscreen-btn" aria-label="Open fullscreen timer">
       <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
     </button>
@@ -3569,8 +3577,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const pomoMiniDot = document.getElementById('pomo-mini-dot');
   window.updatePomoOffset = function() {
     requestAnimationFrame(() => {
-      const w = pomoWidget.offsetWidth;
-      document.documentElement.style.setProperty('--pomo-offset', (w + 12) + 'px');
+      if (pomoWidget.classList.contains('minimized')) {
+        const w = pomoWidget.offsetWidth;
+        document.documentElement.style.setProperty('--pomo-offset', (w + 12) + 'px');
+      } else {
+        document.documentElement.style.setProperty('--pomo-offset', '0px');
+      }
     });
   };
   if (localStorage.getItem('ataraxia_pomo_minimized') === 'true') {

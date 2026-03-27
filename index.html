@@ -1502,11 +1502,14 @@
       flex-direction: row;
       align-items: stretch;
       gap: 0;
-      padding-left: max(0.5rem, env(safe-area-inset-left, 0px));
-      padding-right: max(0.5rem, env(safe-area-inset-right, 0px));
+      padding: 0;
+      padding-left: env(safe-area-inset-left, 0px);
+      padding-right: env(safe-area-inset-right, 0px);
+      height: 100vh;
+      height: 100dvh;
     }
 
-    /* Left panel: Pomo — half the screen, centered */
+    /* Left panel: Pomo — half the screen, 3% buffer around card */
     .page-bottom {
       order: 1;
       flex: 1 1 50%;
@@ -1514,63 +1517,70 @@
       align-items: center;
       justify-content: center;
       width: 50%;
-      padding: 0.5rem 0.5rem;
-      gap: 0.4rem;
+      padding: 3%;
+      gap: 0;
     }
 
-    .pomo-container { margin-top: 0; }
+    .pomo-container { margin-top: 0; width: 100%; height: 100%; }
 
-    /* Right panel: Quote — other half, leaves room for credits at bottom */
+    /* Right panel: Quote — other half, 3% sides + clearance for lang btn (top) and credits (bottom) */
     .content {
       order: 2;
       flex: 1 1 50%;
       max-width: 50%;
-      padding: 0.5rem 0.5rem calc(1.5rem + max(0.25rem, env(safe-area-inset-bottom, 0px))) 0.5rem;
+      padding: calc(1.8rem + max(3%, env(safe-area-inset-top, 0px))) 3% calc(1.4rem + max(3%, env(safe-area-inset-bottom, 0px))) 3%;
       display: flex;
-      align-items: center;
+      align-items: stretch;
       justify-content: center;
     }
 
-    /* Quote card — adapts content to fit available space */
+    /* Quote card — fixed to fill panel, content adapts inside */
     .quote-card {
       width: 100%;
-      padding: 0.75rem 1rem;
+      height: 100%;
+      padding: 0.6rem 0.75rem;
       border-radius: 14px;
-      max-height: 100%;
-      overflow-y: auto;
+      overflow: hidden;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
       justify-content: center;
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(24px) saturate(1.4);
+      -webkit-backdrop-filter: blur(24px) saturate(1.4);
     }
-    .quote-text { font-size: clamp(0.72rem, 2vw, 0.92rem); line-height: 1.45; }
-    .quote-mark { font-size: 1.6rem; margin-bottom: 0.2rem; }
-    .quote-author { font-size: 0.6rem; margin-top: 0.35rem; }
-    .quote-action-row { gap: 0.35rem; margin-top: 0.4rem; }
+    .quote-inner { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; justify-content: center; }
+    .quote-text { font-size: clamp(0.68rem, 1.8vw, 0.88rem); line-height: 1.4; margin-bottom: 0.5rem; }
+    .quote-mark { font-size: 1.4rem; margin-bottom: 0.15rem; }
+    .quote-author { font-size: 0.55rem; margin-top: 0.25rem; }
+    .quote-action-row { flex-shrink: 0; gap: 0.3rem; margin-top: 0.3rem; }
     .quote-action-row .btn { font-size: 0.55rem; padding: 0.25rem 0.55rem; }
 
-    /* Pomo widget — expanded to fill the left half */
+    /* Pomo widget — fills the left half, stable glass background */
     .pomo-widget {
       width: 100%;
-      padding: 1rem 0.75rem 0.75rem;
+      height: 100%;
+      padding: 0.5rem 0.5rem 0.4rem;
       border-radius: 14px;
+      background: rgba(255, 255, 255, 0.72);
       backdrop-filter: blur(24px) saturate(1.4);
       -webkit-backdrop-filter: blur(24px) saturate(1.4);
       justify-content: center;
+      box-sizing: border-box;
     }
     .pomo-ring-wrapper {
-      width: clamp(100px, 30vh, 170px);
-      height: clamp(100px, 30vh, 170px);
+      width: clamp(120px, 42vh, 200px);
+      height: clamp(120px, 42vh, 200px);
     }
     .pomo-ring { width: 100%; height: 100%; }
-    .pomo-time-inside { font-size: clamp(1.8rem, 7vh, 2.8rem); }
-    .pomo-time-unit { font-size: clamp(0.7rem, 2vh, 1rem); }
-    .pomo-label { font-size: clamp(0.5rem, 1.5vh, 0.65rem); letter-spacing: 0.12em; }
-    .pomo-controls { gap: 0.4rem; margin-top: 0.3rem; }
-    .pomo-btn--primary { width: clamp(32px, 8vh, 44px); height: clamp(32px, 8vh, 44px); }
-    .pomo-btn--secondary { width: clamp(26px, 6vh, 34px); height: clamp(26px, 6vh, 34px); }
-    .pomo-btn--primary svg { width: clamp(14px, 3.5vh, 18px); height: clamp(14px, 3.5vh, 18px); }
-    .pomo-btn--secondary svg { width: clamp(11px, 2.8vh, 14px); height: clamp(11px, 2.8vh, 14px); }
+    .pomo-time-inside { font-size: clamp(2rem, 9vh, 3.2rem); }
+    .pomo-time-unit { font-size: clamp(0.8rem, 2.5vh, 1.1rem); }
+    .pomo-label { font-size: clamp(0.5rem, 1.8vh, 0.7rem); letter-spacing: 0.12em; }
+    .pomo-controls { gap: 0.5rem; margin-top: 0.3rem; }
+    .pomo-btn--primary { width: clamp(36px, 10vh, 50px); height: clamp(36px, 10vh, 50px); }
+    .pomo-btn--secondary { width: clamp(28px, 7vh, 38px); height: clamp(28px, 7vh, 38px); }
+    .pomo-btn--primary svg { width: clamp(16px, 4vh, 22px); height: clamp(16px, 4vh, 22px); }
+    .pomo-btn--secondary svg { width: clamp(12px, 3vh, 16px); height: clamp(12px, 3vh, 16px); }
     .pomo-phase-ready-label { font-size: 0.55rem; }
     .pomo-dots { margin-top: 0.15rem; }
     .pomo-dot { width: 6px; height: 6px; }
@@ -1586,7 +1596,7 @@
       min-width: 180px;
     }
 
-    /* Badges — horizontal row at bottom, license first then photo credit */
+    /* Badges — horizontal row at bottom-right, above safe area */
     .bottom-badges {
       position: fixed;
       bottom: max(0.25rem, env(safe-area-inset-bottom, 0px));
@@ -1602,17 +1612,27 @@
     .bottom-badges .license-badge { order: 1; }
     .bottom-badges .img-credit { order: 2; max-width: none; white-space: nowrap; font-size: 0.55rem; }
 
-    /* Minimized pills — bottom-left, same as portrait */
+    /* Minimized pills — bottom-left */
     .pomo-widget.minimized {
       position: fixed;
       bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
       left: max(0.5rem, env(safe-area-inset-left, 0px));
       width: auto;
+      height: auto;
       min-width: 56px;
     }
-    .quote-card.minimized { left: calc(0.5rem + var(--pomo-offset, 0px)); right: auto; bottom: 0.5rem; }
+    .quote-card.minimized { left: calc(0.5rem + var(--pomo-offset, 0px)); right: auto; bottom: 0.5rem; height: auto; }
 
     /* Minimize btn — keep visible in landscape */
+  }
+
+  @media (max-height: 520px) and (orientation: landscape) and (prefers-color-scheme: dark) {
+    .pomo-widget:not(.minimized) {
+      background: rgba(40, 36, 32, 0.78);
+    }
+    .quote-card:not(.minimized) {
+      background: rgba(40, 36, 32, 0.78);
+    }
   }
 
   /* ═══════════════════════════════════════════════════════════
@@ -4590,7 +4610,12 @@ async function translateCurrentQuote() {
   const [translatedText] = await batchTranslate([quote.text], currentLang);
   // Only update if still showing the same quote
   if (currentQuoteIdx === QUOTES.indexOf(quote)) {
-    textEl.textContent = translatedText;
+    // Fade out, swap text, fade back in to avoid a visible flash
+    textEl.style.opacity = '0';
+    setTimeout(() => {
+      textEl.textContent = translatedText;
+      textEl.style.opacity = '1';
+    }, 500);
     // Author names stay in original — they are proper nouns
   }
 }

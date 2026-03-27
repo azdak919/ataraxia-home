@@ -1483,11 +1483,11 @@
     /* Minimized pills — anchor above the credits */
     .pomo-widget.minimized {
       position: fixed;
-      bottom: 3rem;
+      bottom: 4.5rem;
       left: 0.75rem;
       width: auto;
     }
-    .quote-card.minimized { left: calc(0.75rem + var(--pomo-offset, 0px)); right: auto; bottom: 3rem; }
+    .quote-card.minimized { left: calc(0.75rem + var(--pomo-offset, 0px)); right: auto; bottom: 4.5rem; }
   }
 
   /* ═══════════════════════════════════════════════════════════
@@ -3133,16 +3133,33 @@ function _updateMediaSession() {
 async function playCompletionChime(wasBreak) {
   try {
     if (_isIOS) {
-      // ── iOS: chime is already baked into the full-duration timer WAV ──
-      // The <audio> element plays through the chime naturally and then
-      // the 'ended' handler in startTimerAudio() cleans up.
+      // ── iOS: chime is baked into the full-duration timer WAV ──
+      // If the WAV is still playing, the chime will sound naturally at the end.
+      // If it was interrupted (call, audio session killed), fall through and play chime directly.
+      if (_timerAudio && !_timerAudio.paused && !_timerAudio.ended) {
+        return;
+      }
+      // WAV was interrupted — play the chime via a fresh <audio> element as fallback
+      const blob = _renderChimeWav(wasBreak);
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audio.volume = 1.0;
+      const cleanup = () => {
+        try { audio.pause(); audio.removeAttribute('src'); audio.load(); URL.revokeObjectURL(url); } catch(e) {}
+      };
+      audio.addEventListener('ended', cleanup);
+      audio.addEventListener('error', cleanup);
+      const p = audio.play();
+      if (p) p.catch(() => cleanup());
       return;
 
     } else if (_isAndroid) {
       // ── Android: <audio> element with pre-rendered WAV ──
-      // Claims transient audio focus — ducks Waze / Spotify / podcasts
-      // briefly, plays the chime audibly, then releases focus so other
-      // audio resumes (same behaviour as Waze navigation prompts).
+      // Resume AudioContext first — Chrome Android may suspend it in background,
+      // which can also block HTMLAudioElement.play().
+      if (_audioCtx && _audioCtx.state === 'suspended') {
+        try { await _audioCtx.resume(); } catch(e) {}
+      }
       const blob = _renderChimeWav(wasBreak);
       const url = URL.createObjectURL(blob);
       const audio = new Audio(url);
@@ -3158,7 +3175,36 @@ async function playCompletionChime(wasBreak) {
       audio.addEventListener('ended', () => { cleanup(); stopTimerAudio(); });
       audio.addEventListener('error', () => { cleanup(); stopTimerAudio(); });
       var p = audio.play();
-      if (p) p.catch(() => { cleanup(); stopTimerAudio(); });
+      if (p) p.catch(async () => {
+        // HTMLAudioElement rejected (autoplay policy or audio focus lost) —
+        // fall back to Web Audio API oscillator which bypasses autoplay restrictions
+        // once the AudioContext has been resumed with a prior user gesture.
+        cleanup();
+        try {
+          const ctx = initAudioCtx();
+          if (ctx) {
+            if (ctx.state === 'suspended') await ctx.resume();
+            if (ctx.state === 'running') {
+              const now = ctx.currentTime;
+              const tones = wasBreak ? [523, 659, 784] : [784, 659, 523]; // C5-E5-G5
+              tones.forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.frequency.value = freq;
+                osc.type = 'sine';
+                const t = now + i * 0.3;
+                gain.gain.setValueAtTime(0.4, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
+                osc.start(t);
+                osc.stop(t + 1.2);
+              });
+            }
+          }
+        } catch(e2) {}
+        stopTimerAudio();
+      });
 
     } else {
       // ── Desktop (Windows / Mac / Linux): <audio> element with pre-rendered WAV ──
@@ -3213,11 +3259,24 @@ function loadPomoState() {
       // If stored as running with a startedAt, verify it's a valid timestamp
       if (s.isRunning && s.startedAt) {
         const elapsed = (Date.now() - s.startedAt) / 1000;
-        // If elapsed > totalSeconds, the timer completed while away — treat as paused at 0
+        // If elapsed > totalSeconds, the timer completed while the page was gone — advance phase
         if (elapsed >= (s.totalSeconds || 0)) {
           s.isRunning = false;
-          s.pausedRemaining = 0;
           s.startedAt = null;
+          s.phaseJustCompleted = true;
+          if (!s.isBreak) {
+            s.completedSessions = (s.completedSessions || 0) + 1;
+            const isLong = s.completedSessions % (s.sessionsBeforeLong || 4) === 0;
+            s.isBreak = true;
+            s.isLongBreak = isLong;
+            s.totalSeconds = (isLong ? s.longBreakMin : s.breakMin) * 60;
+          } else {
+            s.isBreak = false;
+            s.isLongBreak = false;
+            s.totalSeconds = s.workMin * 60;
+          }
+          s.phaseDuration = s.totalSeconds;
+          s.pausedRemaining = s.totalSeconds;
         }
       }
       return s;
@@ -3295,6 +3354,11 @@ function PomoUI() {
     ).join('');
   }
 
+  // Check completion FIRST so pomo.isRunning is correct when we toggle buttons below
+  if (remaining <= 0 && pomo.isRunning) {
+    onSegmentComplete();
+  }
+
   if (pomo.isRunning) {
     playBtn.style.display = 'none';
     pauseBtn.style.display = 'flex';
@@ -3316,11 +3380,6 @@ function PomoUI() {
       playBtn.classList.remove('phase-ready');
       if (readyLabel) { readyLabel.classList.remove('visible', 'on-break'); readyLabel.textContent = ''; }
     }
-  }
-
-  // Check completion
-  if (remaining <= 0 && pomo.isRunning) {
-    onSegmentComplete();
   }
 
   // Sync full-page overlay
@@ -3655,7 +3714,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Pomo tick — uses requestAnimationFrame for smooth updates,
   // but the actual timing is timestamp-based (persistent)
   function tick() {
-    PomoUI();
+    try { PomoUI(); } catch(e) {}
     requestAnimationFrame(tick);
   }
   tick();
@@ -3666,8 +3725,14 @@ document.addEventListener('DOMContentLoaded', () => {
       // Update lock-screen / control center metadata
       _updateMediaSession();
       if (getRemaining() <= 0) {
-        if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
-        onSegmentComplete();
+        // Resume AudioContext and wait for it before firing completion so
+        // playCompletionChime() finds the context already running on Android
+        const doComplete = () => onSegmentComplete();
+        if (_audioCtx && _audioCtx.state === 'suspended') {
+          _audioCtx.resume().then(doComplete).catch(doComplete);
+        } else {
+          doComplete();
+        }
       }
     }
   }, 1000);

@@ -1622,11 +1622,19 @@
       min-width: 56px;
       z-index: 200;
     }
-    /* Quote pill: stacked above pomo pill using --pomo-height-offset (set by JS) */
-    .quote-card.minimized {
+    /* Quote pill: stack above pomo pill on left when pomo is also minimized */
+    html.pomo-minimized .quote-card.minimized {
       left: max(0.5rem, env(safe-area-inset-left, 0px));
       right: auto;
       bottom: calc(max(0.5rem, env(safe-area-inset-bottom, 0px)) + var(--pomo-height-offset, 0px));
+      height: auto;
+      z-index: 200;
+    }
+    /* Quote pill: bottom-right corner when pomo is expanded (no overlap with pomo panel) */
+    html:not(.pomo-minimized) .quote-card.minimized {
+      right: max(0.5rem, env(safe-area-inset-right, 0px));
+      left: auto;
+      bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
       height: auto;
       z-index: 200;
     }
@@ -3694,9 +3702,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const h = pomoWidget.offsetHeight;
         document.documentElement.style.setProperty('--pomo-offset', (w + 12) + 'px');
         document.documentElement.style.setProperty('--pomo-height-offset', (h + 12) + 'px');
+        document.documentElement.classList.add('pomo-minimized');
       } else {
         document.documentElement.style.setProperty('--pomo-offset', '0px');
         document.documentElement.style.setProperty('--pomo-height-offset', '0px');
+        document.documentElement.classList.remove('pomo-minimized');
       }
     });
   };

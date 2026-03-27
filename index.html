@@ -1621,7 +1621,8 @@
       height: auto;
       min-width: 56px;
     }
-    .quote-card.minimized { left: calc(0.5rem + var(--pomo-offset, 0px)); right: auto; bottom: 0.5rem; height: auto; }
+    /* Quote pill: fixed offset of pomo-pill-width (56px) + 12px gap, matching pomo's safe-area bottom */
+    .quote-card.minimized { left: calc(max(0.5rem, env(safe-area-inset-left, 0px)) + 68px); right: auto; bottom: max(0.5rem, env(safe-area-inset-bottom, 0px)); height: auto; }
 
     /* Minimize btn — keep visible in landscape */
   }

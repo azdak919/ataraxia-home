@@ -1820,7 +1820,7 @@
   <a class="coffee-btn" href="https://www.buymeacoffee.com/azdak"
      target="_blank" rel="noopener" aria-label="Buy me a coffee">
     <svg viewBox="0 0 24 24"><path d="M20 3H4v10c0 3.31 2.69 6 6 6h4c3.31 0 6-2.69 6-6V8h1a1 1 0 000-2h-1V3zm-2 10c0 2.21-1.79 4-4 4h-4c-2.21 0-4-1.79-4-4V5h12v8zm2-7h-1V4h1v2z"/></svg>
-    <span>Buy me a coffee</span>
+    <span id="coffee-btn-label">Buy me a coffee</span>
   </a>
 
   <div class="lang-selector">
@@ -4042,6 +4042,7 @@ const UI_STRINGS = {
     readyBreak: 'Ready to break',
     readyFocus: 'Ready to focus',
     quote: 'Quote',
+    coffeeBtn: 'Buy me a coffee',
   },
   fr: {
     newQuote: 'Nouvelle citation',
@@ -4759,6 +4760,7 @@ async function translateUIStrings(lang) {
 function applyUIStrings(strings) {
   document.getElementById('btn-new').textContent = strings.newQuote;
   document.getElementById('btn-bg').textContent = strings.newScene;
+  document.getElementById('coffee-btn-label').textContent = strings.coffeeBtn;
 
   // Settings panel text (normal widget)
   const settingsPanel = document.getElementById('pomo-settings-panel');

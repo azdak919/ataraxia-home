@@ -1479,16 +1479,20 @@
       right: max(0.5rem, env(safe-area-inset-right, 0px));
       max-width: calc(100vw - 1rem);
       flex-wrap: wrap;
-      justify-content: flex-end;
+      justify-content: center;
       font-size: 0.58rem;
       padding: 0.25rem 0.6rem;
     }
-    .img-credit { max-width: 18rem; }
+    .img-credit { flex-basis: 100%; text-align: center; max-width: 100%; }
+    .bottom-badges .img-credit + .credits-divider { display: none; }
     .bottom-badges .credits-divider { margin: 0 0.35rem; }
 
     /* Quote card */
     .quote-card { padding: 1.5rem 1.25rem; border-radius: 16px; }
     .quote-text { font-size: clamp(1rem, 3.5vw, 1.25rem); line-height: 1.45; }
+    .quote-author { font-size: 0.72rem; letter-spacing: 0.14em; }
+    .quote-action-row { gap: 0.5rem; margin-top: 1rem; }
+    .quote-action-row .btn { font-size: 0.68rem; padding: 0.45rem 1rem; }
     .quote-inner { max-height: 45dvh; overflow-y: auto; }
 
     /* Pomo container & widget — match quote card glass style */
@@ -1587,8 +1591,8 @@
       flex: 1 1 50%;
       width: auto;
       height: 100%;
-      margin: calc(1.8rem + max(3%, env(safe-area-inset-top, 0px))) 3% calc(1.9rem + env(safe-area-inset-bottom, 0px)) 1.5%;
-      padding: 0.6rem 0.75rem;
+      margin: calc(1.4rem + max(2%, env(safe-area-inset-top, 0px))) 2% calc(1.6rem + env(safe-area-inset-bottom, 0px)) 1%;
+      padding: 0.5rem 0.65rem;
       border-radius: 14px;
       overflow: hidden;
       box-sizing: border-box;
@@ -1600,11 +1604,11 @@
       -webkit-backdrop-filter: blur(24px) saturate(1.4);
     }
     .quote-inner { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; justify-content: center; }
-    .quote-text { font-size: clamp(0.72rem, 1.9vw, 0.95rem); line-height: 1.4; margin-bottom: 0.4rem; }
-    .quote-mark { font-size: 1.2rem; margin-bottom: 0.1rem; }
-    .quote-author { font-size: 0.58rem; margin-top: 0.2rem; }
-    .quote-action-row { flex-shrink: 0; gap: 0.3rem; margin-top: 0.3rem; }
-    .quote-action-row .btn { font-size: 0.55rem; padding: 0.25rem 0.55rem; }
+    .quote-text { font-size: clamp(0.68rem, 1.7vw, 0.88rem); line-height: 1.35; margin-bottom: 0.25rem; }
+    .quote-mark { font-size: 1rem; margin-bottom: 0; }
+    .quote-author { font-size: 0.52rem; margin-top: 0.15rem; }
+    .quote-action-row { flex-shrink: 0; gap: 0.25rem; margin-top: 0.2rem; }
+    .quote-action-row .btn { font-size: 0.5rem; padding: 0.2rem 0.45rem; }
 
     /* Pomo widget — fills the left half, stable glass background */
     .pomo-widget {
@@ -1626,14 +1630,14 @@
     .pomo-time-inside { font-size: clamp(2rem, 9vh, 3.2rem); }
     .pomo-time-unit { font-size: clamp(0.8rem, 2.5vh, 1.1rem); }
     .pomo-label { font-size: clamp(0.5rem, 1.8vh, 0.7rem); letter-spacing: 0.12em; }
-    .pomo-controls { gap: 0.5rem; margin-top: 0.05rem; }
+    .pomo-controls { gap: 0.4rem; margin-top: 0; }
     .pomo-btn--primary { width: clamp(36px, 10vh, 50px); height: clamp(36px, 10vh, 50px); }
     .pomo-btn--secondary { width: clamp(28px, 7vh, 38px); height: clamp(28px, 7vh, 38px); }
     .pomo-btn--primary svg { width: clamp(16px, 4vh, 22px); height: clamp(16px, 4vh, 22px); }
     .pomo-btn--secondary svg { width: clamp(12px, 3vh, 16px); height: clamp(12px, 3vh, 16px); }
     .pomo-phase-ready-label { font-size: 0.55rem; }
-    .pomo-dots { margin-top: 0.05rem; }
-    .pomo-dot { width: 6px; height: 6px; }
+    .pomo-dots { margin-top: 0; gap: 3px; }
+    .pomo-dot { width: 5px; height: 5px; }
 
     /* Settings panel — slides out to the right of pomo */
     .pomo-settings {
@@ -1650,10 +1654,10 @@
     .bottom-badges {
       bottom: max(0.25rem, env(safe-area-inset-bottom, 0px));
       right: max(0.5rem, env(safe-area-inset-right, 0px));
-      font-size: 0.55rem;
-      padding: 0.2rem 0.6rem;
+      font-size: 0.5rem;
+      padding: 0.15rem 0.5rem;
     }
-    .img-credit { max-width: 16rem; }
+    .img-credit { max-width: 12rem; }
 
     /* Minimized pills — side-by-side at bottom-left, flush with edge */
     .pomo-widget.minimized {
@@ -1791,6 +1795,7 @@
     .quote-card {
       flex-shrink: 1;
       min-height: 0;
+      padding: 1.5rem 2rem;
     }
     .quote-inner {
       max-height: min(40dvh, 320px);
@@ -1803,15 +1808,15 @@
       line-height: 1.4;
     }
     .quote-mark {
-      font-size: clamp(1rem, 3dvh, 1.6rem);
-      margin-bottom: 0.25rem;
+      font-size: clamp(1rem, 2.5dvh, 1.4rem);
+      margin-bottom: 0.15rem;
     }
     .quote-author {
       font-size: clamp(0.65rem, 1.5dvh, 0.82rem);
-      margin-top: 0.4rem;
+      margin-top: 0.25rem;
     }
     .quote-action-row {
-      margin-top: 0.5rem;
+      margin-top: 0.35rem;
     }
     .quote-action-row .btn {
       font-size: clamp(0.6rem, 1.3dvh, 0.72rem);
@@ -1823,6 +1828,7 @@
   @media (max-width: 380px) {
     .quote-card { padding: 1.25rem 1rem; }
     .quote-text { font-size: 1rem; line-height: 1.4; }
+    .quote-author { font-size: 0.65rem; }
   }
 </style>
 
@@ -2045,7 +2051,7 @@
 /* ═══════════════════════════════════════
    VERSION
    ═══════════════════════════════════════ */
-const VERSION = 'v1.0.8';
+const VERSION = 'v1.1.0';
 
 /* ═══════════════════════════════════════
    STOIC QUOTES DATABASE

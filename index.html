@@ -1423,7 +1423,8 @@
     .quote-card { padding: 1.5rem 1.25rem; border-radius: 16px; }
     .quote-text { font-size: clamp(1rem, 3.5vw, 1.25rem); line-height: 1.45; }
     .quote-inner { max-height: 55dvh; overflow-y: auto; }
-    .pomo-widget { padding: 1.1rem 0.9rem 0.9rem; border-radius: 22px; width: 148px; }
+    .pomo-container { width: 100%; }
+    .pomo-widget { padding: 1.1rem 0.9rem 0.9rem; border-radius: 22px; width: 100%; }
     .pomo-ring-wrapper { width: 108px; height: 108px; }
     .pomo-ring { width: 108px; height: 108px; }
     .pomo-time-inside { font-size: 2.3rem; }
@@ -1453,6 +1454,8 @@
       padding: 0.5rem 1rem;
       gap: 0.4rem;
     }
+
+    .pomo-container { margin-top: 0; }
 
     /* Right panel: Quote — fills remaining space */
     .content {
@@ -1503,19 +1506,25 @@
       min-width: 180px;
     }
 
-    /* Badges — tuck small into corner */
+    /* Badges — horizontal row at bottom-left, behind content */
     .bottom-badges {
       position: fixed;
       bottom: 0.25rem;
-      right: 0.5rem;
+      left: 0.5rem;
+      right: auto;
+      flex-direction: row;
+      align-items: center;
+      gap: 0.5rem;
+      z-index: 0;
+      pointer-events: none;
     }
-    .img-credit { max-width: 140px; white-space: normal; font-size: 0.55rem; }
+    .bottom-badges * { pointer-events: auto; }
+    .img-credit { max-width: none; white-space: nowrap; font-size: 0.55rem; }
 
     /* Minimized quote */
     .quote-card.minimized { bottom: 0.5rem; left: 0.5rem; }
 
-    /* Hide minimize btn — not useful in landscape */
-    .pomo-minimize-btn { display: none; }
+    /* Minimize btn — keep visible in landscape */
   }
 
   /* ═══════════════════════════════════════════════════════════

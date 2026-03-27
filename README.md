@@ -4,6 +4,8 @@ A minimalist, open-source browser homepage combining stoic philosophy with a foc
 
 **Live:** https://azdak919.github.io/ataraxia-home/
 
+[![Buy Me A Coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/azdak)
+
 ---
 
 ## Features

@@ -4607,16 +4607,17 @@ async function translateCurrentQuote() {
   const quote = QUOTES[currentQuoteIdx];
   if (!quote) return;
 
+  // Fade out immediately — don't show original while waiting for translation
+  textEl.style.opacity = '0';
+
   const [translatedText] = await batchTranslate([quote.text], currentLang);
   // Only update if still showing the same quote
   if (currentQuoteIdx === QUOTES.indexOf(quote)) {
-    // Fade out, swap text, fade back in to avoid a visible flash
-    textEl.style.opacity = '0';
-    setTimeout(() => {
-      textEl.textContent = translatedText;
-      textEl.style.opacity = '1';
-    }, 500);
+    textEl.textContent = translatedText;
+    textEl.style.opacity = '1';
     // Author names stay in original — they are proper nouns
+  } else {
+    textEl.style.opacity = '1';
   }
 }
 

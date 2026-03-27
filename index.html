@@ -1596,10 +1596,10 @@
       min-width: 180px;
     }
 
-    /* Badges — horizontal row at bottom-right, above safe area */
+    /* Badges — horizontal row at bottom-right, flush with bottom edge */
     .bottom-badges {
       position: fixed;
-      bottom: max(0.25rem, env(safe-area-inset-bottom, 0px));
+      bottom: max(0px, env(safe-area-inset-bottom, 0px));
       right: max(0.5rem, env(safe-area-inset-right, 0px));
       left: auto;
       flex-direction: row;
@@ -1612,23 +1612,25 @@
     .bottom-badges .license-badge { order: 1; }
     .bottom-badges .img-credit { order: 2; max-width: none; white-space: nowrap; font-size: 0.55rem; }
 
-    /* Minimized pills — stacked vertically at bottom-left */
+    /* Minimized pills — stacked vertically at bottom-left, flush with edge */
     .pomo-widget.minimized {
       position: fixed;
       bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
-      left: max(0.5rem, env(safe-area-inset-left, 0px));
+      left: 0.5rem;
       width: auto;
       height: auto;
       min-width: 56px;
       z-index: 200;
+      background: var(--bg-glass);
     }
     /* Quote pill: always on the left, stacks above pomo pill via --pomo-height-offset */
     .quote-card.minimized {
-      left: max(0.5rem, env(safe-area-inset-left, 0px));
+      left: 0.5rem;
       right: auto;
       bottom: calc(max(0.5rem, env(safe-area-inset-bottom, 0px)) + var(--pomo-height-offset, 0px));
       height: auto;
       z-index: 200;
+      background: var(--bg-glass);
     }
 
     /* Minimize btn — keep visible in landscape */

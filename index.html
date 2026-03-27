@@ -495,7 +495,7 @@
 
   @keyframes pomoEnter {
     from { opacity: 0; transform: translateY(20px) scale(0.92); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
+    to   { opacity: 1; transform: none; }
   }
 
   .pomo-widget {
@@ -1435,7 +1435,9 @@
       position: fixed;
       bottom: 0.75rem;
       right: 0.75rem;
+      max-width: calc(100vw - 1.5rem);
     }
+    .img-credit { white-space: normal; text-align: right; }
 
     /* Quote card */
     .quote-card { padding: 1.5rem 1.25rem; border-radius: 16px; }

@@ -1533,12 +1533,17 @@
   }
 
   /* ═══════════════════════════════════════════════════════════
-     PHONE LANDSCAPE — Normal View (dual-panel dashboard)
-     Isolated: only fires on short landscape screens (phones)
+     LANDSCAPE — Dual-panel dashboard (phones + tablets)
+     Fires on any landscape screen up to 820px tall, covering
+     phones (~320-520px) through iPads (~660-760px).
+     All sizes use dvh/vh clamp() so elements scale smoothly.
      ═══════════════════════════════════════════════════════════ */
-  @media (max-height: 520px) and (orientation: landscape) {
+  @media (max-height: 820px) and (orientation: landscape) {
     .top-right-actions {
-      padding: max(0.4rem, env(safe-area-inset-top, 0px)) max(0.6rem, env(safe-area-inset-right, 0px)) 0.4rem 0.6rem;
+      padding: max(clamp(0.4rem, 1.5dvh, 1rem), env(safe-area-inset-top, 0px))
+               max(clamp(0.6rem, 1.5vw, 1.25rem), env(safe-area-inset-right, 0px))
+               clamp(0.3rem, 1dvh, 0.6rem)
+               clamp(0.6rem, 1.5vw, 1.25rem);
     }
     .page-layout {
       flex-direction: column;
@@ -1587,9 +1592,12 @@
       flex: 1 1 50%;
       width: auto;
       height: 100%;
-      margin: calc(1.8rem + max(3%, env(safe-area-inset-top, 0px))) 3% calc(1.9rem + env(safe-area-inset-bottom, 0px)) 1.5%;
-      padding: 0.6rem 0.75rem;
-      border-radius: 14px;
+      margin: calc(clamp(1.2rem, 4dvh, 2.5rem) + max(3%, env(safe-area-inset-top, 0px)))
+              3%
+              calc(clamp(1.2rem, 4dvh, 2.5rem) + env(safe-area-inset-bottom, 0px))
+              1.5%;
+      padding: clamp(0.5rem, 2dvh, 1.5rem) clamp(0.6rem, 2vw, 1.5rem);
+      border-radius: clamp(12px, 2.5dvh, 20px);
       overflow: hidden;
       box-sizing: border-box;
       display: flex;
@@ -1600,18 +1608,18 @@
       -webkit-backdrop-filter: blur(24px) saturate(1.4);
     }
     .quote-inner { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; justify-content: center; }
-    .quote-text { font-size: clamp(0.72rem, 1.9vw, 0.95rem); line-height: 1.4; margin-bottom: 0.4rem; }
-    .quote-mark { font-size: 1.2rem; margin-bottom: 0.1rem; }
-    .quote-author { font-size: 0.58rem; margin-top: 0.2rem; }
-    .quote-action-row { flex-shrink: 0; gap: 0.3rem; margin-top: 0.3rem; }
-    .quote-action-row .btn { font-size: 0.55rem; padding: 0.25rem 0.55rem; }
+    .quote-text { font-size: clamp(0.72rem, 2.5dvh, 1.45rem); line-height: 1.4; margin-bottom: clamp(0.3rem, 1dvh, 0.6rem); }
+    .quote-mark { font-size: clamp(1rem, 3dvh, 1.8rem); margin-bottom: clamp(0.05rem, 0.5dvh, 0.2rem); }
+    .quote-author { font-size: clamp(0.55rem, 1.5dvh, 0.82rem); margin-top: clamp(0.15rem, 0.8dvh, 0.4rem); }
+    .quote-action-row { flex-shrink: 0; gap: clamp(0.2rem, 0.8dvh, 0.5rem); margin-top: clamp(0.2rem, 1dvh, 0.6rem); }
+    .quote-action-row .btn { font-size: clamp(0.52rem, 1.4dvh, 0.72rem); padding: clamp(0.2rem, 0.7dvh, 0.4rem) clamp(0.4rem, 1.5dvh, 0.8rem); }
 
     /* Pomo widget — fills the left half, stable glass background */
     .pomo-widget {
       width: 100%;
       height: 100%;
-      padding: 0.5rem 0.5rem 0.4rem;
-      border-radius: 14px;
+      padding: clamp(0.4rem, 1.5dvh, 1rem) clamp(0.4rem, 1vw, 1rem) clamp(0.3rem, 1dvh, 0.8rem);
+      border-radius: clamp(12px, 2.5dvh, 20px);
       background: rgba(255, 255, 255, 0.72);
       backdrop-filter: blur(24px) saturate(1.4);
       -webkit-backdrop-filter: blur(24px) saturate(1.4);
@@ -1619,21 +1627,21 @@
       box-sizing: border-box;
     }
     .pomo-ring-wrapper {
-      width: clamp(120px, 50vh, 220px);
-      height: clamp(120px, 50vh, 220px);
+      width: clamp(120px, 50vh, 260px);
+      height: clamp(120px, 50vh, 260px);
     }
     .pomo-ring { width: 100%; height: 100%; }
-    .pomo-time-inside { font-size: clamp(2rem, 9vh, 3.2rem); }
-    .pomo-time-unit { font-size: clamp(0.8rem, 2.5vh, 1.1rem); }
-    .pomo-label { font-size: clamp(0.5rem, 1.8vh, 0.7rem); letter-spacing: 0.12em; }
-    .pomo-controls { gap: 0.5rem; margin-top: 0.05rem; }
-    .pomo-btn--primary { width: clamp(36px, 10vh, 50px); height: clamp(36px, 10vh, 50px); }
-    .pomo-btn--secondary { width: clamp(28px, 7vh, 38px); height: clamp(28px, 7vh, 38px); }
-    .pomo-btn--primary svg { width: clamp(16px, 4vh, 22px); height: clamp(16px, 4vh, 22px); }
-    .pomo-btn--secondary svg { width: clamp(12px, 3vh, 16px); height: clamp(12px, 3vh, 16px); }
-    .pomo-phase-ready-label { font-size: 0.55rem; }
-    .pomo-dots { margin-top: 0.05rem; }
-    .pomo-dot { width: 6px; height: 6px; }
+    .pomo-time-inside { font-size: clamp(2rem, 9vh, 3.8rem); }
+    .pomo-time-unit { font-size: clamp(0.8rem, 2.5vh, 1.2rem); }
+    .pomo-label { font-size: clamp(0.5rem, 1.8vh, 0.75rem); letter-spacing: 0.12em; }
+    .pomo-controls { gap: clamp(0.4rem, 1.5dvh, 0.8rem); margin-top: clamp(0.02rem, 0.5dvh, 0.3rem); }
+    .pomo-btn--primary { width: clamp(36px, 10vh, 56px); height: clamp(36px, 10vh, 56px); }
+    .pomo-btn--secondary { width: clamp(28px, 7vh, 42px); height: clamp(28px, 7vh, 42px); }
+    .pomo-btn--primary svg { width: clamp(16px, 4vh, 24px); height: clamp(16px, 4vh, 24px); }
+    .pomo-btn--secondary svg { width: clamp(12px, 3vh, 18px); height: clamp(12px, 3vh, 18px); }
+    .pomo-phase-ready-label { font-size: clamp(0.5rem, 1.3dvh, 0.7rem); }
+    .pomo-dots { margin-top: clamp(0.02rem, 0.5dvh, 0.2rem); }
+    .pomo-dot { width: clamp(5px, 1.2dvh, 7px); height: clamp(5px, 1.2dvh, 7px); }
 
     /* Settings panel — slides out to the right of pomo */
     .pomo-settings {
@@ -1650,10 +1658,10 @@
     .bottom-badges {
       bottom: max(0.25rem, env(safe-area-inset-bottom, 0px));
       right: max(0.5rem, env(safe-area-inset-right, 0px));
-      font-size: 0.55rem;
-      padding: 0.2rem 0.6rem;
+      font-size: clamp(0.5rem, 1.2dvh, 0.65rem);
+      padding: clamp(0.15rem, 0.5dvh, 0.3rem) clamp(0.4rem, 1dvh, 0.7rem);
     }
-    .img-credit { max-width: 16rem; }
+    .img-credit { max-width: clamp(14rem, 25vw, 22rem); }
 
     /* Minimized pills — side-by-side at bottom-left, flush with edge */
     .pomo-widget.minimized {
@@ -1682,11 +1690,9 @@
       padding: 0.6rem;
       border-radius: 28px;
     }
-
-    /* Minimize btn — keep visible in landscape */
   }
 
-  @media (max-height: 520px) and (orientation: landscape) and (prefers-color-scheme: dark) {
+  @media (max-height: 820px) and (orientation: landscape) and (prefers-color-scheme: dark) {
     .pomo-widget:not(.minimized) {
       background: rgba(40, 36, 32, 0.78);
     }
@@ -1696,37 +1702,37 @@
   }
 
   /* ═══════════════════════════════════════════════════════════
-     PHONE LANDSCAPE — Fullscreen Pomo Overlay
+     LANDSCAPE — Fullscreen Pomo Overlay
      Pomo centered, settings populate the remaining side space
      ═══════════════════════════════════════════════════════════ */
-  @media (max-height: 520px) and (orientation: landscape) {
+  @media (max-height: 820px) and (orientation: landscape) {
     .pomo-fullpage-overlay {
       flex-direction: column;
-      gap: 0.5rem;
-      padding: 0.75rem 1.5rem;
+      gap: clamp(0.3rem, 1dvh, 0.8rem);
+      padding: clamp(0.5rem, 2dvh, 1.5rem) 1.5rem;
       justify-content: center;
       align-items: center;
     }
     .pomo-fullpage-overlay .pomo-ring-wrapper {
-      width: clamp(100px, 32vh, 160px);
-      height: clamp(100px, 32vh, 160px);
+      width: clamp(100px, 32vh, 220px);
+      height: clamp(100px, 32vh, 220px);
     }
     .pomo-fullpage-overlay .pomo-ring {
-      width: clamp(100px, 32vh, 160px);
-      height: clamp(100px, 32vh, 160px);
+      width: clamp(100px, 32vh, 220px);
+      height: clamp(100px, 32vh, 220px);
     }
-    .pomo-fullpage-overlay .pomo-time-inside { font-size: clamp(1.8rem, 7vh, 3rem); }
-    .pomo-fullpage-overlay .pomo-time-unit { font-size: 0.8rem; }
-    .pomo-fullpage-overlay .pomo-label { font-size: 0.65rem; }
-    .pomo-fullpage-overlay .pomo-controls { gap: 0.6rem; }
-    .pomo-fullpage-overlay .pomo-btn--primary { width: 44px; height: 44px; }
-    .pomo-fullpage-overlay .pomo-btn--primary svg { width: 20px; height: 20px; }
-    .pomo-fullpage-overlay .pomo-btn--secondary { width: 34px; height: 34px; }
-    .pomo-fullpage-overlay .pomo-btn--secondary svg { width: 14px; height: 14px; }
-    .pomo-fullpage-overlay .pomo-phase-ready-label { font-size: 0.6rem; }
-    .pomo-fullpage-overlay .pomo-dots { margin-top: 0.15rem; }
-    .pomo-fullpage-close { top: 0.4rem; right: 0.4rem; width: 30px; height: 30px; }
-    .pomo-fullpage-close svg { width: 14px; height: 14px; }
+    .pomo-fullpage-overlay .pomo-time-inside { font-size: clamp(1.8rem, 7vh, 4rem); }
+    .pomo-fullpage-overlay .pomo-time-unit { font-size: clamp(0.7rem, 2dvh, 1rem); }
+    .pomo-fullpage-overlay .pomo-label { font-size: clamp(0.55rem, 1.5dvh, 0.75rem); }
+    .pomo-fullpage-overlay .pomo-controls { gap: clamp(0.4rem, 1.5dvh, 0.8rem); }
+    .pomo-fullpage-overlay .pomo-btn--primary { width: clamp(40px, 8dvh, 56px); height: clamp(40px, 8dvh, 56px); }
+    .pomo-fullpage-overlay .pomo-btn--primary svg { width: clamp(18px, 3.5dvh, 24px); height: clamp(18px, 3.5dvh, 24px); }
+    .pomo-fullpage-overlay .pomo-btn--secondary { width: clamp(30px, 6dvh, 44px); height: clamp(30px, 6dvh, 44px); }
+    .pomo-fullpage-overlay .pomo-btn--secondary svg { width: clamp(12px, 2.5dvh, 18px); height: clamp(12px, 2.5dvh, 18px); }
+    .pomo-fullpage-overlay .pomo-phase-ready-label { font-size: clamp(0.5rem, 1.3dvh, 0.7rem); }
+    .pomo-fullpage-overlay .pomo-dots { margin-top: clamp(0.1rem, 0.5dvh, 0.25rem); }
+    .pomo-fullpage-close { top: clamp(0.3rem, 1dvh, 0.6rem); right: clamp(0.3rem, 1dvh, 0.6rem); width: clamp(26px, 5dvh, 36px); height: clamp(26px, 5dvh, 36px); }
+    .pomo-fullpage-close svg { width: clamp(12px, 2.5dvh, 18px); height: clamp(12px, 2.5dvh, 18px); }
 
     /* Radial settings in landscape: flex grid instead of radial circle */
     .pomo-fullpage-overlay .pomo-radial-settings.open {
@@ -1734,14 +1740,14 @@
       flex-wrap: wrap;
       justify-content: center;
       align-content: center;
-      gap: 0.6rem;
+      gap: clamp(0.4rem, 1.5dvh, 0.8rem);
       position: absolute;
       inset: 0;
       pointer-events: auto;
       background: var(--bg-glass);
       backdrop-filter: blur(32px) saturate(1.4);
       -webkit-backdrop-filter: blur(32px) saturate(1.4);
-      padding: 0.5rem 1.5rem;
+      padding: clamp(0.4rem, 1.5dvh, 1rem) 1.5rem;
       z-index: 910;
     }
     .pomo-fullpage-overlay .pomo-radial-settings .radial-item {
@@ -1754,68 +1760,22 @@
       align-items: center;
     }
     .pomo-fullpage-overlay .pomo-radial-settings .radial-item label {
-      font-size: 0.6rem;
+      font-size: clamp(0.5rem, 1.3dvh, 0.7rem);
       margin-bottom: 0.2rem;
     }
     .pomo-fullpage-overlay .pomo-radial-settings .radial-item input[type="number"] {
-      width: 52px;
-      font-size: 0.8rem;
-      padding: 0.3rem;
+      width: clamp(48px, 8vw, 64px);
+      font-size: clamp(0.7rem, 1.8dvh, 0.95rem);
+      padding: clamp(0.2rem, 0.7dvh, 0.4rem);
     }
     .pomo-fullpage-overlay .pomo-radial-settings .radial-chip .phase-chip {
-      font-size: 0.65rem;
-      padding: 0.3rem 0.6rem;
+      font-size: clamp(0.55rem, 1.4dvh, 0.75rem);
+      padding: clamp(0.2rem, 0.7dvh, 0.4rem) clamp(0.4rem, 1.2dvh, 0.7rem);
     }
     .pomo-fp-settings-close {
       display: flex !important;
-      width: 30px;
-      height: 30px;
-    }
-  }
-
-  /* ═══════════════════════════════════════════════════════════
-     TABLET LANDSCAPE — iPad and similar (short-ish viewports
-     that don't trigger the phone-landscape breakpoint)
-     Reserves full top-bar height so content never overlaps
-     the fixed buttons, and constrains quote card so the
-     timer stays visible.
-     ═══════════════════════════════════════════════════════════ */
-  @media (min-width: 601px) and (max-height: 820px) and (orientation: landscape) {
-    /* Reserve space for the fixed top-right-actions bar */
-    .content {
-      padding-top: max(3.5rem, calc(env(safe-area-inset-top, 0px) + 3rem));
-      padding-bottom: 2.5rem;
-    }
-
-    /* Constrain quote card so it + timer fit within viewport */
-    .quote-card {
-      flex-shrink: 1;
-      min-height: 0;
-    }
-    .quote-inner {
-      max-height: min(40dvh, 320px);
-      overflow-y: auto;
-    }
-
-    /* Scale quote text to available height */
-    .quote-text {
-      font-size: clamp(1rem, 2.8dvh, 1.55rem);
-      line-height: 1.4;
-    }
-    .quote-mark {
-      font-size: clamp(1rem, 3dvh, 1.6rem);
-      margin-bottom: 0.25rem;
-    }
-    .quote-author {
-      font-size: clamp(0.65rem, 1.5dvh, 0.82rem);
-      margin-top: 0.4rem;
-    }
-    .quote-action-row {
-      margin-top: 0.5rem;
-    }
-    .quote-action-row .btn {
-      font-size: clamp(0.6rem, 1.3dvh, 0.72rem);
-      padding: 0.3rem 0.7rem;
+      width: clamp(26px, 5dvh, 36px);
+      height: clamp(26px, 5dvh, 36px);
     }
   }
 

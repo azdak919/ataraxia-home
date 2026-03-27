@@ -1422,14 +1422,16 @@
     .lang-selector { top: 0.5rem; right: 0.5rem; }
     .lang-btn { font-size: 0.7rem; padding: 0.3rem 0.55rem; }
 
-    /* Center both cards together instead of pushing pomo to bottom */
-    .page-layout { justify-content: center; }
+    /* Quote in upper portion, pomo fills remaining space below */
+    .page-layout { justify-content: flex-start; padding-top: 12dvh; }
     .content { flex: 0 0 auto; padding: 0 1rem; width: 100%; }
     .page-bottom {
+      flex: 1;
       padding: 0 1rem 0;
       gap: 0.5rem;
       flex-direction: column;
       align-items: center;
+      justify-content: flex-start;
       width: 100%;
       max-width: 760px;
       margin: 0 auto;
@@ -1448,24 +1450,24 @@
     .quote-inner { max-height: 45dvh; overflow-y: auto; }
 
     /* Pomo container & widget — match quote card glass style */
-    .pomo-container { width: 100%; margin-top: 0.4rem; }
+    .pomo-container { width: 100%; margin-top: 0.5rem; }
     .pomo-widget {
       width: 100%;
       border-radius: 16px;
-      padding: 1.5rem 1.25rem 1.25rem;
+      padding: 1.75rem 1.25rem 1.5rem;
       backdrop-filter: blur(24px) saturate(1.4);
       -webkit-backdrop-filter: blur(24px) saturate(1.4);
     }
 
-    /* Adaptive ring — scales with available viewport space */
+    /* Adaptive ring — scales with available viewport space, larger now with more room */
     .pomo-ring-wrapper {
-      width: clamp(100px, min(28vw, 18vh), 140px);
-      height: clamp(100px, min(28vw, 18vh), 140px);
+      width: clamp(110px, min(32vw, 20vh), 160px);
+      height: clamp(110px, min(32vw, 20vh), 160px);
     }
     .pomo-ring { width: 100%; height: 100%; }
-    .pomo-time-inside { font-size: clamp(2.1rem, min(6vw, 4.2vh), 2.8rem); }
-    .pomo-time-unit { font-size: clamp(0.8rem, 2vw, 1rem); }
-    .pomo-label { font-size: clamp(0.55rem, 1.6vw, 0.7rem); max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pomo-time-inside { font-size: clamp(2.2rem, min(7vw, 4.5vh), 3.2rem); }
+    .pomo-time-unit { font-size: clamp(0.85rem, 2.2vw, 1.1rem); }
+    .pomo-label { font-size: clamp(0.58rem, 1.8vw, 0.72rem); max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .pomo-dots { gap: 5px; }
     .pomo-dot { width: 6px; height: 6px; }
 

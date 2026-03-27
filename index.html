@@ -1502,14 +1502,14 @@
       flex-direction: row;
       align-items: stretch;
       gap: 0;
-      padding: 0.25rem;
-      padding-left: max(0.25rem, env(safe-area-inset-left, 0px));
-      padding-right: max(0.25rem, env(safe-area-inset-right, 0px));
+      padding: 0;
+      padding-left: env(safe-area-inset-left, 0px);
+      padding-right: env(safe-area-inset-right, 0px);
       height: 100vh;
       height: 100dvh;
     }
 
-    /* Left panel: Pomo — half the screen, cards fill available height */
+    /* Left panel: Pomo — half the screen, 3% buffer around card */
     .page-bottom {
       order: 1;
       flex: 1 1 50%;
@@ -1517,18 +1517,18 @@
       align-items: center;
       justify-content: center;
       width: 50%;
-      padding: 0.25rem;
+      padding: 3%;
       gap: 0;
     }
 
     .pomo-container { margin-top: 0; width: 100%; height: 100%; }
 
-    /* Right panel: Quote — other half, leaves room for lang btn (top) and credits (bottom) */
+    /* Right panel: Quote — other half, 3% sides + clearance for lang btn (top) and credits (bottom) */
     .content {
       order: 2;
       flex: 1 1 50%;
       max-width: 50%;
-      padding: calc(1.8rem + max(0.25rem, env(safe-area-inset-top, 0px))) 0.25rem calc(1.4rem + max(0.25rem, env(safe-area-inset-bottom, 0px))) 0.25rem;
+      padding: calc(1.8rem + max(3%, env(safe-area-inset-top, 0px))) 3% calc(1.4rem + max(3%, env(safe-area-inset-bottom, 0px))) 3%;
       display: flex;
       align-items: stretch;
       justify-content: center;

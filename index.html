@@ -111,12 +111,55 @@
   /* ═══════════════════════
      LANGUAGE SELECTOR
      ═══════════════════════ */
-  .lang-selector {
+  /* ═══════════════════════
+     TOP-RIGHT ACTIONS
+     ═══════════════════════ */
+  .top-right-actions {
     position: fixed;
     top: max(1rem, env(safe-area-inset-top, 0px));
     right: max(1rem, env(safe-area-inset-right, 0px));
     z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     animation: uiEnter 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.9s both;
+  }
+
+  .coffee-btn {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0.03em;
+    color: var(--text-secondary);
+    background: var(--bg-glass);
+    border: 1px solid var(--border-glass);
+    border-radius: 10px;
+    padding: 0.4rem 0.7rem;
+    cursor: pointer;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .coffee-btn:hover {
+    background: var(--bg-glass-hover);
+    border-color: var(--accent);
+    color: var(--text-primary);
+  }
+  .coffee-btn svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+
+  .lang-selector {
+    position: relative;
   }
   .lang-btn {
     font-family: var(--font-body);
@@ -1048,6 +1091,26 @@
     background: rgba(0, 0, 0, 0.32);
   }
 
+  /* ═══════════════════════
+     VERSION BADGE
+     ═══════════════════════ */
+  .version-badge {
+    display: inline-block;
+    font-family: var(--font-body);
+    font-size: 0.6rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.72);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.18);
+    padding: 0.22rem 0.6rem;
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    opacity: 0.72;
+    letter-spacing: 0.04em;
+  }
+
   .copyleft-symbol {
     font-size: 0.8rem;
     line-height: 1;
@@ -1424,8 +1487,9 @@
      RESPONSIVE
      ═══════════════════════ */
   @media (max-width: 600px) {
-    .lang-selector { top: max(0.5rem, env(safe-area-inset-top, 0px)); right: max(0.5rem, env(safe-area-inset-right, 0px)); }
-    .lang-btn { font-size: 0.7rem; padding: 0.3rem 0.55rem; }
+    .top-right-actions { top: max(0.5rem, env(safe-area-inset-top, 0px)); right: max(0.5rem, env(safe-area-inset-right, 0px)); gap: 0.35rem; }
+    .lang-btn, .coffee-btn { font-size: 0.7rem; padding: 0.3rem 0.55rem; }
+    .coffee-btn span { display: none; }
 
     /* Quote in upper portion, pomo below it — both in .content */
     .page-layout { justify-content: flex-start; padding-top: max(3rem, 8dvh); }
@@ -1609,7 +1673,8 @@
     }
     .bottom-badges * { pointer-events: auto; }
     .bottom-badges .license-badge { order: 1; }
-    .bottom-badges .img-credit { order: 2; max-width: none; white-space: nowrap; font-size: 0.55rem; }
+    .bottom-badges .version-badge { order: 2; }
+    .bottom-badges .img-credit    { order: 3; max-width: none; white-space: nowrap; font-size: 0.55rem; }
 
     /* Minimized pills — side-by-side at bottom-left, flush with edge */
     .pomo-widget.minimized {
@@ -1748,15 +1813,25 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- Language Selector — open-source auto-translate -->
+<!-- Top-right actions: Coffee + Language -->
 
-<div class="lang-selector">
-  <button class="lang-btn" id="lang-btn" aria-label="Change language">
-    <svg viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0014.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
-    <span id="lang-label">English</span>
-  </button>
-  <div class="lang-dropdown" id="lang-dropdown"></div>
-  <div class="lang-translating" id="lang-status"></div>
+<div class="top-right-actions">
+
+  <a class="coffee-btn" href="https://www.buymeacoffee.com/azdak"
+     target="_blank" rel="noopener" aria-label="Buy me a coffee">
+    <svg viewBox="0 0 24 24"><path d="M20 3H4v10c0 3.31 2.69 6 6 6h4c3.31 0 6-2.69 6-6V8h1a1 1 0 000-2h-1V3zm-2 10c0 2.21-1.79 4-4 4h-4c-2.21 0-4-1.79-4-4V5h12v8zm2-7h-1V4h1v2z"/></svg>
+    <span id="coffee-btn-label">Buy me a coffee</span>
+  </a>
+
+  <div class="lang-selector">
+    <button class="lang-btn" id="lang-btn" aria-label="Change language">
+      <svg viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0014.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
+      <span id="lang-label">English</span>
+    </button>
+    <div class="lang-dropdown" id="lang-dropdown"></div>
+    <div class="lang-translating" id="lang-status"></div>
+  </div>
+
 </div>
 
 <!-- Page layout: quote card and pomo stacked in center -->
@@ -1864,9 +1939,10 @@
 
 </div><!-- /.content -->
 
-<!-- Badges: Image Credit + License -->
+<!-- Badges: Image Credit + Version + License -->
 <div class="bottom-badges">
   <div class="img-credit" id="img-credit"></div>
+  <span class="version-badge" id="version-badge"></span>
   <a class="license-badge" href="https://www.gnu.org/licenses/gpl-2.0.html" target="_blank" rel="noopener">
     <span>Charles Tison</span>
     <span class="copyleft-symbol" aria-label="Copyleft">&copy;</span>
@@ -1941,6 +2017,11 @@
 </div>
 
 <script>
+/* ═══════════════════════════════════════
+   VERSION
+   ═══════════════════════════════════════ */
+const VERSION = 'v1.0.0';
+
 /* ═══════════════════════════════════════
    STOIC QUOTES DATABASE
    ═══════════════════════════════════════ */
@@ -3639,6 +3720,8 @@ function applyFpSettings() {
    INIT & EVENT LISTENERS
    ═══════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('version-badge').textContent = VERSION;
+
   // Random start
   currentBgIdx = Math.floor(Math.random() * BACKGROUNDS.length);
   loadBackground(currentBgIdx);
@@ -3959,6 +4042,7 @@ const UI_STRINGS = {
     readyBreak: 'Ready to break',
     readyFocus: 'Ready to focus',
     quote: 'Quote',
+    coffeeBtn: 'Buy me a coffee',
   },
   fr: {
     newQuote: 'Nouvelle citation',
@@ -4676,6 +4760,7 @@ async function translateUIStrings(lang) {
 function applyUIStrings(strings) {
   document.getElementById('btn-new').textContent = strings.newQuote;
   document.getElementById('btn-bg').textContent = strings.newScene;
+  document.getElementById('coffee-btn-label').textContent = strings.coffeeBtn;
 
   // Settings panel text (normal widget)
   const settingsPanel = document.getElementById('pomo-settings-panel');

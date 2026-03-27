@@ -116,11 +116,13 @@
      ═══════════════════════ */
   .top-right-actions {
     position: fixed;
-    top: max(1rem, env(safe-area-inset-top, 0px));
-    right: max(1rem, env(safe-area-inset-right, 0px));
+    top: max(1.25rem, env(safe-area-inset-top, 0px));
+    right: max(1.25rem, env(safe-area-inset-right, 0px));
     z-index: 100;
     display: flex;
     align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
     gap: 0.5rem;
     animation: uiEnter 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.9s both;
   }
@@ -130,6 +132,8 @@
     font-size: 0.78rem;
     font-weight: 400;
     letter-spacing: 0.03em;
+    line-height: 1.2;
+    box-sizing: border-box;
     color: var(--text-secondary);
     background: var(--bg-glass);
     border: 1px solid var(--border-glass);
@@ -139,7 +143,7 @@
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     transition: background 0.2s, border-color 0.2s, color 0.2s;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 0.35rem;
     text-decoration: none;
@@ -166,6 +170,8 @@
     font-size: 0.78rem;
     font-weight: 400;
     letter-spacing: 0.03em;
+    line-height: 1.2;
+    box-sizing: border-box;
     color: var(--text-secondary);
     background: var(--bg-glass);
     border: 1px solid var(--border-glass);
@@ -1005,36 +1011,54 @@
   /* ═══════════════════════
      IMAGE CREDIT
      ═══════════════════════ */
-  .img-credit {
-    position: relative;
-    z-index: 10;
-    align-self: flex-end;
-    font-family: var(--font-body);
-    font-size: 0.68rem;
-    font-weight: 300;
-    color: rgba(255, 255, 255, 0.82);
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
-    text-decoration: none;
-    background: rgba(0, 0, 0, 0.22);
-    padding: 0.28rem 0.7rem;
-    border-radius: 100px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    opacity: 0.72;
-    transition: opacity 0.3s ease, background 0.3s ease;
-    letter-spacing: 0.02em;
-    max-width: 100%;
-    white-space: normal;
-    overflow: visible;
-    flex-shrink: 1;
-    min-width: 0;
+  /* ═══════════════════════
+     BOTTOM-RIGHT CREDITS BAR
+     ═══════════════════════ */
+  .bottom-badges {
+    position: fixed;
+    bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
+    right: max(1.25rem, env(safe-area-inset-right, 0px));
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+    opacity: 0;
+    transition: opacity 0.6s ease, background 0.3s ease;
     z-index: 1;
+    pointer-events: auto;
+    font-family: var(--font-body);
+    font-size: 0.65rem;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.75);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.22);
+    padding: 0.3rem 0.75rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    letter-spacing: 0.02em;
   }
-
-  .img-credit:hover {
+  .bottom-badges.visible {
+    opacity: 0.72;
+  }
+  .bottom-badges:hover {
     opacity: 1;
     background: rgba(0, 0, 0, 0.36);
+  }
+
+  .bottom-badges .credits-divider {
+    margin: 0 0.5rem;
+    opacity: 0.4;
+  }
+
+  .img-credit {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 28rem;
+    flex-shrink: 1;
+    min-width: 0;
   }
   .img-credit a {
     color: rgba(255, 255, 255, 0.9);
@@ -1042,77 +1066,25 @@
   }
   .img-credit a:hover { text-decoration: underline; }
 
-  /* ═══════════════════════
-     BOTTOM-RIGHT BADGES ROW
-     ═══════════════════════ */
-  .bottom-badges {
-    position: fixed;
-    bottom: max(1.5rem, env(safe-area-inset-bottom, 0px));
-    right: max(1.5rem, env(safe-area-inset-right, 0px));
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.35rem;
-    opacity: 0;
-    transition: opacity 0.6s ease;
-    z-index: 1;
-    pointer-events: auto;
-  }
-  .bottom-badges.visible {
-    opacity: 1;
-  }
-
   .license-badge {
-    position: relative;
-    z-index: 10;
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
-    font-family: var(--font-body);
-    font-size: 0.6rem;
-    font-weight: 400;
-    color: rgba(255, 255, 255, 0.72);
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    gap: 0.3rem;
+    color: inherit;
     text-decoration: none;
-    background: rgba(0, 0, 0, 0.18);
-    padding: 0.22rem 0.6rem;
-    border-radius: 100px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    opacity: 0.72;
-    transition: opacity 0.3s ease, background 0.3s ease;
-    letter-spacing: 0.04em;
+    white-space: nowrap;
     cursor: pointer;
   }
-
   .license-badge:hover {
-    opacity: 1;
-    background: rgba(0, 0, 0, 0.32);
+    color: rgba(255, 255, 255, 1);
   }
 
-  /* ═══════════════════════
-     VERSION BADGE
-     ═══════════════════════ */
   .version-badge {
-    display: inline-block;
-    font-family: var(--font-body);
-    font-size: 0.6rem;
-    font-weight: 400;
-    color: rgba(255, 255, 255, 0.72);
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
-    background: rgba(0, 0, 0, 0.18);
-    padding: 0.22rem 0.6rem;
-    border-radius: 100px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    opacity: 0.72;
-    letter-spacing: 0.04em;
+    white-space: nowrap;
   }
 
   .copyleft-symbol {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     line-height: 1;
     flex-shrink: 0;
     opacity: 0.9;
@@ -1495,12 +1467,16 @@
     .page-layout { justify-content: flex-start; padding-top: max(3rem, 8dvh); }
     .content { flex: 1; padding: 0 1rem 2.5rem; width: 100%; align-items: center; justify-content: flex-start; gap: 0.5rem; }
     .bottom-badges {
-      position: fixed;
-      bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
-      right: max(0.75rem, env(safe-area-inset-right, 0px));
-      max-width: calc(100vw - 6.5rem);
+      bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+      right: max(0.5rem, env(safe-area-inset-right, 0px));
+      max-width: calc(100vw - 1rem);
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      font-size: 0.58rem;
+      padding: 0.25rem 0.6rem;
     }
-    .img-credit { white-space: normal; text-align: right; }
+    .img-credit { max-width: 18rem; }
+    .bottom-badges .credits-divider { margin: 0 0.35rem; }
 
     /* Quote card */
     .quote-card { padding: 1.5rem 1.25rem; border-radius: 16px; }
@@ -1536,7 +1512,7 @@
     .pomo-btn--primary svg { width: clamp(16px, 4.5vw, 20px); height: clamp(16px, 4.5vw, 20px); }
     .pomo-btn--secondary svg { width: clamp(12px, 3.5vw, 15px); height: clamp(12px, 3.5vw, 15px); }
 
-    .img-credit { font-size: 0.6rem; }
+    .img-credit { font-size: inherit; }
 
     /* Minimized pills — anchor above the credits, side-by-side */
     .pomo-widget.minimized {
@@ -1659,22 +1635,14 @@
       min-width: 180px;
     }
 
-    /* Badges — horizontal row at bottom-right, flush with bottom edge */
+    /* Badges — unified bar at bottom-right, flush with bottom edge */
     .bottom-badges {
-      position: fixed;
-      bottom: max(0px, env(safe-area-inset-bottom, 0px));
+      bottom: max(0.25rem, env(safe-area-inset-bottom, 0px));
       right: max(0.5rem, env(safe-area-inset-right, 0px));
-      left: auto;
-      flex-direction: row;
-      align-items: center;
-      gap: 0.4rem;
-      z-index: 0;
-      pointer-events: none;
+      font-size: 0.55rem;
+      padding: 0.2rem 0.6rem;
     }
-    .bottom-badges * { pointer-events: auto; }
-    .bottom-badges .license-badge { order: 1; }
-    .bottom-badges .version-badge { order: 2; }
-    .bottom-badges .img-credit    { order: 3; max-width: none; white-space: nowrap; font-size: 0.55rem; }
+    .img-credit { max-width: 16rem; }
 
     /* Minimized pills — side-by-side at bottom-left, flush with edge */
     .pomo-widget.minimized {
@@ -1939,12 +1907,14 @@
 
 </div><!-- /.content -->
 
-<!-- Badges: Image Credit + Version + License -->
+<!-- Bottom credits bar -->
 <div class="bottom-badges">
   <div class="img-credit" id="img-credit"></div>
+  <span class="credits-divider">&middot;</span>
   <span class="version-badge" id="version-badge"></span>
+  <span class="credits-divider">&middot;</span>
   <a class="license-badge" href="https://www.gnu.org/licenses/gpl-2.0.html" target="_blank" rel="noopener">
-    <span>Charles Tison</span>
+    <span>Azdak</span>
     <span class="copyleft-symbol" aria-label="Copyleft">&copy;</span>
     <span>GPL v2</span>
   </a>

@@ -1523,6 +1523,10 @@
       margin-top: 0;
       padding: 3% 1.5% 3% calc(56px + 1rem);
     }
+    /* When quote is minimized, center the timer symmetrically */
+    .quote-card.minimized ~ .pomo-container {
+      padding-left: 1.5%;
+    }
 
     /* Right panel: Quote */
     .quote-card { order: 2; }
@@ -1617,6 +1621,9 @@
       min-width: 56px;
       z-index: 200;
       background: var(--bg-glass);
+      flex: none;
+      padding: 0.6rem;
+      border-radius: 28px;
     }
     /* Quote pill: anchored at left edge, side-by-side with pomo */
     .quote-card.minimized {
@@ -1626,6 +1633,10 @@
       height: auto;
       z-index: 200;
       background: var(--bg-glass);
+      margin: 0;
+      flex: none;
+      padding: 0.6rem;
+      border-radius: 28px;
     }
 
     /* Minimize btn — keep visible in landscape */

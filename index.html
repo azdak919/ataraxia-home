@@ -115,15 +115,14 @@
      TOP-RIGHT ACTIONS
      ═══════════════════════ */
   .top-right-actions {
-    position: relative;
-    width: 100%;
-    flex-shrink: 0;
+    position: fixed;
+    top: 0;
+    right: 0;
     z-index: 100;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
     gap: 0.5rem;
-    padding: max(1.25rem, env(safe-area-inset-top, 0px)) max(1.25rem, env(safe-area-inset-right, 0px)) 0.75rem max(1.25rem, env(safe-area-inset-left, 0px));
+    padding: max(1.25rem, env(safe-area-inset-top, 0px)) max(1.25rem, env(safe-area-inset-right, 0px)) 0 max(1.25rem, env(safe-area-inset-left, 0px));
     animation: uiEnter 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.9s both;
   }
 
@@ -296,7 +295,7 @@
   }
 
   /* ═══════════════════════
-     PAGE LAYOUT — flex-column, no fixed overlay elements
+     PAGE LAYOUT — flex-column, fixed top/bottom overlays
      ═══════════════════════ */
   .page-layout {
     position: relative;
@@ -306,7 +305,7 @@
     height: 100dvh;
     display: flex;
     flex-direction: column;
-    overflow: visible;
+    overflow: hidden;
   }
 
   /* ═══════════════════════
@@ -321,9 +320,9 @@
     justify-content: center;
     width: 100%;
     max-width: min(760px, calc(100vw - 3rem));
-    padding: 0.5rem 2rem;
+    padding: 2rem;
     margin: 0 auto;
-    overflow: visible;
+    overflow: hidden;
     position: relative;
     gap: 1.5rem;
   }
@@ -373,8 +372,8 @@
 
   .quote-card .quote-inner {
     transition: opacity 0.35s ease, max-height 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-    max-height: 600px;
-    overflow: hidden;
+    max-height: min(600px, 40dvh);
+    overflow-y: auto;
   }
 
   .quote-card.minimized .quote-inner {
@@ -1019,14 +1018,12 @@
      BOTTOM-RIGHT CREDITS BAR
      ═══════════════════════ */
   .bottom-badges {
-    position: relative;
-    width: 100%;
-    flex-shrink: 0;
+    position: fixed;
+    bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
+    right: max(1.25rem, env(safe-area-inset-right, 0px));
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
     align-items: center;
-    justify-content: flex-end;
     gap: 0;
     opacity: 0;
     transition: opacity 0.6s ease, background 0.3s ease;
@@ -1038,13 +1035,15 @@
     color: rgba(255, 255, 255, 0.75);
     text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
     background: rgba(0, 0, 0, 0.22);
-    padding: 0.45rem max(1.25rem, env(safe-area-inset-right, 0px)) max(1.25rem, env(safe-area-inset-bottom, 0px)) max(1.25rem, env(safe-area-inset-left, 0px));
+    padding: 0.3rem 0.75rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     letter-spacing: 0.02em;
   }
   .bottom-badges.visible {
-    opacity: 0.85;
+    opacity: 0.72;
   }
   .bottom-badges:hover {
     opacity: 1;
@@ -1057,6 +1056,10 @@
   }
 
   .img-credit {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 28rem;
     flex-shrink: 1;
     min-width: 0;
   }
@@ -1459,15 +1462,22 @@
      RESPONSIVE
      ═══════════════════════ */
   @media (max-width: 600px) {
-    .top-right-actions { padding: max(0.65rem, env(safe-area-inset-top, 0px)) max(0.65rem, env(safe-area-inset-right, 0px)) 0.5rem max(0.65rem, env(safe-area-inset-left, 0px)); gap: 0.35rem; }
+    .top-right-actions { padding: max(0.5rem, env(safe-area-inset-top, 0px)) max(0.5rem, env(safe-area-inset-right, 0px)) 0 0; gap: 0.35rem; }
     .lang-btn, .coffee-btn { font-size: 0.7rem; padding: 0.3rem 0.55rem; }
 
     /* Quote in upper portion, pomo below it — both in .content */
-    .content { flex: 1; padding: 0 1rem 0; width: 100%; align-items: center; justify-content: flex-start; gap: 0.5rem; }
+    .page-layout { justify-content: flex-start; padding-top: max(3rem, 8dvh); }
+    .content { flex: 1; padding: 0 1rem 2.5rem; width: 100%; align-items: center; justify-content: flex-start; gap: 0.5rem; }
     .bottom-badges {
+      bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+      right: max(0.5rem, env(safe-area-inset-right, 0px));
+      max-width: calc(100vw - 1rem);
+      flex-wrap: wrap;
+      justify-content: flex-end;
       font-size: 0.58rem;
-      padding: 0.35rem max(0.65rem, env(safe-area-inset-right, 0px)) max(0.65rem, env(safe-area-inset-bottom, 0px)) max(0.65rem, env(safe-area-inset-left, 0px));
+      padding: 0.25rem 0.6rem;
     }
+    .img-credit { max-width: 18rem; }
     .bottom-badges .credits-divider { margin: 0 0.35rem; }
 
     /* Quote card */
@@ -1521,12 +1531,7 @@
      Isolated: only fires on short landscape screens (phones)
      ═══════════════════════════════════════════════════════════ */
   @media (max-height: 520px) and (orientation: landscape) {
-    /* In short landscape, overlay top/bottom to maximise content area */
     .top-right-actions {
-      position: fixed;
-      top: 0;
-      right: 0;
-      width: auto;
       padding: max(0.4rem, env(safe-area-inset-top, 0px)) max(0.6rem, env(safe-area-inset-right, 0px)) 0.4rem 0.6rem;
     }
     .page-layout {
@@ -1635,11 +1640,14 @@
       min-width: 180px;
     }
 
-    /* Badges — full-width bottom bar in landscape */
+    /* Badges — small pill at bottom-right in landscape */
     .bottom-badges {
+      bottom: max(0.25rem, env(safe-area-inset-bottom, 0px));
+      right: max(0.5rem, env(safe-area-inset-right, 0px));
       font-size: 0.55rem;
-      padding: 0.2rem max(0.6rem, env(safe-area-inset-right, 0px)) max(0.35rem, env(safe-area-inset-bottom, 0px)) max(0.6rem, env(safe-area-inset-left, 0px));
+      padding: 0.2rem 0.6rem;
     }
+    .img-credit { max-width: 16rem; }
 
     /* Minimized pills — side-by-side at bottom-left, flush with edge */
     .pomo-widget.minimized {
@@ -1778,11 +1786,7 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- Page layout: top bar + content + bottom bar -->
-
-<div class="page-layout">
-
-<!-- Top bar: full-width row — empty space on left, buttons on right -->
+<!-- Top-right actions: Coffee + Language -->
 <div class="top-right-actions">
 
   <a class="coffee-btn" href="https://www.buymeacoffee.com/azdak"
@@ -1801,6 +1805,9 @@
   </div>
 
 </div>
+
+<!-- Page layout: quote card and pomo stacked in center -->
+<div class="page-layout">
 
 <div class="content">
   <div class="quote-card" id="quote-card">

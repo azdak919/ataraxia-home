@@ -1509,7 +1509,7 @@
       height: 100dvh;
     }
 
-    /* Left panel: Pomo — half the screen, 3% outer / 1.5% inner gap */
+    /* Left panel: Pomo — half the screen, tight gap to pills */
     .page-bottom {
       order: 1;
       flex: 1 1 50%;
@@ -1517,18 +1517,18 @@
       align-items: center;
       justify-content: center;
       width: 50%;
-      padding: 3% 1.5% 3% calc(56px + 1rem);
+      padding: 3% 1.5% 3% calc(56px + 0.4rem);
       gap: 0;
     }
 
     .pomo-container { margin-top: 0; width: 100%; height: 100%; }
 
-    /* Right panel: Quote — 3% outer / 1.5% inner + clearance for lang btn (top) and credits (bottom) */
+    /* Right panel: Quote — 3% outer / tight inner gap to match pomo side */
     .content {
       order: 2;
       flex: 1 1 50%;
       max-width: 50%;
-      padding: calc(1.8rem + max(3%, env(safe-area-inset-top, 0px))) 3% calc(1.9rem + env(safe-area-inset-bottom, 0px)) 1.5%;
+      padding: calc(1.8rem + max(3%, env(safe-area-inset-top, 0px))) 3% calc(1.9rem + env(safe-area-inset-bottom, 0px)) 0.5rem;
       display: flex;
       align-items: stretch;
       justify-content: center;
@@ -1565,25 +1565,26 @@
       background: rgba(255, 255, 255, 0.72);
       backdrop-filter: blur(24px) saturate(1.4);
       -webkit-backdrop-filter: blur(24px) saturate(1.4);
+      align-items: center;
       justify-content: center;
       box-sizing: border-box;
     }
     .pomo-ring-wrapper {
-      width: clamp(120px, 50vh, 220px);
-      height: clamp(120px, 50vh, 220px);
+      width: clamp(140px, 58vh, 260px);
+      height: clamp(140px, 58vh, 260px);
     }
     .pomo-ring { width: 100%; height: 100%; }
-    .pomo-time-inside { font-size: clamp(2rem, 9vh, 3.2rem); }
-    .pomo-time-unit { font-size: clamp(0.8rem, 2.5vh, 1.1rem); }
-    .pomo-label { font-size: clamp(0.5rem, 1.8vh, 0.7rem); letter-spacing: 0.12em; }
-    .pomo-controls { gap: 0.5rem; margin-top: 0.05rem; }
-    .pomo-btn--primary { width: clamp(36px, 10vh, 50px); height: clamp(36px, 10vh, 50px); }
-    .pomo-btn--secondary { width: clamp(28px, 7vh, 38px); height: clamp(28px, 7vh, 38px); }
-    .pomo-btn--primary svg { width: clamp(16px, 4vh, 22px); height: clamp(16px, 4vh, 22px); }
-    .pomo-btn--secondary svg { width: clamp(12px, 3vh, 16px); height: clamp(12px, 3vh, 16px); }
-    .pomo-phase-ready-label { font-size: 0.55rem; }
-    .pomo-dots { margin-top: 0.05rem; }
-    .pomo-dot { width: 6px; height: 6px; }
+    .pomo-time-inside { font-size: clamp(2.4rem, 11vh, 4rem); }
+    .pomo-time-unit { font-size: clamp(0.9rem, 3vh, 1.3rem); }
+    .pomo-label { font-size: clamp(0.6rem, 2vh, 0.82rem); letter-spacing: 0.12em; }
+    .pomo-controls { gap: 0.65rem; margin-top: 0.15rem; }
+    .pomo-btn--primary { width: clamp(42px, 12vh, 58px); height: clamp(42px, 12vh, 58px); }
+    .pomo-btn--secondary { width: clamp(32px, 9vh, 44px); height: clamp(32px, 9vh, 44px); }
+    .pomo-btn--primary svg { width: clamp(18px, 5vh, 26px); height: clamp(18px, 5vh, 26px); }
+    .pomo-btn--secondary svg { width: clamp(14px, 3.5vh, 18px); height: clamp(14px, 3.5vh, 18px); }
+    .pomo-phase-ready-label { font-size: 0.62rem; }
+    .pomo-dots { margin-top: 0.1rem; }
+    .pomo-dot { width: 7px; height: 7px; }
 
     /* Settings panel — slides out to the right of pomo */
     .pomo-settings {

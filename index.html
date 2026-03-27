@@ -117,19 +117,13 @@
   .top-right-actions {
     position: fixed;
     top: 0;
-    left: 0;
     right: 0;
     z-index: 100;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
     gap: 0.5rem;
     padding: max(1.25rem, env(safe-area-inset-top, 0px)) max(1.25rem, env(safe-area-inset-right, 0px)) 0 max(1.25rem, env(safe-area-inset-left, 0px));
-    pointer-events: none;
     animation: uiEnter 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.9s both;
-  }
-  .top-right-actions > * {
-    pointer-events: auto;
   }
 
   .coffee-btn {
@@ -226,12 +220,16 @@
   .lang-option:hover { background: var(--accent-glow); }
   .lang-option.active { color: var(--accent); font-weight: 500; }
   .lang-translating {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
     font-size: 0.65rem;
     color: var(--text-muted);
-    text-align: center;
+    text-align: right;
     padding: 0.2rem 0;
     opacity: 0;
     transition: opacity 0.3s;
+    white-space: nowrap;
   }
   .lang-translating.visible { opacity: 1; }
 
@@ -1464,7 +1462,7 @@
      RESPONSIVE
      ═══════════════════════ */
   @media (max-width: 600px) {
-    .top-right-actions { padding: max(0.5rem, env(safe-area-inset-top, 0px)) max(0.5rem, env(safe-area-inset-right, 0px)) 0 max(0.5rem, env(safe-area-inset-left, 0px)); gap: 0.35rem; }
+    .top-right-actions { padding: max(0.5rem, env(safe-area-inset-top, 0px)) max(0.5rem, env(safe-area-inset-right, 0px)) 0 0; gap: 0.35rem; }
     .lang-btn, .coffee-btn { font-size: 0.7rem; padding: 0.3rem 0.55rem; }
 
     /* Quote in upper portion, pomo below it — both in .content */

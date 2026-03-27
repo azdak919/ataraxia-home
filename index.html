@@ -1586,8 +1586,15 @@
     .bottom-badges * { pointer-events: auto; }
     .img-credit { max-width: none; white-space: nowrap; font-size: 0.55rem; }
 
-    /* Minimized quote */
-    .quote-card.minimized { bottom: 0.5rem; left: 0.5rem; }
+    /* Minimized pills — bottom-left, same as portrait */
+    .pomo-widget.minimized {
+      position: fixed;
+      bottom: 0.5rem;
+      left: 0.5rem;
+      width: auto;
+      min-width: 56px;
+    }
+    .quote-card.minimized { left: calc(0.5rem + var(--pomo-offset, 0px)); right: auto; bottom: 0.5rem; }
 
     /* Minimize btn — keep visible in landscape */
   }

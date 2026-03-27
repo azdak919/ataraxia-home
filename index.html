@@ -230,7 +230,7 @@
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    transition: opacity 1.8s ease;
+    transition: opacity 1.8s ease 0.3s;
     opacity: 0;
   }
   #bg-layer.loaded { opacity: 1; }
@@ -426,7 +426,7 @@
     color: var(--text-primary);
     margin-bottom: 1.5rem;
     font-style: italic;
-    transition: opacity 0.5s ease;
+    transition: opacity 0.35s ease;
   }
 
   .quote-author {
@@ -436,7 +436,7 @@
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--text-muted);
-    transition: opacity 0.5s ease;
+    transition: opacity 0.35s ease;
   }
 
   .quote-author::before {
@@ -2728,7 +2728,7 @@ function showRandomQuote() {
   const textEl = document.getElementById('quote-text');
   const authorEl = document.getElementById('quote-author');
 
-  // fade out
+  // fade out — wait longer than the transition (0.35s) before swapping
   textEl.style.opacity = '0';
   authorEl.style.opacity = '0';
 
@@ -2740,10 +2740,12 @@ function showRandomQuote() {
     textEl.textContent = QUOTES[idx].text;
     authorEl.textContent = QUOTES[idx].author;
 
-    // fade in
-    textEl.style.opacity = '1';
-    authorEl.style.opacity = '1';
-  }, 400);
+    // Double rAF ensures browser renders opacity:0 before starting fade-in transition
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      textEl.style.opacity = '1';
+      authorEl.style.opacity = '1';
+    }));
+  }, 420);
 }
 
 /* ═══════════════════════════════════════
@@ -4624,11 +4626,11 @@ async function translateCurrentQuote() {
   // Only update if still showing the same quote
   if (currentQuoteIdx === QUOTES.indexOf(quote)) {
     textEl.textContent = translatedText;
-    textEl.style.opacity = '1';
-    // Author names stay in original — they are proper nouns
-  } else {
-    textEl.style.opacity = '1';
   }
+  // Double rAF ensures browser renders opacity:0 before starting fade-in transition
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    textEl.style.opacity = '1';
+  }));
 }
 
 async function translateUIStrings(lang) {

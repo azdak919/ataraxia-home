@@ -1761,14 +1761,13 @@
     .bottom-badges .copyleft-symbol { font-size: 0.5rem; }
 
     /* ── Minimized pills → dock center area ──────────── */
+    /* Fixed positions around dock's vertical midpoint — no JS offset needed */
     .pomo-widget.minimized {
       position: fixed;
-      top: auto;
+      top: calc(50% - 26px);
       bottom: auto;
       left: auto;
       right: calc(8px + env(safe-area-inset-right, 0px));
-      /* vertically centered in dock, offset down for second pill */
-      top: calc(50% - 8px - var(--pomo-height-offset, 0px));
       width: auto;
       height: auto;
       min-width: 40px;
@@ -1783,7 +1782,7 @@
 
     .quote-card.minimized {
       position: fixed;
-      top: calc(50% + 8px);
+      top: calc(50% + 6px);
       bottom: auto;
       left: auto;
       right: calc(8px + env(safe-area-inset-right, 0px));

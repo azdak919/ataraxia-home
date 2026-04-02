@@ -126,6 +126,9 @@
     animation: uiEnter 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.9s both;
   }
 
+  /* Hidden by default — shown only in landscape dock */
+  .dock-toggle-btn { display: none; }
+
   .coffee-btn {
     font-family: var(--font-body);
     font-size: 0.78rem;
@@ -1719,98 +1722,105 @@
     .quote-action-row { flex-shrink: 0; gap: 0.2rem; margin-top: 0.15rem; }
     .quote-action-row .btn { font-size: 0.46rem; padding: 0.18rem 0.4rem; border-radius: 6px; }
 
-    /* ── Credits → Dock bottom (vertical) ────────────── */
+    /* ── Credits → bottom-right of content area (background) ── */
     .bottom-badges {
       position: fixed;
       bottom: max(0.35rem, env(safe-area-inset-bottom, 0px));
-      right: 0;
+      right: calc(56px + env(safe-area-inset-right, 0px) + 0.5rem);
       left: auto;
-      width: calc(56px + env(safe-area-inset-right, 0px));
-      padding: 0.25rem 0.3rem;
-      padding-right: calc(0.3rem + env(safe-area-inset-right, 0px));
-      flex-direction: column;
+      width: auto;
+      padding: 0.2rem 0.5rem;
+      flex-direction: row;
       align-items: center;
-      text-align: center;
-      gap: 0;
-      font-size: 0.4rem;
+      gap: 0.3rem;
+      font-size: 0.45rem;
       background: transparent;
       border: none;
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
-      z-index: 101;
+      z-index: 1;
       line-height: 1.3;
     }
+    .bottom-badges.visible { opacity: 0.35; }
     .bottom-badges:hover {
-      background: transparent;
+      opacity: 0.7;
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: 8px;
     }
-    /* Hide photo credit and dividers in dock — too narrow */
+    /* Hide photo credit + its divider in landscape — too long */
     .bottom-badges .img-credit,
-    .bottom-badges .credits-divider { display: none; }
-
+    .bottom-badges .img-credit + .credits-divider { display: none; }
     .bottom-badges .version-badge {
-      font-size: 0.4rem;
-      opacity: 0.55;
+      font-size: 0.42rem;
+      opacity: 0.7;
     }
     .bottom-badges .license-badge {
-      font-size: 0.4rem;
-      gap: 0.15rem;
-      opacity: 0.55;
-      flex-wrap: wrap;
-      justify-content: center;
+      font-size: 0.42rem;
+      opacity: 0.7;
     }
     .bottom-badges .copyleft-symbol { font-size: 0.5rem; }
 
-    /* ── Minimized pills → dock center area ──────────── */
-    /* Fixed positions around dock's vertical midpoint — no JS offset needed */
-    .pomo-widget.minimized {
-      position: fixed;
-      top: calc(50% - 26px);
-      bottom: auto;
-      left: auto;
-      right: calc(8px + env(safe-area-inset-right, 0px));
-      width: auto;
-      height: auto;
-      min-width: 40px;
-      z-index: 200;
-      background: var(--bg-glass);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      flex: none;
-      padding: 0.4rem;
-      border-radius: 20px;
+    /* ── Dock toggle buttons (landscape only) ────────── */
+    .dock-toggle-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      padding: 0.45rem;
+      border: none;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.85);
+      cursor: pointer;
+      transition: opacity 0.2s ease, background 0.2s ease;
+    }
+    .dock-toggle-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+      opacity: 0.85;
+    }
+    .dock-toggle-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+    }
+    /* Dimmed state when corresponding card is minimized */
+    .dock-toggle-btn.active {
+      opacity: 0.4;
+      background: rgba(255, 255, 255, 0.05);
     }
 
+    /* ── Minimized cards — collapse in flex flow ──────── */
+    .pomo-container:has(.pomo-widget.minimized) {
+      flex: 0 0 0px;
+      width: 0;
+      min-width: 0;
+      overflow: hidden;
+      padding: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: flex 0.3s ease, opacity 0.2s ease;
+    }
     .quote-card.minimized {
-      position: fixed;
-      top: calc(50% + 6px);
-      bottom: auto;
-      left: auto;
-      right: calc(8px + env(safe-area-inset-right, 0px));
-      width: auto;
+      flex: 0 0 0px;
+      width: 0;
+      min-width: 0;
       height: auto;
-      z-index: 200;
-      background: var(--bg-glass);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      overflow: hidden;
+      padding: 0;
       margin: 0;
-      flex: none;
-      padding: 0.4rem;
-      border-radius: 20px;
+      border: none;
+      opacity: 0;
+      pointer-events: none;
+      transition: flex 0.3s ease, opacity 0.2s ease;
     }
+    /* Hide mini-indicators in landscape — dock button IS the indicator */
+    .pomo-widget.minimized .pomo-mini-indicator,
+    .quote-card.minimized .quote-mini-indicator { display: none; }
 
-    /* Smaller mini-indicators in dock */
-    .pomo-widget.minimized .pomo-mini-dot { width: 18px; height: 18px; }
-    .pomo-widget.minimized .pomo-mini-time { font-size: 0.65rem; }
-    .quote-card.minimized .quote-mini-mark { font-size: 0.9rem; }
-    .quote-card.minimized .quote-mini-label { font-size: 0.5rem; }
-
-    /* Minimize buttons — keep visible */
+    /* Hide card-level minimize buttons — dock buttons replace them */
     .pomo-minimize-btn,
-    .quote-minimize-btn { opacity: 0.6; }
-    .pomo-minimize-btn { top: 0.3rem; right: 0.3rem; width: 22px; height: 22px; }
-    .pomo-minimize-btn svg { width: 12px; height: 12px; }
-    .quote-minimize-btn { top: 0.3rem; right: 0.3rem; width: 22px; height: 22px; }
-    .quote-minimize-btn svg { width: 12px; height: 12px; }
+    .quote-minimize-btn { display: none !important; }
 
     /* Fullscreen btn — smaller in landscape */
     .pomo-fullscreen-btn { top: 0.3rem; left: 0.3rem; width: 22px; height: 22px; }
@@ -1827,6 +1837,12 @@
     }
     .quote-card:not(.minimized) {
       background: rgba(40, 36, 32, 0.75);
+    }
+    .dock-toggle-btn {
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .dock-toggle-btn:hover {
+      background: rgba(255, 255, 255, 0.14);
     }
   }
 
@@ -1983,6 +1999,14 @@
     <svg viewBox="0 0 24 24"><path d="M20 3H4v10c0 3.31 2.69 6 6 6h4c3.31 0 6-2.69 6-6V8h1a1 1 0 000-2h-1V3zm-2 10c0 2.21-1.79 4-4 4h-4c-2.21 0-4-1.79-4-4V5h12v8zm2-7h-1V4h1v2z"/></svg>
     <span id="coffee-btn-label">Buy me a coffee</span>
   </a>
+
+  <!-- Landscape dock: toggle pomo/quote cards -->
+  <button class="dock-toggle-btn dock-toggle-pomo" id="dock-toggle-pomo" aria-label="Toggle timer">
+    <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+  </button>
+  <button class="dock-toggle-btn dock-toggle-quote" id="dock-toggle-quote" aria-label="Toggle quote">
+    <svg viewBox="0 0 24 24"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg>
+  </button>
 
   <div class="lang-selector">
     <button class="lang-btn" id="lang-btn" aria-label="Change language">
@@ -3907,6 +3931,24 @@ document.addEventListener('DOMContentLoaded', () => {
   // Collapsible quote card
   const quoteCard = document.getElementById('quote-card');
   const quoteMinBtn = document.getElementById('quote-minimize-btn');
+  const landscapeMQ = window.matchMedia('(max-height: 520px) and (orientation: landscape)');
+  const dockTogglePomo = document.getElementById('dock-toggle-pomo');
+  const dockToggleQuote = document.getElementById('dock-toggle-quote');
+
+  // Sync dock toggle button visual state with card minimized state
+  function syncDockToggleState() {
+    if (dockTogglePomo) {
+      const pomoMin = document.getElementById('pomo-widget').classList.contains('minimized');
+      dockTogglePomo.classList.toggle('active', pomoMin);
+      dockTogglePomo.setAttribute('aria-label', pomoMin ? 'Show timer' : 'Hide timer');
+    }
+    if (dockToggleQuote) {
+      const quoteMin = quoteCard.classList.contains('minimized');
+      dockToggleQuote.classList.toggle('active', quoteMin);
+      dockToggleQuote.setAttribute('aria-label', quoteMin ? 'Show quote' : 'Hide quote');
+    }
+  }
+
   window.updateQuoteOffset = function() {
     requestAnimationFrame(() => {
       if (quoteCard.classList.contains('minimized')) {
@@ -3927,13 +3969,15 @@ document.addEventListener('DOMContentLoaded', () => {
     quoteMinBtn.setAttribute('aria-label', isMin ? 'Expand quote' : 'Minimize quote');
     localStorage.setItem('ataraxia_quote_minimized', isMin);
     updateQuoteOffset();
+    syncDockToggleState();
   });
   quoteCard.addEventListener('click', (e) => {
-    if (quoteCard.classList.contains('minimized')) {
+    if (quoteCard.classList.contains('minimized') && !landscapeMQ.matches) {
       quoteCard.classList.remove('minimized');
       quoteMinBtn.setAttribute('aria-label', 'Minimize quote');
       localStorage.setItem('ataraxia_quote_minimized', 'false');
       updateQuoteOffset();
+      syncDockToggleState();
     }
   });
 
@@ -3970,14 +4014,41 @@ document.addEventListener('DOMContentLoaded', () => {
     pomoWidget.classList.add('minimized');
     localStorage.setItem('ataraxia_pomo_minimized', 'true');
     updatePomoOffset();
+    syncDockToggleState();
   });
   pomoWidget.addEventListener('click', (e) => {
-    if (pomoWidget.classList.contains('minimized')) {
+    if (pomoWidget.classList.contains('minimized') && !landscapeMQ.matches) {
       pomoWidget.classList.remove('minimized');
       localStorage.setItem('ataraxia_pomo_minimized', 'false');
       updatePomoOffset();
+      syncDockToggleState();
     }
   });
+
+  // Dock toggle buttons (landscape mode) — toggle minimize/restore from dock
+  if (dockTogglePomo) {
+    dockTogglePomo.addEventListener('click', (e) => {
+      e.stopPropagation();
+      pomoWidget.classList.toggle('minimized');
+      const isMin = pomoWidget.classList.contains('minimized');
+      localStorage.setItem('ataraxia_pomo_minimized', isMin);
+      updatePomoOffset();
+      syncDockToggleState();
+    });
+  }
+  if (dockToggleQuote) {
+    dockToggleQuote.addEventListener('click', (e) => {
+      e.stopPropagation();
+      quoteCard.classList.toggle('minimized');
+      const isMin = quoteCard.classList.contains('minimized');
+      localStorage.setItem('ataraxia_quote_minimized', isMin);
+      updateQuoteOffset();
+      syncDockToggleState();
+    });
+  }
+
+  // Initial sync of dock toggle state
+  syncDockToggleState();
 
   // Pomodoro buttons
   document.getElementById('pomo-play').addEventListener('click', () => { initAudioCtx(); startPomo(); });

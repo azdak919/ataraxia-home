@@ -3211,7 +3211,12 @@ function showRandomQuote() {
     currentQuoteIdx = idx;
 
     textEl.textContent = QUOTES[idx].text;
-    authorEl.textContent = QUOTES[idx].author;
+    // In non-English mode, show the plain-English author name immediately so
+    // there is never a flash of native-script (e.g. Greek) text while the
+    // translation API call is in flight.
+    authorEl.textContent = (currentLang !== 'en' && QUOTES[idx].authorEn)
+      ? QUOTES[idx].authorEn
+      : QUOTES[idx].author;
 
     // Pick a background culturally appropriate for this quote's author
     if (QUOTES[idx].culture) {
@@ -3228,11 +3233,8 @@ function showRandomQuote() {
 
 /* ═══════════════════════════════════════
    BACKGROUND LOGIC
-   Static pool + dynamic Unsplash random fetch
-   for infinite variety.
+   Static curated pool for reliable variety.
    ═══════════════════════════════════════ */
-const UNSPLASH_TOPICS = ['nature', 'wallpapers', 'travel', 'architecture'];
-let _lastDynamicUrl = '';
 
 // Return an appropriate image width for the current viewport + device pixel ratio.
 // Capped at 2× DPR so 3× phones don't download 6000 px images.
@@ -3274,32 +3276,9 @@ function _applyBackground(url, creditText, linkUrl, source, title = '') {
     document.querySelector('.bottom-badges').classList.add('visible');
   };
   img.onerror = () => {
-    // fallback to static pool
-    currentBgIdx = (currentBgIdx + 1) % BACKGROUNDS.length;
-    loadBackground(currentBgIdx);
-  };
-  img.src = url;
-}
-
-function _fetchDynamicBackground() {
-  const topic = UNSPLASH_TOPICS[Math.floor(Math.random() * UNSPLASH_TOPICS.length)];
-  const w = Math.max(screen.width, 1920);
-  const url = `https://source.unsplash.com/random/${w}x${Math.round(w * 0.6)}/?${topic}&t=${Date.now()}`;
-
-  const img = new Image();
-  img.onload = () => {
-    // source.unsplash.com redirects to the actual image URL
-    const finalUrl = img.src;
-    if (finalUrl === _lastDynamicUrl) {
-      // Got same image, fall back to static pool
-      _nextFromPool();
-      return;
-    }
-    _lastDynamicUrl = finalUrl;
-    _applyBackground(finalUrl, topic, `https://unsplash.com/s/photos/${topic}`, 'Unsplash');
-  };
-  img.onerror = () => {
-    // Dynamic fetch failed, fall back to static pool
+    // Fallback to a randomly chosen pool entry to avoid always landing on the
+    // same images when several consecutive entries in the list fail to load
+    // (e.g. due to CDN hotlinking restrictions).
     _nextFromPool();
   };
   img.src = url;
@@ -3313,12 +3292,7 @@ function _nextFromPool() {
 }
 
 function nextBackground() {
-  // 50% chance dynamic fetch, 50% curated pool — ensures variety + reliability
-  if (Math.random() < 0.5) {
-    _fetchDynamicBackground();
-  } else {
-    _nextFromPool();
-  }
+  _nextFromPool();
 }
 
 /* ═══════════════════════════════════════

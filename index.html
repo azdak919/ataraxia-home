@@ -267,17 +267,25 @@
   /* ═══════════════════════
      BACKGROUND IMAGE
      ═══════════════════════ */
-  #bg-layer {
+  /* Two-layer crossfade: #bg-layer holds the current/outgoing image (always
+     visible at opacity 1); #bg-layer-next holds the incoming image and fades
+     in over the current one, eliminating the flash-to-black between scenes. */
+  #bg-layer,
+  #bg-layer-next {
     position: fixed;
     inset: 0;
     z-index: 0;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    transition: opacity 1.8s ease 0.3s;
-    opacity: 0;
   }
-  #bg-layer.loaded { opacity: 1; }
+  #bg-layer { opacity: 1; }
+  #bg-layer-next {
+    opacity: 0;
+    transition: opacity 1.8s ease;
+    will-change: opacity;
+  }
+  #bg-layer-next.loaded { opacity: 1; }
 
   #bg-overlay {
     position: fixed;
@@ -456,6 +464,11 @@
   @keyframes uiEnter {
     from { opacity: 0; transform: translateY(-6px); }
     to   { opacity: 1; transform: none; }
+  }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
   .quote-mark {
@@ -2023,6 +2036,7 @@
 <!-- Background -->
 
 <div id="bg-layer"></div>
+<div id="bg-layer-next"></div>
 <div id="bg-overlay"></div>
 
 <!-- Toast -->
@@ -3152,6 +3166,19 @@ const BACKGROUNDS = [
   },
 ];
 
+// Remove duplicate entries (same photo listed in multiple culture categories).
+// Rebuild via filter (O(n)) instead of splice-in-loop (O(n²)).
+(function() {
+  const _seen = new Set();
+  const _deduped = BACKGROUNDS.filter(bg => {
+    if (_seen.has(bg.url)) return false;
+    _seen.add(bg.url);
+    return true;
+  });
+  BACKGROUNDS.length = 0;
+  BACKGROUNDS.push(..._deduped);
+})();
+
 /* ═══════════════════════════════════════
    STATE
    ═══════════════════════════════════════ */
@@ -3198,44 +3225,84 @@ function showRandomQuote() {
     currentQuoteIdx = idx;
 
     textEl.textContent = QUOTES[idx].text;
-    authorEl.textContent = QUOTES[idx].author;
+    // In non-English mode, show the plain-English author name immediately so
+    // there is never a flash of native-script (e.g. Greek) text while the
+    // translation API call is in flight.
+    authorEl.textContent = (currentLang !== 'en' && QUOTES[idx].authorEn)
+      ? QUOTES[idx].authorEn
+      : QUOTES[idx].author;
 
     // Pick a background culturally appropriate for this quote's author
     if (QUOTES[idx].culture) {
       pickCulturalBackground(QUOTES[idx].culture);
     }
 
-    // Double rAF ensures browser renders opacity:0 before starting fade-in transition
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      textEl.style.opacity = '1';
-      authorEl.style.opacity = '1';
-    }));
+    // In English mode, fade the new text in now.  In non-English mode, skip
+    // the fade-in here — the translation patch calls translateCurrentQuote()
+    // ~450ms from now, which handles a single clean fade-in with translated
+    // text.  Fading in English text here would cause an abrupt content jump
+    // when the translation arrives while the text is already visible.
+    if (currentLang === 'en') {
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        textEl.style.opacity = '1';
+        authorEl.style.opacity = '1';
+      }));
+    }
   }, 420);
 }
 
 /* ═══════════════════════════════════════
    BACKGROUND LOGIC
-   Static pool + dynamic Unsplash random fetch
-   for infinite variety.
+   Static curated pool for reliable variety.
    ═══════════════════════════════════════ */
-const UNSPLASH_TOPICS = ['nature', 'wallpapers', 'travel', 'architecture'];
-let _lastDynamicUrl = '';
+
+// Return an appropriate image width for the current viewport + device pixel ratio.
+// Capped at 2× DPR so 3× phones don't download 6000 px images.
+function _responsiveImgWidth() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const vw = (window.innerWidth || screen.width) * dpr;
+  if (vw <= 800)  return 800;
+  if (vw <= 1280) return 1280;
+  return 1920;
+}
 
 function loadBackground(index) {
   const bg = BACKGROUNDS[index];
-  _applyBackground(bg.url, bg.credit, bg.link, bg.source || 'Unsplash', bg.title || '');
+  // Rewrite the width param in Unsplash / Pexels URLs to match the actual viewport,
+  // saving 60-80 % bandwidth on phones and tablets.
+  let url = bg.url;
+  if (url.includes('w=1920')) {
+    url = url.replace(/w=1920/g, 'w=' + _responsiveImgWidth());
+  }
+  _applyBackground(url, bg.credit, bg.link, bg.source || 'Unsplash', bg.title || '');
 }
 
-function _applyBackground(url, creditText, linkUrl, source, title = '') {
-  const layer = document.getElementById('bg-layer');
-  const credit = document.getElementById('img-credit');
+// Cleanup function for any in-progress background crossfade transition.
+let _bgCrossfadeCleanup = null;
 
-  layer.classList.remove('loaded');
+function _applyBackground(url, creditText, linkUrl, source, title = '') {
+  const layerCurrent = document.getElementById('bg-layer');
+  const layerNext    = document.getElementById('bg-layer-next');
+  const credit       = document.getElementById('img-credit');
 
   const img = new Image();
   img.onload = () => {
-    layer.style.backgroundImage = `url(${url})`;
-    layer.classList.add('loaded');
+    // If a previous crossfade is still in progress, finalize it immediately so
+    // layerCurrent is up-to-date before we start the next transition.
+    if (_bgCrossfadeCleanup) {
+      _bgCrossfadeCleanup();
+      _bgCrossfadeCleanup = null;
+    }
+
+    // Snap the incoming layer to opacity 0 (bypass the CSS transition) and
+    // load the new image onto it, then re-enable the transition and fade in.
+    layerNext.style.transition = 'none';
+    layerNext.classList.remove('loaded');
+    layerNext.style.backgroundImage = `url(${url})`;
+    layerNext.offsetHeight; // read layout to force reflow and commit opacity:0 before re-enabling the transition
+    layerNext.style.transition = '';
+    requestAnimationFrame(() => { layerNext.classList.add('loaded'); });
+
     if (source === 'Unsplash' || source === 'Pexels') {
       const titlePart = title ? `«${title}» · ` : '';
       credit.innerHTML = `Photo: ${titlePart}<a href="${linkUrl}" target="_blank" rel="noopener">${creditText}</a> · ${source}`;
@@ -3243,34 +3310,38 @@ function _applyBackground(url, creditText, linkUrl, source, title = '') {
       credit.innerHTML = `<a href="${linkUrl}" target="_blank" rel="noopener">${creditText}</a> · ${source}`;
     }
     document.querySelector('.bottom-badges').classList.add('visible');
-  };
-  img.onerror = () => {
-    // fallback to static pool
-    currentBgIdx = (currentBgIdx + 1) % BACKGROUNDS.length;
-    loadBackground(currentBgIdx);
-  };
-  img.src = url;
-}
 
-function _fetchDynamicBackground() {
-  const topic = UNSPLASH_TOPICS[Math.floor(Math.random() * UNSPLASH_TOPICS.length)];
-  const w = Math.max(screen.width, 1920);
-  const url = `https://source.unsplash.com/random/${w}x${Math.round(w * 0.6)}/?${topic}&t=${Date.now()}`;
-
-  const img = new Image();
-  img.onload = () => {
-    // source.unsplash.com redirects to the actual image URL
-    const finalUrl = img.src;
-    if (finalUrl === _lastDynamicUrl) {
-      // Got same image, fall back to static pool
-      _nextFromPool();
-      return;
+    // Once the crossfade completes, promote the incoming layer to the current
+    // layer and silently reset the incoming layer for the next transition.
+    function onTransitionEnd(e) {
+      if (e.propertyName !== 'opacity' || e.target !== layerNext) return;
+      layerNext.removeEventListener('transitionend', onTransitionEnd);
+      _bgCrossfadeCleanup = null;
+      layerCurrent.style.backgroundImage = `url(${url})`;
+      layerNext.style.transition = 'none';
+      layerNext.classList.remove('loaded');
+      layerNext.style.backgroundImage = '';
+      requestAnimationFrame(() => { layerNext.style.transition = ''; });
     }
-    _lastDynamicUrl = finalUrl;
-    _applyBackground(finalUrl, topic, `https://unsplash.com/s/photos/${topic}`, 'Unsplash');
+    layerNext.addEventListener('transitionend', onTransitionEnd);
+
+    // Store a cleanup closure so rapid scene changes can cancel an in-progress
+    // crossfade and keep the layer state consistent.
+    _bgCrossfadeCleanup = () => {
+      layerNext.removeEventListener('transitionend', onTransitionEnd);
+      if (layerNext.style.backgroundImage) {
+        layerCurrent.style.backgroundImage = layerNext.style.backgroundImage;
+      }
+      layerNext.style.transition = 'none';
+      layerNext.classList.remove('loaded');
+      layerNext.style.backgroundImage = '';
+      requestAnimationFrame(() => { layerNext.style.transition = ''; });
+    };
   };
   img.onerror = () => {
-    // Dynamic fetch failed, fall back to static pool
+    // Fallback to a randomly chosen pool entry to avoid always landing on the
+    // same images when several consecutive entries in the list fail to load
+    // (e.g. due to CDN hotlinking restrictions).
     _nextFromPool();
   };
   img.src = url;
@@ -3284,12 +3355,7 @@ function _nextFromPool() {
 }
 
 function nextBackground() {
-  // 50% chance dynamic fetch, 50% curated pool — ensures variety + reliability
-  if (Math.random() < 0.5) {
-    _fetchDynamicBackground();
-  } else {
-    _nextFromPool();
-  }
+  _nextFromPool();
 }
 
 /* ═══════════════════════════════════════
@@ -3772,9 +3838,21 @@ function loadPomoState() {
   return defaultPomoState();
 }
 
+let _savePomoTimer = null;
 function savePomoState() {
-  localStorage.setItem(POMO_KEY, JSON.stringify(pomo));
+  // Debounce: coalesce rapid consecutive calls into a single write.
+  // Critical state changes (start/stop/reset) still land within ~800 ms.
+  clearTimeout(_savePomoTimer);
+  _savePomoTimer = setTimeout(() => {
+    localStorage.setItem(POMO_KEY, JSON.stringify(pomo));
+  }, 800);
 }
+// Flush any pending debounced save immediately when the page is about to unload
+// so state is never lost on tab close or browser crash.
+window.addEventListener('pagehide', () => {
+  clearTimeout(_savePomoTimer);
+  localStorage.setItem(POMO_KEY, JSON.stringify(pomo));
+});
 
 function getRemaining() {
   if (!pomo.isRunning) {
@@ -3790,17 +3868,48 @@ function formatMinutes(sec) {
   return String(Math.ceil(sec / 60));
 }
 
+// Tracks the last composite key used to render PomoUI so we can skip frames
+// where nothing visible has changed, while still animating the progress ring.
+let _lastPomoRenderKey = null;
+
 function PomoUI() {
   const remaining = getRemaining();
-  const display = document.getElementById('pomo-display');
+
+  // ── 1. Completion check — must run every frame so the phase flip fires
+  //       on the exact frame remaining hits zero, even before any DOM update.
+  if (remaining <= 0 && pomo.isRunning) {
+    onSegmentComplete();
+  }
+
+  // ── 2. Progress ring — always update for smooth 60 fps animation
+  const fraction = 1 - (remaining / pomo.totalSeconds);
   const progress = document.getElementById('pomo-progress');
+  progress.style.strokeDasharray = CIRCUMFERENCE;
+  progress.style.strokeDashoffset = CIRCUMFERENCE * (1 - fraction);
+
+  const fpProgress = document.getElementById('pomo-fp-progress');
+  if (fpProgress) {
+    fpProgress.style.strokeDasharray = CIRCUMFERENCE;
+    fpProgress.style.strokeDashoffset = CIRCUMFERENCE * (1 - fraction);
+    fpProgress.classList.toggle('on-break', pomo.isBreak);
+  }
+
+  // ── 3. Guard: skip all remaining DOM work when nothing user-visible changed.
+  //       The render key encodes every piece of state that affects the UI.
+  //       formatMinutes() rounds to whole minutes, so the key changes ~once/min.
+  const minStr = formatMinutes(remaining);
+  const renderKey = `${minStr}|${pomo.isBreak}|${pomo.isLongBreak}|${pomo.isRunning}|${pomo.phaseJustCompleted}|${pomo.completedSessions}|${currentLang}`;
+  if (_lastPomoRenderKey === renderKey) return;
+  _lastPomoRenderKey = renderKey;
+
+  // ── 4. Text / label / button updates (run ~once per minute or on state change)
+  const display = document.getElementById('pomo-display');
   const label = document.getElementById('pomo-label');
   const playBtn = document.getElementById('pomo-play');
   const pauseBtn = document.getElementById('pomo-pause');
   const dotsEl = document.getElementById('pomo-dots');
   const readyLabel = document.getElementById('pomo-phase-ready');
 
-  const minStr = formatMinutes(remaining);
   display.innerHTML = `${minStr}<span class="pomo-time-unit">m</span>`;
 
   // Update mini indicator for minimized state
@@ -3814,10 +3923,6 @@ function PomoUI() {
   const stageEmoji = pomo.isBreak ? (pomo.isLongBreak ? '🌿' : '☕') : '🎯';
   const pausedMark = !pomo.isRunning && (pomo.pausedRemaining != null || pomo.startedAt != null) ? '⏸ ' : '';
   document.title = `${pausedMark}${stageEmoji} ${stageLabel} · ${minStr}m · Ataraxia`;
-
-  const fraction = 1 - (remaining / pomo.totalSeconds);
-  progress.style.strokeDasharray = CIRCUMFERENCE;
-  progress.style.strokeDashoffset = CIRCUMFERENCE * (1 - fraction);
 
   if (pomo.isBreak) {
     progress.classList.add('on-break');
@@ -3839,11 +3944,6 @@ function PomoUI() {
     dotsEl.innerHTML = Array.from({length: total}, (_, i) =>
       `<span class="pomo-dot${i < done ? ' done' + breakClass : ''}"></span>`
     ).join('');
-  }
-
-  // Check completion FIRST so pomo.isRunning is correct when we toggle buttons below
-  if (remaining <= 0 && pomo.isRunning) {
-    onSegmentComplete();
   }
 
   if (pomo.isRunning) {
@@ -3873,7 +3973,6 @@ function PomoUI() {
   const fpOverlay = document.getElementById('pomo-fullpage');
   if (fpOverlay) {
     const fpDisplay = document.getElementById('pomo-fp-display');
-    const fpProgress = document.getElementById('pomo-fp-progress');
     const fpLabel = document.getElementById('pomo-fp-label');
     const fpPlay = document.getElementById('pomo-fp-play');
     const fpPause = document.getElementById('pomo-fp-pause');
@@ -3881,11 +3980,7 @@ function PomoUI() {
     const fpReady = document.getElementById('pomo-fp-phase-ready');
 
     if (fpDisplay) fpDisplay.innerHTML = `${minStr}<span class="pomo-time-unit">m</span>`;
-    if (fpProgress) {
-      fpProgress.style.strokeDasharray = CIRCUMFERENCE;
-      fpProgress.style.strokeDashoffset = CIRCUMFERENCE * (1 - fraction);
-      fpProgress.classList.toggle('on-break', pomo.isBreak);
-    }
+    // fpProgress ring already updated above (step 2)
     if (fpLabel) fpLabel.textContent = pomo.isBreak ? (pomo.isLongBreak ? 'Long Break' : 'Break') : 'Focus';
     if (fpPlay) { fpPlay.classList.toggle('on-break', pomo.isBreak); }
     if (fpPause) { fpPause.classList.toggle('on-break', pomo.isBreak); }
@@ -4092,6 +4187,11 @@ function applyFpSettings() {
 /* ═══════════════════════════════════════
    INIT & EVENT LISTENERS
    ═══════════════════════════════════════ */
+
+// Module-level reference to the quote-card ResizeObserver so it can be
+// disconnected or replaced if needed in future code.
+let _quoteCardObserver = null;
+
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('version-badge').textContent = VERSION;
 
@@ -4176,8 +4276,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Keep --quote-offset in sync whenever the quote pill resizes (font load, language change, etc.)
+  // Stored at module scope so the observer can be disconnected or replaced if needed.
   if (typeof ResizeObserver !== 'undefined') {
-    new ResizeObserver(() => updateQuoteOffset()).observe(quoteCard);
+    _quoteCardObserver = new ResizeObserver(() => updateQuoteOffset());
+    _quoteCardObserver.observe(quoteCard);
   }
 
   // Minimizable pomodoro widget
@@ -5286,7 +5388,14 @@ const _origLabel = null;
 (function patchPomoUI() {
   const origFn = PomoUI;
   window.PomoUI = function() {
+    // Capture the render key before calling origFn so we know whether it
+    // actually updated the DOM (i.e. the guard inside origFn didn't short-circuit).
+    const prevKey = _lastPomoRenderKey;
     origFn();
+
+    // origFn returned early (guard: nothing changed) — skip translated updates too.
+    if (_lastPomoRenderKey === prevKey) return;
+
     const s = getTranslatedPomoStrings();
     const label = document.getElementById('pomo-label');
     const breakLabel = pomo.isLongBreak ? (s.longBreakLabel || s.break) : s.break;

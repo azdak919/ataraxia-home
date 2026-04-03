@@ -3230,12 +3230,9 @@ function showRandomQuote() {
     currentQuoteIdx = idx;
 
     textEl.textContent = QUOTES[idx].text;
-    // In non-English mode, show the plain-English author name immediately so
-    // there is never a flash of native-script (e.g. Greek) text while the
-    // translation API call is in flight.
-    authorEl.textContent = (currentLang !== 'en' && QUOTES[idx].authorEn)
-      ? QUOTES[idx].authorEn
-      : QUOTES[idx].author;
+    // Always prefer the English author name (authorEn) so native-script text
+    // (e.g. "Μάρκος Αὐρήλιος") is never shown to readers in any language.
+    authorEl.textContent = QUOTES[idx].authorEn || QUOTES[idx].author;
 
     // Pick a background culturally appropriate for this quote's author
     if (QUOTES[idx].culture) {
@@ -4211,8 +4208,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // so the native-script name never flashes before translation kicks in.
   const _initLangSaved = localStorage.getItem(LANG_PREF_KEY);
   const _initLangNonEn = _initLangSaved && _initLangSaved !== 'en';
-  document.getElementById('quote-author').textContent =
-    (_initLangNonEn && _initQuote.authorEn) ? _initQuote.authorEn : _initQuote.author;
+  document.getElementById('quote-author').textContent = _initQuote.authorEn || _initQuote.author;
 
   // Remove pomo-container animation after it ends so it doesn't create a
   // containing block that breaks position:fixed on minimized children.
@@ -5494,10 +5490,9 @@ async function switchLanguage(langCode) {
   document.getElementById('lang-dropdown').classList.remove('open');
 
   if (langCode === 'en') {
-    // Restore original English text (including native-script author attribution)
     const quote = QUOTES[currentQuoteIdx];
     document.getElementById('quote-text').textContent = quote.text;
-    document.getElementById('quote-author').textContent = quote.author;
+    document.getElementById('quote-author').textContent = quote.authorEn || quote.author;
     applyUIStrings(UI_STRINGS.en);
     setLanguageStatus('');
     return;

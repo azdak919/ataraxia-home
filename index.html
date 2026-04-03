@@ -3152,6 +3152,19 @@ const BACKGROUNDS = [
   },
 ];
 
+// Remove duplicate entries (same photo listed in multiple culture categories).
+// Rebuild via filter (O(n)) instead of splice-in-loop (O(n²)).
+(function() {
+  const _seen = new Set();
+  const _deduped = BACKGROUNDS.filter(bg => {
+    if (_seen.has(bg.url)) return false;
+    _seen.add(bg.url);
+    return true;
+  });
+  BACKGROUNDS.length = 0;
+  BACKGROUNDS.push(..._deduped);
+})();
+
 /* ═══════════════════════════════════════
    STATE
    ═══════════════════════════════════════ */
@@ -3221,9 +3234,25 @@ function showRandomQuote() {
 const UNSPLASH_TOPICS = ['nature', 'wallpapers', 'travel', 'architecture'];
 let _lastDynamicUrl = '';
 
+// Return an appropriate image width for the current viewport + device pixel ratio.
+// Capped at 2× DPR so 3× phones don't download 6000 px images.
+function _responsiveImgWidth() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const vw = (window.innerWidth || screen.width) * dpr;
+  if (vw <= 800)  return 800;
+  if (vw <= 1280) return 1280;
+  return 1920;
+}
+
 function loadBackground(index) {
   const bg = BACKGROUNDS[index];
-  _applyBackground(bg.url, bg.credit, bg.link, bg.source || 'Unsplash', bg.title || '');
+  // Rewrite the width param in Unsplash / Pexels URLs to match the actual viewport,
+  // saving 60-80 % bandwidth on phones and tablets.
+  let url = bg.url;
+  if (url.includes('w=1920')) {
+    url = url.replace(/w=1920/g, 'w=' + _responsiveImgWidth());
+  }
+  _applyBackground(url, bg.credit, bg.link, bg.source || 'Unsplash', bg.title || '');
 }
 
 function _applyBackground(url, creditText, linkUrl, source, title = '') {
@@ -3772,9 +3801,21 @@ function loadPomoState() {
   return defaultPomoState();
 }
 
+let _savePomoTimer = null;
 function savePomoState() {
-  localStorage.setItem(POMO_KEY, JSON.stringify(pomo));
+  // Debounce: coalesce rapid consecutive calls into a single write.
+  // Critical state changes (start/stop/reset) still land within ~800 ms.
+  clearTimeout(_savePomoTimer);
+  _savePomoTimer = setTimeout(() => {
+    localStorage.setItem(POMO_KEY, JSON.stringify(pomo));
+  }, 800);
 }
+// Flush any pending debounced save immediately when the page is about to unload
+// so state is never lost on tab close or browser crash.
+window.addEventListener('pagehide', () => {
+  clearTimeout(_savePomoTimer);
+  localStorage.setItem(POMO_KEY, JSON.stringify(pomo));
+});
 
 function getRemaining() {
   if (!pomo.isRunning) {
@@ -3790,17 +3831,48 @@ function formatMinutes(sec) {
   return String(Math.ceil(sec / 60));
 }
 
+// Tracks the last composite key used to render PomoUI so we can skip frames
+// where nothing visible has changed, while still animating the progress ring.
+let _lastPomoRenderKey = null;
+
 function PomoUI() {
   const remaining = getRemaining();
-  const display = document.getElementById('pomo-display');
+
+  // ── 1. Completion check — must run every frame so the phase flip fires
+  //       on the exact frame remaining hits zero, even before any DOM update.
+  if (remaining <= 0 && pomo.isRunning) {
+    onSegmentComplete();
+  }
+
+  // ── 2. Progress ring — always update for smooth 60 fps animation
+  const fraction = 1 - (remaining / pomo.totalSeconds);
   const progress = document.getElementById('pomo-progress');
+  progress.style.strokeDasharray = CIRCUMFERENCE;
+  progress.style.strokeDashoffset = CIRCUMFERENCE * (1 - fraction);
+
+  const fpProgress = document.getElementById('pomo-fp-progress');
+  if (fpProgress) {
+    fpProgress.style.strokeDasharray = CIRCUMFERENCE;
+    fpProgress.style.strokeDashoffset = CIRCUMFERENCE * (1 - fraction);
+    fpProgress.classList.toggle('on-break', pomo.isBreak);
+  }
+
+  // ── 3. Guard: skip all remaining DOM work when nothing user-visible changed.
+  //       The render key encodes every piece of state that affects the UI.
+  //       formatMinutes() rounds to whole minutes, so the key changes ~once/min.
+  const minStr = formatMinutes(remaining);
+  const renderKey = `${minStr}|${pomo.isBreak}|${pomo.isLongBreak}|${pomo.isRunning}|${pomo.phaseJustCompleted}|${pomo.completedSessions}`;
+  if (_lastPomoRenderKey === renderKey) return;
+  _lastPomoRenderKey = renderKey;
+
+  // ── 4. Text / label / button updates (run ~once per minute or on state change)
+  const display = document.getElementById('pomo-display');
   const label = document.getElementById('pomo-label');
   const playBtn = document.getElementById('pomo-play');
   const pauseBtn = document.getElementById('pomo-pause');
   const dotsEl = document.getElementById('pomo-dots');
   const readyLabel = document.getElementById('pomo-phase-ready');
 
-  const minStr = formatMinutes(remaining);
   display.innerHTML = `${minStr}<span class="pomo-time-unit">m</span>`;
 
   // Update mini indicator for minimized state
@@ -3814,10 +3886,6 @@ function PomoUI() {
   const stageEmoji = pomo.isBreak ? (pomo.isLongBreak ? '🌿' : '☕') : '🎯';
   const pausedMark = !pomo.isRunning && (pomo.pausedRemaining != null || pomo.startedAt != null) ? '⏸ ' : '';
   document.title = `${pausedMark}${stageEmoji} ${stageLabel} · ${minStr}m · Ataraxia`;
-
-  const fraction = 1 - (remaining / pomo.totalSeconds);
-  progress.style.strokeDasharray = CIRCUMFERENCE;
-  progress.style.strokeDashoffset = CIRCUMFERENCE * (1 - fraction);
 
   if (pomo.isBreak) {
     progress.classList.add('on-break');
@@ -3839,11 +3907,6 @@ function PomoUI() {
     dotsEl.innerHTML = Array.from({length: total}, (_, i) =>
       `<span class="pomo-dot${i < done ? ' done' + breakClass : ''}"></span>`
     ).join('');
-  }
-
-  // Check completion FIRST so pomo.isRunning is correct when we toggle buttons below
-  if (remaining <= 0 && pomo.isRunning) {
-    onSegmentComplete();
   }
 
   if (pomo.isRunning) {
@@ -3873,7 +3936,6 @@ function PomoUI() {
   const fpOverlay = document.getElementById('pomo-fullpage');
   if (fpOverlay) {
     const fpDisplay = document.getElementById('pomo-fp-display');
-    const fpProgress = document.getElementById('pomo-fp-progress');
     const fpLabel = document.getElementById('pomo-fp-label');
     const fpPlay = document.getElementById('pomo-fp-play');
     const fpPause = document.getElementById('pomo-fp-pause');
@@ -3881,11 +3943,7 @@ function PomoUI() {
     const fpReady = document.getElementById('pomo-fp-phase-ready');
 
     if (fpDisplay) fpDisplay.innerHTML = `${minStr}<span class="pomo-time-unit">m</span>`;
-    if (fpProgress) {
-      fpProgress.style.strokeDasharray = CIRCUMFERENCE;
-      fpProgress.style.strokeDashoffset = CIRCUMFERENCE * (1 - fraction);
-      fpProgress.classList.toggle('on-break', pomo.isBreak);
-    }
+    // fpProgress ring already updated above (step 2)
     if (fpLabel) fpLabel.textContent = pomo.isBreak ? (pomo.isLongBreak ? 'Long Break' : 'Break') : 'Focus';
     if (fpPlay) { fpPlay.classList.toggle('on-break', pomo.isBreak); }
     if (fpPause) { fpPause.classList.toggle('on-break', pomo.isBreak); }
@@ -4092,6 +4150,11 @@ function applyFpSettings() {
 /* ═══════════════════════════════════════
    INIT & EVENT LISTENERS
    ═══════════════════════════════════════ */
+
+// Module-level reference to the quote-card ResizeObserver so it can be
+// disconnected or replaced if needed in future code.
+let _quoteCardObserver = null;
+
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('version-badge').textContent = VERSION;
 
@@ -4176,8 +4239,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Keep --quote-offset in sync whenever the quote pill resizes (font load, language change, etc.)
+  // Stored at module scope so the observer can be disconnected or replaced if needed.
   if (typeof ResizeObserver !== 'undefined') {
-    new ResizeObserver(() => updateQuoteOffset()).observe(quoteCard);
+    _quoteCardObserver = new ResizeObserver(() => updateQuoteOffset());
+    _quoteCardObserver.observe(quoteCard);
   }
 
   // Minimizable pomodoro widget
@@ -5286,7 +5351,14 @@ const _origLabel = null;
 (function patchPomoUI() {
   const origFn = PomoUI;
   window.PomoUI = function() {
+    // Capture the render key before calling origFn so we know whether it
+    // actually updated the DOM (i.e. the guard inside origFn didn't short-circuit).
+    const prevKey = _lastPomoRenderKey;
     origFn();
+
+    // origFn returned early (guard: nothing changed) — skip translated updates too.
+    if (_lastPomoRenderKey === prevKey) return;
+
     const s = getTranslatedPomoStrings();
     const label = document.getElementById('pomo-label');
     const breakLabel = pomo.isLongBreak ? (s.longBreakLabel || s.break) : s.break;

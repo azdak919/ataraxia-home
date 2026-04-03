@@ -7,7 +7,7 @@
      • Anything else same-origin          → stale-while-revalidate
    ═══════════════════════════════════════════════════════ */
 
-const SHELL_CACHE   = 'ataraxia-shell-v1';
+const SHELL_CACHE   = 'ataraxia-shell-v2';
 const FONT_CACHE    = 'ataraxia-fonts-v1';
 const KNOWN_CACHES  = [SHELL_CACHE, FONT_CACHE];
 
@@ -27,10 +27,10 @@ const SHELL_ASSETS = [
   './site.webmanifest',
   './favicon.svg',
   './favicon.ico',
-  './icon-192.png',
-  './icon-192-maskable.png',
-  './icon-512.png',
-  './icon-512-maskable.png',
+  './favicon-96x96.png',
+  './apple-touch-icon.png',
+  './web-app-manifest-192x192.png',
+  './web-app-manifest-512x512.png',
 ];
 
 // ── Install ──────────────────────────────────────────────

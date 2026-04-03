@@ -3305,6 +3305,9 @@ function _applyBackground(url, creditText, linkUrl, source, title = '') {
     layerNext.style.transition = '';
     requestAnimationFrame(() => { layerNext.classList.add('loaded'); });
 
+    // Persist current background URL so solitaire.html can share it
+    try { localStorage.setItem('ataraxia_bg_url', url); } catch(e) {}
+
     if (source === 'Unsplash' || source === 'Pexels') {
       const titlePart = title ? `«${title}» · ` : '';
       credit.innerHTML = `Photo: ${titlePart}<a href="${linkUrl}" target="_blank" rel="noopener">${creditText}</a> · ${source}`;

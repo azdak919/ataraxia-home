@@ -46,6 +46,9 @@
       --selected-outline:    #8b6f4e;
       --selected-glow:       rgba(139, 111, 78, 0.35);
 
+      /* Shared background overlay tint */
+      --overlay: rgba(245, 240, 235, 0.35);
+
       /* Layout — card-w updated by JS */
       --card-w:    70px;
       --card-h:    98px;
@@ -56,6 +59,8 @@
 
     @media (prefers-color-scheme: dark) {
       :root {
+        --overlay: rgba(26, 24, 22, 0.45);
+
         --bg-primary:     #1a1816;
         --bg-glass:       rgba(40, 36, 32, 0.65);
         --bg-glass-hover: rgba(50, 45, 40, 0.80);
@@ -88,6 +93,34 @@
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     html { font-size: 16px; color-scheme: light dark; }
+
+    /* ════════════════════════════════════════
+       SHARED BACKGROUND — mirrors index.html
+       ════════════════════════════════════════ */
+    #bg-layer,
+    #bg-layer-next {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    #bg-layer { opacity: 1; }
+    #bg-layer-next { opacity: 0; }
+
+    #bg-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background: var(--overlay);
+    }
+
+    .page-layout {
+      position: relative;
+      z-index: 2;
+      min-height: 100dvh;
+    }
 
     body {
       font-family: var(--font-body);
@@ -472,6 +505,12 @@
 </head>
 <body>
 
+<!-- ══════════════════════ SHARED BACKGROUND ══════════════════════ -->
+<div id="bg-layer"></div>
+<div id="bg-layer-next"></div>
+<div id="bg-overlay"></div>
+
+<div class="page-layout">
 <!-- ══════════════════════ HEADER ══════════════════════ -->
 <header class="game-header">
   <a class="back-link" href="/" aria-label="Back to Ataraxia home">
@@ -511,6 +550,8 @@
 
 <!-- ══════════════════════ CASCADE CONTAINER ══════════════════════ -->
 <div id="cascade-container" aria-hidden="true"></div>
+
+</div><!-- /.page-layout -->
 
 <script>
 /* ══════════════════════════════════════════════════════════
@@ -734,6 +775,49 @@ function tryAutoFoundation(pile, col) {
 }
 
 /* ══════════════════════════════════════════════════════════
+   AUTO-PLACE (single click — most logical destination first)
+   Priority: 1) Foundation  2) Tableau non-empty  3) Tableau empty
+   ══════════════════════════════════════════════════════════ */
+function tryAutoPlace(pile, col, cardIdx) {
+  // Validate source
+  if (pile === 'waste') {
+    if (!waste.length) return false;
+    cardIdx = waste.length - 1;
+  } else if (pile === 'foundation') {
+    if (!foundations[col].length) return false;
+  } else {
+    const p = tableau[col];
+    if (cardIdx >= p.length || !p[cardIdx].faceUp) return false;
+  }
+
+  const from = { pile, col, cardIdx };
+  const isRun = pile === 'tableau' && cardIdx < tableau[col].length - 1;
+
+  // 1. Try foundation first (single cards only — can't stack a run on foundation)
+  if (!isRun && pile !== 'foundation') {
+    for (let fi = 0; fi < 4; fi++) {
+      if (executeMove(from, { pile: 'foundation', col: fi })) return true;
+    }
+  }
+
+  // 2. Try non-empty tableau columns first (more logical — builds sequences)
+  for (let tc = 0; tc < 7; tc++) {
+    if (pile === 'tableau' && tc === col) continue;
+    if (tableau[tc].length === 0) continue;
+    if (executeMove(from, { pile: 'tableau', col: tc })) return true;
+  }
+
+  // 3. Try empty tableau columns (last resort — Kings or runs to open space)
+  for (let tc = 0; tc < 7; tc++) {
+    if (pile === 'tableau' && tc === col) continue;
+    if (tableau[tc].length > 0) continue;
+    if (executeMove(from, { pile: 'tableau', col: tc })) return true;
+  }
+
+  return false;
+}
+
+/* ══════════════════════════════════════════════════════════
    STOCK CLICK
    ══════════════════════════════════════════════════════════ */
 function clickStock() {
@@ -758,7 +842,7 @@ function clickStock() {
 function onCardClick(e, fromPile, fromCol, cardIdx) {
   e.stopPropagation();
 
-  // Double-click → auto-move to foundation
+  // Double-click → force auto-move to foundation (explicit intent)
   if (e.detail >= 2) {
     selected = null;
     if (tryAutoFoundation(fromPile, fromCol)) {
@@ -768,59 +852,69 @@ function onCardClick(e, fromPile, fromCol, cardIdx) {
     return;
   }
 
-  // Nothing selected → select this card
-  if (!selected) {
-    let ok = false;
-    if (fromPile === 'waste') {
-      ok = waste.length > 0 && waste[waste.length - 1].faceUp;
-    } else if (fromPile === 'foundation') {
-      ok = foundations[fromCol].length > 0 &&
-           cardIdx === foundations[fromCol].length - 1;
-    } else {
-      ok = cardIdx < tableau[fromCol].length && tableau[fromCol][cardIdx].faceUp;
+  // If a card is already selected, try to move it onto the clicked position
+  if (selected) {
+    // Deselect if same card clicked again
+    if (selected.pile === fromPile && selected.col === fromCol && selected.cardIdx === cardIdx) {
+      selected = null;
+      render();
+      return;
     }
-    if (!ok) return;
-    selected = { pile: fromPile, col: fromCol, cardIdx };
-    render();
+
+    // Determine destination from the clicked card
+    let toPile, toCol;
+    if (fromPile === 'foundation') {
+      toPile = 'foundation'; toCol = fromCol;
+    } else if (fromPile === 'tableau') {
+      toPile = 'tableau'; toCol = fromCol;
+    } else {
+      // Clicking waste while something is selected: cancel selection, re-click
+      selected = null;
+      onCardClick(e, fromPile, fromCol, cardIdx);
+      return;
+    }
+
+    const moved = executeMove(
+      { pile: selected.pile, col: selected.col, cardIdx: selected.cardIdx },
+      { pile: toPile, col: toCol }
+    );
+    if (moved) {
+      selected = null;
+      render();
+      checkWin();
+    } else {
+      // Manual move failed — auto-place the clicked card instead
+      selected = null;
+      if (tryAutoPlace(fromPile, fromCol, cardIdx)) {
+        render();
+        checkWin();
+      } else {
+        // Nothing worked — select the clicked card for manual drag
+        onCardClick(e, fromPile, fromCol, cardIdx);
+      }
+    }
     return;
   }
 
-  // Deselect if same card clicked again
-  if (selected.pile === fromPile && selected.col === fromCol && selected.cardIdx === cardIdx) {
-    selected = null;
-    render();
-    return;
-  }
-
-  // Determine destination from click target
-  let toPile, toCol;
-  if (fromPile === 'foundation') {
-    toPile = 'foundation';
-    toCol  = fromCol;
-  } else if (fromPile === 'tableau') {
-    toPile = 'tableau';
-    toCol  = fromCol;
-  } else {
-    // Clicking waste while something selected: re-select waste top
-    selected = null;
-    onCardClick(e, fromPile, fromCol, cardIdx);
-    return;
-  }
-
-  const moved = executeMove(
-    { pile: selected.pile, col: selected.col, cardIdx: selected.cardIdx },
-    { pile: toPile, col: toCol }
-  );
-
-  if (moved) {
-    selected = null;
+  // Nothing selected → single click: try auto-place first
+  if (tryAutoPlace(fromPile, fromCol, cardIdx)) {
     render();
     checkWin();
-  } else {
-    // Couldn't move — try selecting the clicked card instead
-    selected = null;
-    onCardClick(e, fromPile, fromCol, cardIdx);
+    return;
   }
+
+  // Auto-place found no valid move — select the card for manual placement
+  let ok = false;
+  if (fromPile === 'waste') {
+    ok = waste.length > 0 && waste[waste.length - 1].faceUp;
+  } else if (fromPile === 'foundation') {
+    ok = foundations[fromCol].length > 0 && cardIdx === foundations[fromCol].length - 1;
+  } else {
+    ok = cardIdx < tableau[fromCol].length && tableau[fromCol][cardIdx].faceUp;
+  }
+  if (!ok) return;
+  selected = { pile: fromPile, col: fromCol, cardIdx };
+  render();
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -1210,6 +1304,16 @@ window.addEventListener('resize', () => {
     render();
   }, 80);
 });
+
+// Apply shared background from index.html (stored in localStorage)
+(function applySharedBackground() {
+  try {
+    const url = localStorage.getItem('ataraxia_bg_url');
+    if (!url) return;
+    const layer = document.getElementById('bg-layer');
+    if (layer) layer.style.backgroundImage = `url(${url})`;
+  } catch(e) {}
+})();
 
 // Start
 updateCardSize();

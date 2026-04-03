@@ -5188,20 +5188,28 @@ function setCachedTranslation(text, targetLang, translated) {
 
 /**
  * Translate text using open-source APIs.
- * Provider 1: MyMemory (free, no API key, 1000 words/day anonymous)
- * Provider 2: LibreTranslate public instance (FOSS)
+ * Provider 1: MyMemory (free, no key, ~1 000 chars/day anonymous)
+ * Provider 2: Google Translate web endpoint (unofficial, no key, high quota)
+ * Provider 3: LibreTranslate public instance (FOSS fallback)
  */
+
+// Some providers use different codes for the same language.
+function _gtLang(lang) {
+  const map = { zh: 'zh-CN', he: 'iw' };
+  return map[lang] || lang;
+}
+
 async function translateText(text, targetLang) {
   if (targetLang === 'en') return text;
   if (!text || !text.trim()) return text;
 
-  // Check cache first
   const cached = getCachedTranslation(text, targetLang);
   if (cached) return cached;
 
-  // Try MyMemory first (most reliable free API)
+  const encoded = encodeURIComponent(text);
+
+  // Provider 1: MyMemory
   try {
-    const encoded = encodeURIComponent(text);
     const url = `https://api.mymemory.translated.net/get?q=${encoded}&langpair=en|${targetLang}`;
     const resp = await fetch(url);
     if (resp.ok) {
@@ -5215,9 +5223,26 @@ async function translateText(text, targetLang) {
         }
       }
     }
-  } catch(e) { /* fall through to next provider */ }
+  } catch(e) {}
 
-  // Fallback: LibreTranslate public instance
+  // Provider 2: Google Translate (unofficial web endpoint — supports all languages,
+  // no API key required, high quota)
+  try {
+    const tl = _gtLang(targetLang);
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${tl}&dt=t&q=${encoded}`;
+    const resp = await fetch(url);
+    if (resp.ok) {
+      const data = await resp.json();
+      // Response is nested arrays: [[["translated","original",...],...],...]
+      const translated = data?.[0]?.map(s => s?.[0]).filter(Boolean).join('');
+      if (translated) {
+        setCachedTranslation(text, targetLang, translated);
+        return translated;
+      }
+    }
+  } catch(e) {}
+
+  // Provider 3: LibreTranslate public instance
   try {
     const resp = await fetch('https://libretranslate.com/translate', {
       method: 'POST',
@@ -5231,9 +5256,8 @@ async function translateText(text, targetLang) {
         return data.translatedText;
       }
     }
-  } catch(e) { /* translation unavailable */ }
+  } catch(e) {}
 
-  // Return original if all providers fail
   return text;
 }
 

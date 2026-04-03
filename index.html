@@ -3861,7 +3861,7 @@ function PomoUI() {
   //       The render key encodes every piece of state that affects the UI.
   //       formatMinutes() rounds to whole minutes, so the key changes ~once/min.
   const minStr = formatMinutes(remaining);
-  const renderKey = `${minStr}|${pomo.isBreak}|${pomo.isLongBreak}|${pomo.isRunning}|${pomo.phaseJustCompleted}|${pomo.completedSessions}`;
+  const renderKey = `${minStr}|${pomo.isBreak}|${pomo.isLongBreak}|${pomo.isRunning}|${pomo.phaseJustCompleted}|${pomo.completedSessions}|${currentLang}`;
   if (_lastPomoRenderKey === renderKey) return;
   _lastPomoRenderKey = renderKey;
 

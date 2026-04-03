@@ -267,17 +267,25 @@
   /* ═══════════════════════
      BACKGROUND IMAGE
      ═══════════════════════ */
-  #bg-layer {
+  /* Two-layer crossfade: #bg-layer holds the current/outgoing image (always
+     visible at opacity 1); #bg-layer-next holds the incoming image and fades
+     in over the current one, eliminating the flash-to-black between scenes. */
+  #bg-layer,
+  #bg-layer-next {
     position: fixed;
     inset: 0;
     z-index: 0;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    transition: opacity 1.8s ease 0.3s;
-    opacity: 0;
   }
-  #bg-layer.loaded { opacity: 1; }
+  #bg-layer { opacity: 1; }
+  #bg-layer-next {
+    opacity: 0;
+    transition: opacity 1.8s ease;
+    will-change: opacity;
+  }
+  #bg-layer-next.loaded { opacity: 1; }
 
   #bg-overlay {
     position: fixed;
@@ -456,6 +464,11 @@
   @keyframes uiEnter {
     from { opacity: 0; transform: translateY(-6px); }
     to   { opacity: 1; transform: none; }
+  }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
   .quote-mark {
@@ -2023,6 +2036,7 @@
 <!-- Background -->
 
 <div id="bg-layer"></div>
+<div id="bg-layer-next"></div>
 <div id="bg-overlay"></div>
 
 <!-- Toast -->
@@ -3223,11 +3237,17 @@ function showRandomQuote() {
       pickCulturalBackground(QUOTES[idx].culture);
     }
 
-    // Double rAF ensures browser renders opacity:0 before starting fade-in transition
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      textEl.style.opacity = '1';
-      authorEl.style.opacity = '1';
-    }));
+    // In English mode, fade the new text in now.  In non-English mode, skip
+    // the fade-in here — the translation patch calls translateCurrentQuote()
+    // ~450ms from now, which handles a single clean fade-in with translated
+    // text.  Fading in English text here would cause an abrupt content jump
+    // when the translation arrives while the text is already visible.
+    if (currentLang === 'en') {
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        textEl.style.opacity = '1';
+        authorEl.style.opacity = '1';
+      }));
+    }
   }, 420);
 }
 
@@ -3257,16 +3277,32 @@ function loadBackground(index) {
   _applyBackground(url, bg.credit, bg.link, bg.source || 'Unsplash', bg.title || '');
 }
 
-function _applyBackground(url, creditText, linkUrl, source, title = '') {
-  const layer = document.getElementById('bg-layer');
-  const credit = document.getElementById('img-credit');
+// Cleanup function for any in-progress background crossfade transition.
+let _bgCrossfadeCleanup = null;
 
-  layer.classList.remove('loaded');
+function _applyBackground(url, creditText, linkUrl, source, title = '') {
+  const layerCurrent = document.getElementById('bg-layer');
+  const layerNext    = document.getElementById('bg-layer-next');
+  const credit       = document.getElementById('img-credit');
 
   const img = new Image();
   img.onload = () => {
-    layer.style.backgroundImage = `url(${url})`;
-    layer.classList.add('loaded');
+    // If a previous crossfade is still in progress, finalize it immediately so
+    // layerCurrent is up-to-date before we start the next transition.
+    if (_bgCrossfadeCleanup) {
+      _bgCrossfadeCleanup();
+      _bgCrossfadeCleanup = null;
+    }
+
+    // Snap the incoming layer to opacity 0 (bypass the CSS transition) and
+    // load the new image onto it, then re-enable the transition and fade in.
+    layerNext.style.transition = 'none';
+    layerNext.classList.remove('loaded');
+    layerNext.style.backgroundImage = `url(${url})`;
+    layerNext.offsetHeight; // read layout to force reflow and commit opacity:0 before re-enabling the transition
+    layerNext.style.transition = '';
+    requestAnimationFrame(() => { layerNext.classList.add('loaded'); });
+
     if (source === 'Unsplash' || source === 'Pexels') {
       const titlePart = title ? `«${title}» · ` : '';
       credit.innerHTML = `Photo: ${titlePart}<a href="${linkUrl}" target="_blank" rel="noopener">${creditText}</a> · ${source}`;
@@ -3274,6 +3310,33 @@ function _applyBackground(url, creditText, linkUrl, source, title = '') {
       credit.innerHTML = `<a href="${linkUrl}" target="_blank" rel="noopener">${creditText}</a> · ${source}`;
     }
     document.querySelector('.bottom-badges').classList.add('visible');
+
+    // Once the crossfade completes, promote the incoming layer to the current
+    // layer and silently reset the incoming layer for the next transition.
+    function onTransitionEnd(e) {
+      if (e.propertyName !== 'opacity' || e.target !== layerNext) return;
+      layerNext.removeEventListener('transitionend', onTransitionEnd);
+      _bgCrossfadeCleanup = null;
+      layerCurrent.style.backgroundImage = `url(${url})`;
+      layerNext.style.transition = 'none';
+      layerNext.classList.remove('loaded');
+      layerNext.style.backgroundImage = '';
+      requestAnimationFrame(() => { layerNext.style.transition = ''; });
+    }
+    layerNext.addEventListener('transitionend', onTransitionEnd);
+
+    // Store a cleanup closure so rapid scene changes can cancel an in-progress
+    // crossfade and keep the layer state consistent.
+    _bgCrossfadeCleanup = () => {
+      layerNext.removeEventListener('transitionend', onTransitionEnd);
+      if (layerNext.style.backgroundImage) {
+        layerCurrent.style.backgroundImage = layerNext.style.backgroundImage;
+      }
+      layerNext.style.transition = 'none';
+      layerNext.classList.remove('loaded');
+      layerNext.style.backgroundImage = '';
+      requestAnimationFrame(() => { layerNext.style.transition = ''; });
+    };
   };
   img.onerror = () => {
     // Fallback to a randomly chosen pool entry to avoid always landing on the

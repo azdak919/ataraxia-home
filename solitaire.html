@@ -448,8 +448,11 @@
       justify-content: center;
       font-size: clamp(14px, calc(var(--card-w) * 0.38), 32px);
       top: calc(-1 * var(--card-h));
+      background: var(--card-face);
+      color: var(--card-black);
       animation: cascadeFall var(--dur) var(--delay) ease-in forwards;
     }
+    .cascade-card.cascade-red { color: var(--card-red); }
     @keyframes cascadeFall {
       0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
       70%  { opacity: 1; }
@@ -513,8 +516,8 @@
 /* ══════════════════════════════════════════════════════════
    CONSTANTS
    ══════════════════════════════════════════════════════════ */
+const MAX_HISTORY_LENGTH = 100;
 const SUITS      = ['♠', '♥', '♦', '♣'];
-const SUIT_COLOR = { '♠': 'black', '♥': 'red', '♦': 'red', '♣': 'black' };
 const VALUES     = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 
 /* ══════════════════════════════════════════════════════════
@@ -595,7 +598,7 @@ function snapshot() {
 
 function saveHistory() {
   history.push(snapshot());
-  if (history.length > 100) history.shift();
+  if (history.length > MAX_HISTORY_LENGTH) history.shift();
   updateUndoBtn();
 }
 
@@ -771,7 +774,8 @@ function onCardClick(e, fromPile, fromCol, cardIdx) {
     if (fromPile === 'waste') {
       ok = waste.length > 0 && waste[waste.length - 1].faceUp;
     } else if (fromPile === 'foundation') {
-      ok = foundations[fromCol].length > 0;
+      ok = foundations[fromCol].length > 0 &&
+           cardIdx === foundations[fromCol].length - 1;
     } else {
       ok = cardIdx < tableau[fromCol].length && tableau[fromCol][cardIdx].faceUp;
     }
@@ -914,9 +918,6 @@ function showWin() {
   startCascade();
 }
 
-const SUIT_BG = { '♠': '#e8f0f8', '♥': '#fdf0f0', '♦': '#fdf0f0', '♣': '#e8f0f8' };
-const SUIT_FG = { '♠': '#3a5a7a', '♥': '#bf3b2f', '♦': '#bf3b2f', '♣': '#3a5a7a' };
-
 function startCascade() {
   const container = document.getElementById('cascade-container');
   container.innerHTML = '';
@@ -924,20 +925,13 @@ function startCascade() {
 
   for (let i = 0; i < 52; i++) {
     const suit = SUITS[i % 4];
-    const val  = VALUES[i % 13];
     const el   = document.createElement('div');
-    el.className = 'cascade-card';
+    el.className = 'cascade-card' + (isRed(suit) ? ' cascade-red' : '');
     const x    = (Math.random() * 88 + 3).toFixed(1);
     const spin = ((Math.random() - 0.5) * 540).toFixed(1);
     const dur  = (1.4 + Math.random() * 1.4).toFixed(2);
-    el.style.cssText = `
-      left: ${x}%;
-      background: ${SUIT_BG[suit]};
-      color: ${SUIT_FG[suit]};
-      --dur: ${dur}s;
-      --delay: ${delay.toFixed(2)}s;
-      --spin: ${spin}deg;
-    `;
+    el.style.cssText =
+      `left:${x}%;--dur:${dur}s;--delay:${delay.toFixed(2)}s;--spin:${spin}deg;`;
     el.textContent = suit;
     container.appendChild(el);
     delay += 0.07;
@@ -1105,7 +1099,7 @@ function render() {
 
     const fSlot = document.createElement('div');
     fSlot.className = 'card-slot';
-    fSlot.innerHTML = `<span class="slot-label" aria-hidden="true">${SUITS[fi]}</span>`;
+    fSlot.innerHTML = `<span class="slot-label" aria-hidden="true">A</span>`;
 
     addDropListeners(fSlot, 'foundation', fi);
     fSlot.addEventListener('click', e => onSlotClick(e, 'foundation', fi));

@@ -35,7 +35,12 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500&family=Raleway:wght@200;300;400&display=swap" rel="stylesheet">
+<!-- Only the weights actually used in the stylesheet are requested here to minimise font payload -->
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400&family=Outfit:wght@300;400;500&family=Raleway:wght@300&display=swap" rel="stylesheet">
+
+<!-- Pre-warm connections to image CDNs so the first background loads faster -->
+<link rel="preconnect" href="https://images.unsplash.com">
+<link rel="dns-prefetch" href="https://upload.wikimedia.org">
 
 <style>
   /* ═══════════════════════════════════════════
@@ -5388,6 +5393,13 @@ function initTranslation() {
       switchLanguage(browserLang);
     }
   }
+}
+
+// Register service worker for offline support and fast repeat visits
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch((err) => console.warn('SW registration failed:', err));
+  });
 }
 </script>
 

@@ -3447,8 +3447,14 @@ function autoComplete() {
   if (!canAutoComplete()) return;
   document.getElementById('autocomplete-banner').classList.add('hidden');
 
+  // Safety ceiling: prevents looping in degenerate states.
+  // 52 cards × ~4 steps each + draws + recycles is well under 500.
+  let budget = 500;
+
   function stepMove() {
-    // 1. Try waste → foundation
+    if (--budget < 0) return; // absolute safety net
+
+    // 1. Waste → foundation
     if (waste.length > 0) {
       const wCard = waste[waste.length - 1];
       for (let fi = 0; fi < 4; fi++) {
@@ -3466,7 +3472,7 @@ function autoComplete() {
       }
     }
 
-    // 2. Try tableau → foundation
+    // 2. Tableau → foundation
     for (let col = 0; col < 7; col++) {
       const pile = tableau[col];
       if (!pile.length) continue;
@@ -3487,7 +3493,7 @@ function autoComplete() {
       }
     }
 
-    // 3. Try waste → tableau (unblock: waste card not yet playable to foundation)
+    // 3. Waste → tableau (unblock: the waste top can't reach a foundation yet)
     if (waste.length > 0) {
       const wCard = waste[waste.length - 1];
       for (let tc = 0; tc < 7; tc++) {
@@ -3504,33 +3510,31 @@ function autoComplete() {
       }
     }
 
-    // 4. Recycle waste into stock so we can reach remaining waste cards
-    if (waste.length > 0 && stock.length === 0) {
-      saveHistory();
-      stock = [...waste].reverse().map(c => ({ ...c, faceUp: false }));
-      waste = [];
-      // Draw one card at a time until we find something playable
-      function drawAndStep() {
-        if (stock.length === 0) { setTimeout(stepMove, 80); return; }
-        const c = stock.pop();
-        c.faceUp = true;
-        waste.push(c);
-        moveCount++;
-        updateStats();
-        render();
-        // Check if this newly drawn card can go somewhere useful
-        const top = waste[waste.length - 1];
-        const canFoundation = Array.from({ length: 4 }, (_, fi) => canDropOnFoundation(top, fi)).some(Boolean);
-        const canTab = Array.from({ length: 7 }, (_, tc) => canDropOnTableau(top, tc)).some(Boolean);
-        if (canFoundation || canTab) {
-          setTimeout(stepMove, 80);
-        } else {
-          setTimeout(drawAndStep, 80);
-        }
-      }
-      setTimeout(drawAndStep, 80);
+    // 4. Draw one card from stock (populated by the recycle step below)
+    if (stock.length > 0) {
+      const c = stock.pop();
+      c.faceUp = true;
+      waste.push(c);
+      moveCount++;
+      updateStats();
+      render();
+      setTimeout(stepMove, 80);
       return;
     }
+
+    // 5. Recycle waste into stock so we can reach buried waste cards.
+    //    This is only reached when stock is empty and waste has cards that
+    //    couldn't be played by steps 1–3 (top waste card is unplayable).
+    if (waste.length > 0) {
+      stock = [...waste].reverse().map(c => ({ ...c, faceUp: false }));
+      waste = [];
+      moveCount++;
+      updateStats();
+      render();
+      setTimeout(stepMove, 80);
+      return;
+    }
+    // Nothing left to do — stop.
   }
   stepMove();
 }

@@ -332,7 +332,7 @@
        GAME BOARD
        ════════════════════════════════════════ */
     #game-board {
-      max-width: 700px;
+      max-width: 980px;
       margin: 0 auto;
       padding: var(--board-pad);
       padding-left:  max(var(--board-pad), env(safe-area-inset-left, 0px));
@@ -1587,13 +1587,13 @@ function updateCardSize() {
   // Use actual board element width for accuracy
   const boardEl = document.getElementById('game-board');
   const boardW  = boardEl
-    ? Math.min(700, boardEl.getBoundingClientRect().width || window.innerWidth)
-    : Math.min(700, window.innerWidth);
+    ? Math.min(980, boardEl.getBoundingClientRect().width || window.innerWidth)
+    : Math.min(980, window.innerWidth);
 
   const GAP  = 8;
   const PAD  = 12;
   const raw  = (boardW - 2 * PAD - 6 * GAP) / 7;
-  const cardW = Math.min(90, Math.max(36, raw));
+  const cardW = Math.min(120, Math.max(36, raw));
   const cardH = cardW * 1.4;
 
   root.style.setProperty('--card-w', `${cardW.toFixed(1)}px`);
@@ -1899,7 +1899,7 @@ function makeCard(c, fromPile, fromCol, cardIdx) {
    CARD ART HELPERS
    ══════════════════════════════════════════════════════════ */
 const SUIT_MAP  = { '♠': 'spade', '♥': 'heart', '♦': 'diamond', '♣': 'club' };
-const VALUE_MAP = { 'A': 'ace', 'J': 'jack', 'Q': 'queen', 'K': 'king' };
+const VALUE_MAP = { 'A': '1', 'J': 'jack', 'Q': 'queen', 'K': 'king' };
 
 function makeCardFaceHTML(c) {
   if (spriteReady) {

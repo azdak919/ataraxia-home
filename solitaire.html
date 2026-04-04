@@ -869,7 +869,7 @@
 <div class="bottom-badges" id="bottom-badges">
   <div class="img-credit" id="img-credit"></div>
   <span class="credits-divider">&middot;</span>
-  <span class="version-badge" id="version-badge">v1.2.15</span>
+  <span class="version-badge" id="version-badge"></span>
   <span class="credits-divider">&middot;</span>
   <a class="license-badge" href="https://www.gnu.org/licenses/gpl-2.0.html" target="_blank" rel="noopener">
     <span>Charles Tison</span>
@@ -879,6 +879,11 @@
 </div>
 
 <script>
+/* ══════════════════════════════════════════════════════════
+   VERSION
+   ══════════════════════════════════════════════════════════ */
+const VERSION = 'v1.2.15';
+
 /* ══════════════════════════════════════════════════════════
    CARD SPRITE (svg-cards v4, LGPL-2.1 — htdebeer/SVG-cards)
    ══════════════════════════════════════════════════════════ */
@@ -2900,6 +2905,10 @@ function nextBackground() {
   loadBackground(currentBgIdx);
 })();
 
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('version-badge').textContent = VERSION;
+});
 
 // Start: load card sprite, then deal
 loadCardSprite().then(() => {

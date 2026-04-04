@@ -36,15 +36,15 @@
       --settings-border: rgba(160, 148, 132, 0.45);
 
       /* Card colours */
-      --card-face:           #faf8f5;
-      --card-back:           #5e7d96;
-      --card-back-2:         #4e6d84;
-      --card-red:            #bf3b2f;
-      --card-black:          #2c2824;
-      --card-border:         rgba(180, 170, 155, 0.45);
-      --card-shadow:         rgba(44, 40, 36, 0.14);
-      --slot-bg:             rgba(139, 111, 78, 0.07);
-      --slot-border:         rgba(139, 111, 78, 0.22);
+      --card-face:           #ffffff;
+      --card-back:           #4a6fa5;
+      --card-back-2:         #3a5f95;
+      --card-red:            #c0392b;
+      --card-black:          #1a1a1a;
+      --card-border:         rgba(120, 110, 100, 0.50);
+      --card-shadow:         rgba(44, 40, 36, 0.20);
+      --slot-bg:             rgba(139, 111, 78, 0.18);
+      --slot-border:         rgba(139, 111, 78, 0.55);
       --selected-outline:    #8b6f4e;
       --selected-glow:       rgba(139, 111, 78, 0.35);
 
@@ -75,15 +75,15 @@
         --shadow-soft:    rgba(0, 0, 0, 0.18);
         --shadow-medium:  rgba(0, 0, 0, 0.35);
 
-        --card-face:         #f0ebe5;
-        --card-back:         #3a5366;
-        --card-back-2:       #2e4454;
-        --card-red:          #d05448;
-        --card-black:        #2c2824;
-        --card-border:       rgba(100, 90, 78, 0.40);
-        --card-shadow:       rgba(0, 0, 0, 0.25);
-        --slot-bg:           rgba(201, 168, 124, 0.06);
-        --slot-border:       rgba(201, 168, 124, 0.18);
+        --card-face:         #f8f8f8;
+        --card-back:         #3a5a8a;
+        --card-back-2:       #2e4a7a;
+        --card-red:          #e53935;
+        --card-black:        #212121;
+        --card-border:       rgba(80, 80, 80, 0.55);
+        --card-shadow:       rgba(0, 0, 0, 0.35);
+        --slot-bg:           rgba(201, 168, 124, 0.16);
+        --slot-border:       rgba(201, 168, 124, 0.50);
         --selected-outline:  #c9a87c;
         --selected-glow:     rgba(201, 168, 124, 0.30);
         --settings-bg:       rgba(30, 27, 24, 0.97);
@@ -361,7 +361,7 @@
       width: 100%;
       height: var(--card-h);
       border-radius: clamp(4px, 6%, 9px);
-      border: 1.5px dashed var(--slot-border);
+      border: 2px solid var(--slot-border);
       background: var(--slot-bg);
       display: flex;
       align-items: center;
@@ -371,10 +371,11 @@
     }
 
     .slot-label {
-      font-size: clamp(1rem, calc(var(--card-w) * 0.26), 1.6rem);
+      font-size: clamp(1.1rem, calc(var(--card-w) * 0.30), 1.8rem);
       color: var(--slot-border);
       pointer-events: none;
       line-height: 1;
+      font-weight: 600;
     }
 
     .drop-active .card-slot,
@@ -409,7 +410,7 @@
       height: var(--card-h);
       border-radius: clamp(4px, 6%, 9px);
       border: 1px solid var(--card-border);
-      box-shadow: 0 1px 3px var(--card-shadow), 0 2px 6px var(--card-shadow);
+      box-shadow: 0 2px 4px var(--card-shadow), 0 4px 10px var(--card-shadow);
       cursor: pointer;
       transition: box-shadow 0.15s, transform 0.15s;
       overflow: hidden;
@@ -451,19 +452,19 @@
       flex-direction: column;
       align-items: center;
       line-height: 1;
-      gap: 1px;
+      gap: 0px;
     }
     .card-corner--br {
       align-self: flex-end;
       transform: rotate(180deg);
     }
     .card-val {
-      font-size: clamp(9px, calc(var(--card-w) * 0.18), 15px);
-      font-weight: 500;
+      font-size: clamp(11px, calc(var(--card-w) * 0.22), 18px);
+      font-weight: 700;
       line-height: 1;
     }
     .card-suit-sm {
-      font-size: clamp(7px, calc(var(--card-w) * 0.14), 12px);
+      font-size: clamp(9px, calc(var(--card-w) * 0.18), 14px);
       line-height: 1;
     }
     .card-center {
@@ -471,7 +472,7 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: clamp(14px, calc(var(--card-w) * 0.44), 36px);
+      font-size: clamp(18px, calc(var(--card-w) * 0.52), 42px);
       line-height: 1;
       pointer-events: none;
     }

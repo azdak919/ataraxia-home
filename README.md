@@ -68,4 +68,4 @@ For minor or major bumps, use the included script:
 
 ## License
 
-[GNU General Public License v2](LICENSE) — Azdak
+[GNU General Public License v2](LICENSE) — Charles Tison

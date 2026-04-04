@@ -424,101 +424,37 @@
     }
 
     /* ── Face-down ── */
-    .card--back {
-      background: var(--card-back);
-      cursor: default;
-    }
-    /* Classic diamond lattice with outer frame */
-    .card--back::before {
-      content: '';
-      position: absolute;
-      inset: 4px;
-      border-radius: calc(clamp(4px, 6%, 9px) - 2px);
-      border: 1.5px solid rgba(255, 255, 255, 0.60);
-      /* Classic crosshatch diamond lattice */
-      background:
-        repeating-linear-gradient(
-          45deg,
-          rgba(255, 255, 255, 0.11) 0px, rgba(255, 255, 255, 0.11) 1px,
-          transparent 1px, transparent 8px
-        ),
-        repeating-linear-gradient(
-          -45deg,
-          rgba(255, 255, 255, 0.11) 0px, rgba(255, 255, 255, 0.11) 1px,
-          transparent 1px, transparent 8px
-        );
-    }
-    /* Inner ornamental border */
-    .card--back::after {
-      content: '';
-      position: absolute;
-      inset: 8px;
-      border-radius: calc(clamp(4px, 6%, 9px) - 6px);
-      border: 1px solid rgba(255, 255, 255, 0.30);
-      pointer-events: none;
-    }
-
-    /* ── Card-back SVG art overlay (ornate rosette + corners) ── */
-    .card-back-art {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 1;
-      overflow: hidden;
-    }
+    .card--back { cursor: default; }
 
     /* ── Face-up ── */
-    .card--face {
-      background: var(--card-face);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: clamp(2px, 5%, 5px);
-    }
-    .card--face.card--red   { color: var(--card-red); }
-    .card--face.card--black { color: var(--card-black); }
+    .card--face { background: var(--card-face); }
 
-    .card-corner {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      line-height: 1;
-      gap: 0px;
-      position: relative;
-      z-index: 2;
-    }
-    .card-corner--br {
-      align-self: flex-end;
-      transform: rotate(180deg);
-    }
-    .card-val {
-      font-size: clamp(11px, calc(var(--card-w) * 0.22), 18px);
-      font-weight: 700;
-      line-height: 1;
-    }
-    .card-suit-sm {
-      font-size: clamp(9px, calc(var(--card-w) * 0.18), 14px);
-      line-height: 1;
-    }
-    .card-center {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: clamp(18px, calc(var(--card-w) * 0.52), 42px);
-      line-height: 1;
-      pointer-events: none;
-    }
-    .card-face-art {
+    /* ── SVG card sprite art (fills entire card) ── */
+    .card-svg {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       pointer-events: none;
-      z-index: 1;
-      overflow: hidden;
+    }
+
+    /* ── Fallback built-in art (used when sprite unavailable) ── */
+    .card--face.card--red   { color: var(--card-red); }
+    .card--face.card--black { color: var(--card-black); }
+    .card-corner {
+      display: flex; flex-direction: column; align-items: center;
+      line-height: 1; gap: 0; position: relative; z-index: 2;
+    }
+    .card-corner--br { align-self: flex-end; transform: rotate(180deg); }
+    .card-val      { font-size: clamp(11px, calc(var(--card-w) * 0.22), 18px); font-weight: 700; line-height: 1; }
+    .card-suit-sm  { font-size: clamp(9px,  calc(var(--card-w) * 0.18), 14px); line-height: 1; }
+    .card-face-art {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 1; overflow: hidden;
+    }
+    .card-back-art {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 1; overflow: hidden;
     }
 
     /* ── Selected ── */
@@ -851,6 +787,28 @@
 </div>
 
 <script>
+/* ══════════════════════════════════════════════════════════
+   CARD SPRITE (svg-cards v4, LGPL-2.1 — htdebeer/SVG-cards)
+   ══════════════════════════════════════════════════════════ */
+const SVG_CARDS_CDN = 'https://cdn.jsdelivr.net/npm/svg-cards@4.0.0/svg-cards.svg';
+let spriteReady = false;
+
+async function loadCardSprite() {
+  try {
+    const res = await fetch(SVG_CARDS_CDN);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const svgText = await res.text();
+    const holder  = document.createElement('div');
+    holder.id     = 'svg-cards-sprite';
+    holder.style.cssText = 'display:none;position:absolute;width:0;height:0;overflow:hidden;';
+    holder.innerHTML = svgText;
+    document.body.insertBefore(holder, document.body.firstChild);
+    spriteReady = true;
+  } catch (e) {
+    console.warn('SVG card sprite unavailable — using built-in art as fallback:', e);
+  }
+}
+
 /* ══════════════════════════════════════════════════════════
    CONSTANTS
    ══════════════════════════════════════════════════════════ */
@@ -1764,11 +1722,17 @@ function makeCard(c, fromPile, fromCol, cardIdx) {
   if (!c.faceUp) {
     el.classList.add('card--back');
     el.setAttribute('aria-label', 'Face-down card');
-    // Inject ornate back art (rosette + corner ornaments)
-    const backArt = document.createElement('div');
-    backArt.className = 'card-back-art';
-    backArt.innerHTML = makeCardBackSVG();
-    el.appendChild(backArt);
+    if (spriteReady) {
+      el.innerHTML = `<svg class="card-svg" viewBox="0 0 169.075 244.640"
+                           xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+                        <use href="#back"/>
+                      </svg>`;
+    } else {
+      const backArt = document.createElement('div');
+      backArt.className = 'card-back-art';
+      backArt.innerHTML = makeCardBackSVG();
+      el.appendChild(backArt);
+    }
     return el;
   }
 
@@ -1786,29 +1750,8 @@ function makeCard(c, fromPile, fromCol, cardIdx) {
     if (sameSource && inRun) el.classList.add('card--selected');
   }
 
-  // Content
-  const cornerTL = document.createElement('div');
-  cornerTL.className = 'card-corner';
-  cornerTL.innerHTML =
-    `<span class="card-val">${c.value}</span><span class="card-suit-sm">${c.suit}</span>`;
-
-  const cornerBR = document.createElement('div');
-  cornerBR.className = 'card-corner card-corner--br';
-  cornerBR.innerHTML =
-    `<span class="card-val">${c.value}</span><span class="card-suit-sm">${c.suit}</span>`;
-
-  el.appendChild(cornerTL);
-
-  const artEl = document.createElement('div');
-  artEl.className = 'card-face-art';
-  if (c.value === 'J' || c.value === 'Q' || c.value === 'K') {
-    artEl.innerHTML = makeFaceCardSVG(c.value);
-  } else {
-    artEl.innerHTML = makePipCardSVG(c.value, c.suit);
-  }
-  el.appendChild(artEl);
-
-  el.appendChild(cornerBR);
+  // SVG card art from sprite (or built-in fallback)
+  el.innerHTML = makeCardFaceHTML(c);
 
   // Interactions
   el.addEventListener('click',     e => onCardClick(e, fromPile, fromCol, cardIdx));
@@ -1816,6 +1759,34 @@ function makeCard(c, fromPile, fromCol, cardIdx) {
   el.addEventListener('dragend',   onDragEnd);
 
   return el;
+}
+
+/* ══════════════════════════════════════════════════════════
+   CARD ART HELPERS
+   ══════════════════════════════════════════════════════════ */
+const SUIT_MAP  = { '♠': 'spade', '♥': 'heart', '♦': 'diamond', '♣': 'club' };
+const VALUE_MAP = { 'A': 'ace', 'J': 'jack', 'Q': 'queen', 'K': 'king' };
+
+function makeCardFaceHTML(c) {
+  if (spriteReady) {
+    const v = VALUE_MAP[c.value] || c.value;
+    const s = SUIT_MAP[c.suit];
+    return `<svg class="card-svg" viewBox="0 0 169.075 244.640"
+                 xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+              <use href="#${s}_${v}"/>
+            </svg>`;
+  }
+  // Fallback: built-in SVG art
+  const cornerHTML = `<div class="card-corner">
+      <span class="card-val">${c.value}</span><span class="card-suit-sm">${c.suit}</span>
+    </div>
+    <div class="card-corner card-corner--br">
+      <span class="card-val">${c.value}</span><span class="card-suit-sm">${c.suit}</span>
+    </div>`;
+  const artHTML = (c.value === 'J' || c.value === 'Q' || c.value === 'K')
+    ? makeFaceCardSVG(c.value)
+    : makePipCardSVG(c.value, c.suit);
+  return `${cornerHTML}<div class="card-face-art">${artHTML}</div>`;
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -2795,9 +2766,11 @@ function nextBackground() {
 })();
 
 
-// Start
-updateCardSize();
-newGame();
+// Start: load card sprite, then deal
+loadCardSprite().then(() => {
+  updateCardSize();
+  newGame();
+});
 
 /* ══════════════════════════════════════════════════════════
    TRANSLATION SYSTEM — same as index.html

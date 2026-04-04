@@ -560,6 +560,24 @@
       z-index: 250;
       overflow: hidden;
     }
+    #cascade-container.active {
+      pointer-events: all;
+      cursor: pointer;
+    }
+    #cascade-hint {
+      position: fixed;
+      bottom: 2.5rem;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      opacity: 0.75;
+      pointer-events: none;
+      animation: winSlideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 1.2s both;
+    }
 
     .cascade-card {
       position: fixed;
@@ -1539,7 +1557,6 @@ function showWin() {
     winSubEl.dataset.hasScore = '1';
   }
   updateAutoCompleteUI();
-  document.getElementById('win-overlay').classList.remove('hidden');
   startCascade();
 }
 
@@ -1547,62 +1564,87 @@ function startCascade() {
   if (cascadeAnimFrame) { cancelAnimationFrame(cascadeAnimFrame); cascadeAnimFrame = null; }
   const container = document.getElementById('cascade-container');
   container.innerHTML = '';
+  container.classList.add('active');
 
   const cardW = getCardW();
   const cardH = getCardH();
   const sw = window.innerWidth;
   const sh = window.innerHeight;
 
+  // Subtle "click to play again" hint
+  const hint = document.createElement('div');
+  hint.id = 'cascade-hint';
+  hint.textContent = 'Click anywhere to play again';
+  container.appendChild(hint);
+
+  // Win95-style: cards launch from the foundation area (top-center) in all directions
   const cards = [];
-  const count = 8;
+  const count = 26;
   for (let i = 0; i < count; i++) {
     const suit = SUITS[i % 4];
     const el = document.createElement('div');
     el.className = 'cascade-card' + (isRed(suit) ? ' cascade-red' : '');
     el.textContent = suit;
     container.appendChild(el);
+
+    // Stagger launch from approximate foundation area
+    const startX = sw * 0.45 + (Math.random() - 0.5) * sw * 0.3;
+    const startY = sh * 0.12 + Math.random() * sh * 0.15;
+
+    // Random velocity in all directions — bias upward and sideways
+    const speed = 7 + Math.random() * 9;
+    const angle = Math.random() * Math.PI * 2;
+
     cards.push({
       el,
-      x: Math.random() * (sw - cardW),
-      y: -cardH - Math.random() * sh * 0.5, // start above screen
-      vx: (Math.random() - 0.5) * 6,
-      vy: 2 + Math.random() * 3,
-      bounces: 0
+      x: startX,
+      y: startY,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      rot: Math.random() * 360,
+      rotSpeed: (Math.random() - 0.5) * 9,
+      delay: Math.floor(i * 4), // stagger launch so they don't all fly at once
     });
   }
 
+  let tick = 0;
+
   function frame() {
+    tick++;
     for (const c of cards) {
-      c.vy += 0.45; // gravity
+      if (tick < c.delay) continue;
+
+      c.vy += 0.22; // light gravity — similar to Win95 feel
       c.x += c.vx;
       c.y += c.vy;
+      c.rot += c.rotSpeed;
 
-      // Floor bounce
-      if (c.y + cardH >= sh) {
-        c.y = sh - cardH;
-        c.vy *= -0.8;
-        c.bounces++;
-        // After many bounces, just slide on floor
-        if (Math.abs(c.vy) < 1.5) c.vy = 0;
-      }
-      // Ceiling
-      if (c.y < 0) { c.y = 0; c.vy = Math.abs(c.vy); }
-      // Walls
-      if (c.x < 0) { c.x = 0; c.vx = Math.abs(c.vx); }
-      if (c.x + cardW > sw) { c.x = sw - cardW; c.vx = -Math.abs(c.vx); }
+      // Elastic bounce off all four walls (Win95 style — no settling)
+      if (c.x < 0) { c.x = 0; c.vx = Math.abs(c.vx) * 0.92; }
+      if (c.x + cardW > sw) { c.x = sw - cardW; c.vx = -Math.abs(c.vx) * 0.92; }
+      if (c.y < 0) { c.y = 0; c.vy = Math.abs(c.vy) * 0.88; }
+      if (c.y + cardH > sh) { c.y = sh - cardH; c.vy = -Math.abs(c.vy) * 0.88; }
 
       c.el.style.left = `${c.x.toFixed(1)}px`;
       c.el.style.top = `${c.y.toFixed(1)}px`;
+      c.el.style.transform = `rotate(${c.rot.toFixed(1)}deg)`;
     }
     cascadeAnimFrame = requestAnimationFrame(frame);
   }
   cascadeAnimFrame = requestAnimationFrame(frame);
+
+  // Click anywhere to start a new game
+  container.onclick = () => newGame();
 }
 
 function clearCascade() {
   if (cascadeAnimFrame) { cancelAnimationFrame(cascadeAnimFrame); cascadeAnimFrame = null; }
   const container = document.getElementById('cascade-container');
-  if (container) container.innerHTML = '';
+  if (container) {
+    container.innerHTML = '';
+    container.classList.remove('active');
+    container.onclick = null;
+  }
 }
 
 /* ══════════════════════════════════════════════════════════

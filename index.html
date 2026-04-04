@@ -4199,6 +4199,8 @@ let _quoteCardObserver = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('version-badge').textContent = VERSION;
+  // Persist version so solitaire.html (and any other sub-pages) can read it
+  try { localStorage.setItem('ataraxia_version', VERSION); } catch(e) {}
 
   // Random start
   currentBgIdx = Math.floor(Math.random() * BACKGROUNDS.length);

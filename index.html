@@ -1474,6 +1474,8 @@
   @media (max-width: 600px) {
     .top-right-actions { padding: max(0.5rem, env(safe-area-inset-top, 0px)) max(0.5rem, env(safe-area-inset-right, 0px)) 0 0; gap: 0.35rem; }
     .lang-btn, .coffee-btn { font-size: 0.7rem; padding: 0.3rem 0.55rem; }
+    /* Icon-only on narrow screens — prevents translation button from overflowing outside the nav bar */
+    .coffee-btn span, .lang-btn span { display: none; }
 
     /* Column layout, vertically centred within the safe viewport */
     .page-layout { justify-content: flex-start; }
@@ -1489,7 +1491,7 @@
       gap: 0.75rem;
     }
     .bottom-badges {
-      bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+      bottom: max(1rem, env(safe-area-inset-bottom, 0px));
       right: max(0.5rem, env(safe-area-inset-right, 0px));
       max-width: calc(100vw - 1rem);
       width: fit-content;

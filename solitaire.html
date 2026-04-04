@@ -131,6 +131,10 @@
       min-height: 100dvh;
     }
 
+    html {
+      overscroll-behavior: none;
+    }
+
     body {
       font-family: var(--font-body);
       background: var(--bg-primary);
@@ -138,6 +142,7 @@
       min-height: 100dvh;
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
+      overscroll-behavior: none;
     }
 
     button, a { -webkit-tap-highlight-color: transparent; }
@@ -221,8 +226,8 @@
     .ctrl-btn svg { width: 14px; height: 14px; fill: currentColor; flex-shrink: 0; }
     .ctrl-btn:disabled { opacity: 0.32; cursor: default; pointer-events: none; }
 
-    /* Hide text labels on tiny screens */
-    @media (max-width: 380px) {
+    /* Hide text labels on small/medium phone screens */
+    @media (max-width: 480px) {
       .ctrl-btn span { display: none; }
       .ctrl-btn { padding: 0.38rem; width: 32px; height: 32px; border-radius: 50%; justify-content: center; }
       .back-link span { display: none; }
@@ -231,8 +236,8 @@
       .lang-btn { padding: 0.38rem; width: 32px; height: 32px; border-radius: 50%; justify-content: center; }
     }
 
-    /* On small-mid screens: hide lang text label to save space */
-    @media (max-width: 480px) and (min-width: 381px) {
+    /* On mid screens (481-600px): hide lang text label to save space */
+    @media (max-width: 600px) and (min-width: 481px) {
       .lang-btn span { display: none; }
       .lang-btn { padding: 0.38rem 0.6rem; }
     }
@@ -339,6 +344,7 @@
       min-height: calc(100dvh - var(--header-h));
       user-select: none;
       -webkit-user-select: none;
+      touch-action: pan-y;
     }
 
     .top-row {
@@ -414,6 +420,7 @@
       cursor: pointer;
       transition: box-shadow 0.15s, transform 0.15s;
       overflow: hidden;
+      touch-action: manipulation;
     }
 
     /* ── Face-down ── */
@@ -421,19 +428,34 @@
       background: var(--card-back);
       cursor: default;
     }
+    /* Outer white border frame */
     .card--back::before {
       content: '';
       position: absolute;
-      inset: 3px;
-      border-radius: calc(clamp(4px, 6%, 9px) - 2px);
-      border: 1px solid var(--card-back-2);
+      inset: 5px;
+      border-radius: calc(clamp(4px, 6%, 9px) - 3px);
+      border: 2px solid rgba(255, 255, 255, 0.65);
+      /* Classic crosshatch diamond lattice */
       background:
         repeating-linear-gradient(
           45deg,
-          transparent 0px, transparent 3px,
-          var(--card-back-2) 3px, var(--card-back-2) 4px
+          rgba(255, 255, 255, 0.13) 0px, rgba(255, 255, 255, 0.13) 1px,
+          transparent 1px, transparent 7px
+        ),
+        repeating-linear-gradient(
+          -45deg,
+          rgba(255, 255, 255, 0.13) 0px, rgba(255, 255, 255, 0.13) 1px,
+          transparent 1px, transparent 7px
         );
-      opacity: 0.28;
+    }
+    /* Inner ornamental border */
+    .card--back::after {
+      content: '';
+      position: absolute;
+      inset: 9px;
+      border-radius: calc(clamp(4px, 6%, 9px) - 7px);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      pointer-events: none;
     }
 
     /* ── Face-up ── */
@@ -1483,143 +1505,137 @@ function overlapDown() { return Math.min(16, getCardH() * 0.155); }
 function overlapUp()   { return Math.min(28, getCardH() * 0.28);  }
 
 /* ══════════════════════════════════════════════════════════
-   FACE CARD SVG ART (Bicycle-style portraits)
+   FACE CARD SVG ART (Classic court card portraits)
    ══════════════════════════════════════════════════════════ */
 function makeFaceCardSVG(value) {
   // Each portrait is drawn for the top half (viewBox 0 0 100 140),
   // then mirrored 180° for the bottom half — classic two-way card design.
   const portraits = {
     K: `
-      <!-- Crown: 3 peaks with jewels -->
-      <polygon points="20,24 24,10 32,19 40,6 50,2 60,6 68,19 76,10 80,24"
+      <!-- 5-peak crown -->
+      <polygon points="12,30 20,8 31,22 41,5 50,1 59,5 69,22 80,8 88,30"
                fill="currentColor" stroke="currentColor" stroke-width="0.5" stroke-linejoin="round"/>
-      <rect x="20" y="23" width="60" height="5" rx="1.5" fill="currentColor"/>
-      <circle cx="40" cy="9"  r="2.2" fill="white" opacity="0.85"/>
-      <circle cx="50" cy="4"  r="2.5" fill="white" opacity="0.85"/>
-      <circle cx="60" cy="9"  r="2.2" fill="white" opacity="0.85"/>
-      <!-- Face -->
-      <ellipse cx="50" cy="40" rx="13" ry="14"
+      <rect x="12" y="28" width="76" height="6" rx="2" fill="currentColor"/>
+      <!-- Crown gem circles -->
+      <circle cx="31" cy="14" r="3"   fill="white" opacity="0.9"/>
+      <circle cx="50" cy="5"  r="3.5" fill="white" opacity="0.9"/>
+      <circle cx="69" cy="14" r="3"   fill="white" opacity="0.9"/>
+      <!-- Face (skin tone fill via card face color) -->
+      <ellipse cx="50" cy="46" rx="14" ry="13"
                fill="var(--card-face,#fff)" stroke="currentColor" stroke-width="1.5"/>
-      <!-- Eyes -->
-      <ellipse cx="44" cy="36" rx="2" ry="2.5" fill="currentColor"/>
-      <ellipse cx="56" cy="36" rx="2" ry="2.5" fill="currentColor"/>
-      <!-- Eyebrows -->
-      <path d="M40,31 Q44,28 48,31" stroke="currentColor" stroke-width="1.5"
-            fill="none" stroke-linecap="round"/>
-      <path d="M52,31 Q56,28 60,31" stroke="currentColor" stroke-width="1.5"
-            fill="none" stroke-linecap="round"/>
-      <!-- Nose -->
-      <path d="M49,38 L47,43 L53,43" stroke="currentColor" stroke-width="1"
-            fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
-      <!-- Mustache -->
-      <path d="M43,46 Q46,49 50,47 Q54,49 57,46"
-            stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-      <!-- Beard -->
-      <path d="M38,49 C36,57 38,63 50,65 C62,63 64,57 62,49 Q56,54 50,54 Q44,54 38,49 Z"
+      <!-- Almond eyes (classic, not round dots) -->
+      <path d="M39,42 Q43,39 47,42 Q43,45 39,42 Z" fill="currentColor"/>
+      <path d="M53,42 Q57,39 61,42 Q57,45 53,42 Z" fill="currentColor"/>
+      <!-- Strong royal eyebrows -->
+      <path d="M37,38 Q43,34 49,38" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M51,38 Q57,34 63,38" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <!-- Nose bridge -->
+      <path d="M50,44 Q48,48 49,50 L51,50 Q52,48 50,44" fill="currentColor" opacity="0.35"/>
+      <!-- Curled mustache -->
+      <path d="M38,54 C40,58 46,59 50,57 C54,59 60,58 62,54"
+            stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <!-- Full beard -->
+      <path d="M33,56 C30,64 33,70 50,70 C67,70 70,64 67,56
+               Q59,62 50,62 Q41,62 33,56 Z"
+            fill="currentColor" opacity="0.9"/>
+      <!-- Robe collar -->
+      <path d="M24,70 L76,70 L73,66 C64,59 36,59 27,66 Z"
             fill="currentColor" opacity="0.85"/>
-      <!-- Robe -->
-      <path d="M30,65 L26,70 L74,70 L70,65 C62,59 38,59 30,65 Z"
-            fill="currentColor" opacity="0.75"/>
-      <!-- Robe V-collar -->
-      <path d="M42,61 L50,56 L58,61" stroke="white" stroke-width="1.2"
-            fill="none" opacity="0.65"/>
-      <!-- Sword (behind figure, subtle) -->
-      <line x1="50" y1="28" x2="50" y2="69"
-            stroke="currentColor" stroke-width="1.2" opacity="0.35"/>
-      <!-- Crossguard -->
-      <line x1="43" y1="63" x2="57" y2="63"
-            stroke="currentColor" stroke-width="2.5" opacity="0.85"/>
-      <circle cx="50" cy="28" r="2.5" fill="currentColor" opacity="0.8"/>
+      <!-- Robe V-collar line -->
+      <path d="M40,64 L50,59 L60,64" stroke="white" stroke-width="1.8" fill="none" opacity="0.75"/>
+      <!-- Sword (side, angled) -->
+      <line x1="78" y1="34" x2="73" y2="68"
+            stroke="currentColor" stroke-width="2.2" opacity="0.8" stroke-linecap="round"/>
+      <path d="M74,34 L84,28 L82,40 Z" fill="currentColor" opacity="0.88"/>
+      <line x1="69" y1="59" x2="81" y2="55"
+            stroke="currentColor" stroke-width="3" opacity="0.85" stroke-linecap="round"/>
     `,
     Q: `
-      <!-- Crown: 5 peaks, ornate -->
-      <polygon points="22,24 24,12 30,19 36,8 42,16 50,5 58,16 64,8 70,19 76,12 78,24"
+      <!-- Ornate 5-peak crown -->
+      <polygon points="15,28 22,9 33,22 42,6 50,1 58,6 67,22 78,9 85,28"
                fill="currentColor" stroke="currentColor" stroke-width="0.5" stroke-linejoin="round"/>
-      <rect x="22" y="23" width="56" height="4" rx="1.5" fill="currentColor"/>
-      <circle cx="36" cy="10" r="2"   fill="white" opacity="0.85"/>
-      <circle cx="50" cy="7"  r="2.5" fill="white" opacity="0.85"/>
-      <circle cx="64" cy="10" r="2"   fill="white" opacity="0.85"/>
-      <!-- Hair on sides -->
-      <path d="M37,48 C33,44 32,36 36,30 C34,34 35,42 38,46"
-            stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.7"/>
-      <path d="M63,48 C67,44 68,36 64,30 C66,34 65,42 62,46"
-            stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.7"/>
+      <rect x="15" y="26" width="70" height="5" rx="1.5" fill="currentColor"/>
+      <!-- Crown gem circles -->
+      <circle cx="33" cy="13" r="3"   fill="white" opacity="0.9"/>
+      <circle cx="50" cy="5"  r="3.5" fill="white" opacity="0.9"/>
+      <circle cx="67" cy="13" r="3"   fill="white" opacity="0.9"/>
+      <!-- Flowing hair (left) -->
+      <path d="M34,52 C27,46 25,34 30,27 Q31,37 33,46 Z"
+            fill="currentColor" opacity="0.78"/>
+      <!-- Flowing hair (right) -->
+      <path d="M66,52 C73,46 75,34 70,27 Q69,37 67,46 Z"
+            fill="currentColor" opacity="0.78"/>
       <!-- Face -->
-      <ellipse cx="50" cy="39" rx="12" ry="13"
+      <ellipse cx="50" cy="41" rx="13" ry="13"
                fill="var(--card-face,#fff)" stroke="currentColor" stroke-width="1.5"/>
-      <!-- Eyes -->
-      <ellipse cx="44" cy="35" rx="2" ry="2.5" fill="currentColor"/>
-      <ellipse cx="56" cy="35" rx="2" ry="2.5" fill="currentColor"/>
-      <!-- Eyelashes / brows -->
-      <path d="M40,31 Q44,28 48,31" stroke="currentColor" stroke-width="1.3"
-            fill="none" stroke-linecap="round"/>
-      <path d="M52,31 Q56,28 60,31" stroke="currentColor" stroke-width="1.3"
-            fill="none" stroke-linecap="round"/>
+      <!-- Almond eyes -->
+      <path d="M39,37 Q43,34 47,37 Q43,40 39,37 Z" fill="currentColor"/>
+      <path d="M53,37 Q57,34 61,37 Q57,40 53,37 Z" fill="currentColor"/>
+      <!-- Refined eyebrows -->
+      <path d="M37,33 Q43,29 49,33" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="M51,33 Q57,29 63,33" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/>
       <!-- Nose -->
-      <path d="M49,37 L47,41 L53,41" stroke="currentColor" stroke-width="1"
-            fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
-      <!-- Lips -->
-      <path d="M45,47 Q50,51 55,47" stroke="currentColor" stroke-width="2"
+      <path d="M49,39 L47,44 L53,44" stroke="currentColor" stroke-width="0.9"
+            fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
+      <!-- Full lips -->
+      <path d="M43,50 Q50,54 57,50" stroke="currentColor" stroke-width="2.5"
             fill="none" stroke-linecap="round"/>
-      <path d="M45,47 Q50,44 55,47" stroke="currentColor" stroke-width="1.2"
+      <path d="M43,50 Q50,46 57,50" stroke="currentColor" stroke-width="1.2"
             fill="none" stroke-linecap="round" opacity="0.45"/>
-      <!-- Robe / gown -->
-      <path d="M30,52 C28,60 28,70 72,70 C72,60 70,52 64,48 Q56,43 44,43 Q38,43 30,52 Z"
-            fill="currentColor" opacity="0.72"/>
-      <!-- Neckline detail -->
-      <path d="M39,51 Q50,45 61,51" stroke="white" stroke-width="1.2"
-            fill="none" opacity="0.65"/>
-      <!-- Orb/scepter in right hand -->
-      <line x1="67" y1="46" x2="67" y2="68" stroke="currentColor" stroke-width="2" opacity="0.65"/>
-      <circle cx="67" cy="44" r="4.5"
-              fill="var(--card-face,#fff)" stroke="currentColor" stroke-width="1.5"/>
-      <circle cx="67" cy="44" r="2"   fill="currentColor" opacity="0.65"/>
+      <!-- Gown / bodice (wide) -->
+      <path d="M24,54 C22,63 22,70 78,70 C78,63 76,54 66,49
+               Q58,44 42,44 Q34,44 24,54 Z"
+            fill="currentColor" opacity="0.78"/>
+      <!-- Neckline trim -->
+      <path d="M36,53 Q50,47 64,53" stroke="white" stroke-width="1.5" fill="none" opacity="0.75"/>
+      <!-- Orb (royal attribute) -->
+      <circle cx="76" cy="47" r="6.5" fill="var(--card-face,#fff)" stroke="currentColor" stroke-width="2"/>
+      <circle cx="76" cy="47" r="3"   fill="currentColor" opacity="0.5"/>
+      <line x1="76" y1="40.5" x2="76" y2="53.5" stroke="currentColor" stroke-width="1.5" opacity="0.65"/>
+      <line x1="69.5" y1="47" x2="82.5" y2="47" stroke="currentColor" stroke-width="1.5" opacity="0.65"/>
+      <!-- Scepter -->
+      <line x1="76" y1="53.5" x2="74" y2="70"
+            stroke="currentColor" stroke-width="2" opacity="0.7" stroke-linecap="round"/>
     `,
     J: `
-      <!-- Wide hat brim -->
-      <ellipse cx="50" cy="22" rx="29" ry="5.5" fill="currentColor" opacity="0.88"/>
-      <!-- Hat crown -->
-      <path d="M28,22 L30,7 L70,7 L72,22 Z" fill="currentColor" opacity="0.88"/>
-      <!-- Hat highlight -->
-      <line x1="31" y1="8" x2="69" y2="8" stroke="white" stroke-width="1" opacity="0.35"/>
+      <!-- Hat crown (tall) -->
+      <path d="M27,25 L29,4 L71,4 L73,25 Z" fill="currentColor" opacity="0.92"/>
+      <!-- Hat brim (wide ellipse) -->
+      <ellipse cx="50" cy="25" rx="30" ry="5.5" fill="currentColor" opacity="0.92"/>
       <!-- Hat band -->
-      <rect x="29" y="18" width="42" height="4" rx="1" fill="white" opacity="0.2"/>
-      <!-- Feather plume -->
-      <path d="M30,21 C26,16 22,10 24,6 C26,10 28,12 30,9 C28,13 24,15 28,19"
-            fill="currentColor" opacity="0.78"/>
-      <path d="M26,18 C22,13 20,8 22,5 C25,9 24,13 26,16"
-            fill="currentColor" opacity="0.55"/>
+      <rect x="29" y="19" width="42" height="6" rx="1.5" fill="white" opacity="0.2"/>
+      <!-- Hat top highlight -->
+      <line x1="31" y1="6" x2="69" y2="6" stroke="white" stroke-width="1" opacity="0.28"/>
+      <!-- Feather plume (3 curves, left) -->
+      <path d="M29,24 C24,17 20,9 23,4 C25,9 23,15 28,20"   fill="currentColor" opacity="0.85"/>
+      <path d="M26,22 C20,15 17,8 20,3 C23,8 21,14 25,18"   fill="currentColor" opacity="0.62"/>
+      <path d="M32,23 C27,16 25,9 27,4 C29,9 28,15 31,20"   fill="currentColor" opacity="0.42"/>
       <!-- Face -->
-      <ellipse cx="50" cy="38" rx="12" ry="13"
+      <ellipse cx="50" cy="40" rx="13" ry="13"
                fill="var(--card-face,#fff)" stroke="currentColor" stroke-width="1.5"/>
-      <!-- Eyes -->
-      <ellipse cx="44" cy="34" rx="2" ry="2.5" fill="currentColor"/>
-      <ellipse cx="56" cy="34" rx="2" ry="2.5" fill="currentColor"/>
-      <!-- Eyebrows (young, slightly arched) -->
-      <path d="M41,30 Q44,27 47,30" stroke="currentColor" stroke-width="1.4"
-            fill="none" stroke-linecap="round"/>
-      <path d="M53,30 Q56,27 59,30" stroke="currentColor" stroke-width="1.4"
-            fill="none" stroke-linecap="round"/>
+      <!-- Almond eyes -->
+      <path d="M39,36 Q43,33 47,36 Q43,39 39,36 Z" fill="currentColor"/>
+      <path d="M53,36 Q57,33 61,36 Q57,39 53,36 Z" fill="currentColor"/>
+      <!-- Arched eyebrows (young) -->
+      <path d="M37,31 Q43,27 49,31" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="M51,31 Q57,27 63,31" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/>
       <!-- Nose -->
-      <path d="M50,36 L48,40 L52,40" stroke="currentColor" stroke-width="1"
-            fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+      <path d="M50,38 L47,43 L53,43" stroke="currentColor" stroke-width="0.9"
+            fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"/>
       <!-- Slight smile -->
-      <path d="M44,45 Q50,49 56,45" stroke="currentColor" stroke-width="1.5"
+      <path d="M43,48 Q50,53 57,48" stroke="currentColor" stroke-width="2.2"
             fill="none" stroke-linecap="round"/>
-      <!-- Tunic / body -->
-      <path d="M32,52 L28,70 L72,70 L68,52 C60,47 40,47 32,52 Z"
-            fill="currentColor" opacity="0.7"/>
-      <!-- Tunic collar -->
-      <path d="M40,52 L50,47 L60,52" stroke="white" stroke-width="1.2"
-            fill="none" opacity="0.65"/>
-      <!-- Tunic cross-belt detail -->
-      <path d="M32,56 L68,64" stroke="white" stroke-width="1" opacity="0.25"/>
-      <path d="M32,64 L68,56" stroke="white" stroke-width="1" opacity="0.25"/>
-      <!-- Halberd / polearm -->
-      <line x1="72" y1="28" x2="65" y2="70"
-            stroke="currentColor" stroke-width="2" opacity="0.72" stroke-linecap="round"/>
-      <!-- Blade -->
-      <path d="M68,28 L76,23 L75,33 L68,31 Z" fill="currentColor" opacity="0.82"/>
+      <!-- Tunic -->
+      <path d="M30,53 L26,70 L74,70 L70,53 C62,47 38,47 30,53 Z"
+            fill="currentColor" opacity="0.78"/>
+      <!-- Tunic V-collar -->
+      <path d="M39,53 L50,48 L61,53" stroke="white" stroke-width="1.8" fill="none" opacity="0.75"/>
+      <!-- Single diagonal baldric belt -->
+      <path d="M30,57 L68,68" stroke="white" stroke-width="1.8" opacity="0.35" stroke-linecap="round"/>
+      <!-- Halberd / lance (right side) -->
+      <line x1="77" y1="27" x2="70" y2="70"
+            stroke="currentColor" stroke-width="2.2" opacity="0.8" stroke-linecap="round"/>
+      <path d="M73,27 L84,20 L82,33 L74,30 Z" fill="currentColor" opacity="0.88"/>
     `
   };
 
@@ -1627,12 +1643,12 @@ function makeFaceCardSVG(value) {
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140"
               preserveAspectRatio="xMidYMid meet">
-    <!-- Inner border frame -->
-    <rect x="4" y="4" width="92" height="132" rx="3"
-          fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.28"/>
+    <!-- Classic inner frame border -->
+    <rect x="3" y="3" width="94" height="134" rx="4"
+          fill="none" stroke="currentColor" stroke-width="1.6" opacity="0.2"/>
     <!-- Centre divider -->
     <line x1="5" y1="70" x2="95" y2="70"
-          stroke="currentColor" stroke-width="0.6" opacity="0.2"/>
+          stroke="currentColor" stroke-width="0.5" opacity="0.15"/>
     <!-- Top half portrait -->
     <g>${top}</g>
     <!-- Bottom half: mirrored 180° -->

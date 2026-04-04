@@ -799,7 +799,7 @@
       </svg>
       <span id="new-game-label">New Game</span>
     </button>
-    <button class="ctrl-btn" id="draw-mode-btn" aria-label="Toggle draw mode" title="Draw mode">
+    <button class="ctrl-btn" id="draw-mode-btn" aria-label="Draw mode: Draw 3, click to toggle" title="Draw mode">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M2 4v3h.01L2 20c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2L22 4H2zm2 16V8h12v12H4zm14-10h2v8h-2v-8zm-2-2H4V6h12v2z"/>
       </svg>
@@ -863,6 +863,10 @@
     <div class="win-stat">
       <div class="win-stat-value" id="stat-win-streak">—</div>
       <div class="win-stat-label">Streak</div>
+    </div>
+    <div class="win-stat">
+      <div class="win-stat-value" id="stat-win-best">—</div>
+      <div class="win-stat-label">Best</div>
     </div>
   </div>
   <button class="win-btn" id="play-again-btn">Play Again</button>
@@ -986,11 +990,9 @@ function shuffle(arr) {
    NEW GAME
    ══════════════════════════════════════════════════════════ */
 function newGame() {
-  // If a game was in progress but not won, count it as played (loss)
+  // If a game was in progress but not won, record as a loss
   if (gameInProgress && !gameWon) {
-    gamesPlayed++;
-    winStreak = 0;
-    saveGameStats();
+    recordGameResult(false);
   }
 
   const deck = shuffle(createDeck());
@@ -1437,12 +1439,9 @@ function showWin() {
 
   // Track statistics
   gameWon = true;
-  gamesPlayed++;
-  gamesWon++;
-  winStreak++;
   const elapsed = startTime ? Date.now() - startTime : 0;
   if (elapsed > 0 && elapsed < bestTime) bestTime = elapsed;
-  saveGameStats();
+  recordGameResult(true);
   updateWinStats();
 
   const winSubEl = document.getElementById('win-sub');
@@ -3250,8 +3249,10 @@ const DRAW_MODE_KEY = 'ataraxia_draw_mode';
 
 function applyDrawMode(mode) {
   drawMode = mode;
+  const btn   = document.getElementById('draw-mode-btn');
   const label = document.getElementById('draw-mode-label');
   if (label) label.textContent = `Draw ${mode}`;
+  if (btn)   btn.setAttribute('aria-label', `Draw mode: Draw ${mode}, click to toggle`);
   try { localStorage.setItem(DRAW_MODE_KEY, String(mode)); } catch(e) {}
 }
 
@@ -3262,7 +3263,7 @@ function initDrawMode() {
   document.getElementById('draw-mode-btn').addEventListener('click', () => {
     const newMode = drawMode === 3 ? 1 : 3;
     if (moveCount > 0 && !gameWon) {
-      if (!confirm(`Switch to Draw ${newMode}? This will start a new game.`)) return;
+      if (!confirm(`Switching to Draw ${newMode} will start a new game. Continue?`)) return;
     }
     applyDrawMode(newMode);
     newGame();
@@ -3392,7 +3393,11 @@ function showHint() {
     if (cols[move.fromCol]) {
       const cards = cols[move.fromCol].querySelectorAll('.card');
       if (cards.length) {
-        // cardIdx relative to top of pile DOM order
+        // Convert pile array index → DOM element index:
+        // pile array: [bottom…top], DOM cards: [bottom…top] (same order)
+        // offsetFromTop = distance from top of pile (0 = top card)
+        // targetIdx = corresponding DOM element (cards[last] = top card)
+        // Fallback to last card in case of face-down card DOM mismatch
         const pileArr = tableau[move.fromCol];
         const offsetFromTop = pileArr.length - 1 - move.cardIdx;
         const targetIdx = cards.length - 1 - offsetFromTop;
@@ -3498,13 +3503,27 @@ function saveGameStats() {
   } catch(e) {}
 }
 
+// Shared helper — call once per completed game (win or loss)
+function recordGameResult(won) {
+  gamesPlayed++;
+  if (won) {
+    gamesWon++;
+    winStreak++;
+  } else {
+    winStreak = 0;
+  }
+  saveGameStats();
+}
+
 function updateWinStats() {
   const playedEl = document.getElementById('stat-win-played');
   const wonEl    = document.getElementById('stat-win-won');
   const streakEl = document.getElementById('stat-win-streak');
+  const bestEl   = document.getElementById('stat-win-best');
   if (playedEl) playedEl.textContent = gamesPlayed;
   if (wonEl)    wonEl.textContent    = gamesWon;
   if (streakEl) streakEl.textContent = winStreak;
+  if (bestEl)   bestEl.textContent   = bestTime < Infinity ? formatTime(bestTime) : '—';
 }
 
 loadGameStats();

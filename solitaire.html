@@ -1840,7 +1840,7 @@ function render() {
       const wIdx = waste.length - visCount + i;
       const wCard = makeCard(waste[wIdx], 'waste', null, wIdx);
       const offset = (visCount - 1 - i) * 16; // fan left: front card has 0 offset
-      wCard.style.cssText = `position:absolute;left:${offset}px;top:0;width:100%;height:var(--card-h);z-index:${i+1};`;
+      wCard.style.cssText = `position:absolute;right:${offset}px;top:0;width:100%;height:var(--card-h);z-index:${i+1};`;
       if (i < visCount - 1) {
         // Not the top card: remove interaction
         wCard.style.pointerEvents = 'none';

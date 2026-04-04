@@ -339,7 +339,7 @@
       padding: var(--board-pad);
       padding-left:  max(var(--board-pad), env(safe-area-inset-left, 0px));
       padding-right: max(var(--board-pad), env(safe-area-inset-right, 0px));
-      padding-bottom: max(var(--board-pad), env(safe-area-inset-bottom, 0px));
+      padding-bottom: max(calc(var(--card-h) * 0.4 + var(--board-pad)), env(safe-area-inset-bottom, 0px));
       display: flex;
       flex-direction: column;
       gap: var(--col-gap);
@@ -1947,7 +1947,7 @@ function makePipCardSVG(value, suit) {
 function makeCardBackHTML() {
   if (spriteReady) {
     return `<svg class="card-svg" viewBox="0 0 169.075 244.640"
-                 xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+                 xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
               <use href="#back"/>
             </svg>`;
   }
@@ -1972,13 +1972,14 @@ function makeCard(c, fromPile, fromCol, cardIdx) {
   el.classList.add(isRed(c.suit) ? 'card--red' : 'card--black');
   el.setAttribute('aria-label', `${c.value} of ${c.suit}`);
   el.setAttribute('draggable', 'true');
+  el.dataset.key = `${c.suit}_${c.value}`;
 
   // Selected highlight for this card (or any card in a selected tableau run)
   if (selected) {
     const sameSource = selected.pile === fromPile && selected.col === fromCol;
     const inRun = fromPile === 'tableau'
       ? cardIdx >= selected.cardIdx
-      : sameSource;
+      : cardIdx === selected.cardIdx;
     if (sameSource && inRun) el.classList.add('card--selected');
   }
 
@@ -2004,7 +2005,7 @@ function makeCardFaceHTML(c) {
     const v = VALUE_MAP[c.value] || c.value;
     const s = SUIT_MAP[c.suit];
     return `<svg class="card-svg" viewBox="0 0 169.075 244.640"
-                 xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+                 xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
               <use href="#${s}_${v}"/>
             </svg>`;
   }
@@ -2026,6 +2027,13 @@ function makeCardFaceHTML(c) {
    ══════════════════════════════════════════════════════════ */
 function render() {
   const board = document.getElementById('game-board');
+
+  // FLIP — First: snapshot positions of all visible face-up cards before DOM wipe
+  const prevRects = new Map();
+  board.querySelectorAll('.card[data-key]').forEach(el => {
+    prevRects.set(el.dataset.key, el.getBoundingClientRect());
+  });
+
   board.innerHTML = '';
 
   const cardH = getCardH();
@@ -2169,6 +2177,22 @@ function render() {
   }
 
   board.appendChild(tabRow);
+
+  // FLIP — Play: animate each card from its previous position to its new one
+  if (prevRects.size > 0) {
+    board.querySelectorAll('.card[data-key]').forEach(el => {
+      const prev = prevRects.get(el.dataset.key);
+      if (!prev) return;
+      const curr = el.getBoundingClientRect();
+      const dx = prev.left - curr.left;
+      const dy = prev.top - curr.top;
+      if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+      el.animate(
+        [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'translate(0px, 0px)' }],
+        { duration: 200, easing: 'cubic-bezier(0.2, 0, 0.2, 1)', fill: 'none' }
+      );
+    });
+  }
 }
 
 /* ════════════════════════════════════════

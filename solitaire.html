@@ -428,34 +428,45 @@
       background: var(--card-back);
       cursor: default;
     }
-    /* Outer white border frame */
+    /* Classic diamond lattice with outer frame */
     .card--back::before {
       content: '';
       position: absolute;
-      inset: 5px;
-      border-radius: calc(clamp(4px, 6%, 9px) - 3px);
-      border: 2px solid rgba(255, 255, 255, 0.65);
+      inset: 4px;
+      border-radius: calc(clamp(4px, 6%, 9px) - 2px);
+      border: 1.5px solid rgba(255, 255, 255, 0.60);
       /* Classic crosshatch diamond lattice */
       background:
         repeating-linear-gradient(
           45deg,
-          rgba(255, 255, 255, 0.13) 0px, rgba(255, 255, 255, 0.13) 1px,
-          transparent 1px, transparent 7px
+          rgba(255, 255, 255, 0.11) 0px, rgba(255, 255, 255, 0.11) 1px,
+          transparent 1px, transparent 8px
         ),
         repeating-linear-gradient(
           -45deg,
-          rgba(255, 255, 255, 0.13) 0px, rgba(255, 255, 255, 0.13) 1px,
-          transparent 1px, transparent 7px
+          rgba(255, 255, 255, 0.11) 0px, rgba(255, 255, 255, 0.11) 1px,
+          transparent 1px, transparent 8px
         );
     }
     /* Inner ornamental border */
     .card--back::after {
       content: '';
       position: absolute;
-      inset: 9px;
-      border-radius: calc(clamp(4px, 6%, 9px) - 7px);
-      border: 1px solid rgba(255, 255, 255, 0.35);
+      inset: 8px;
+      border-radius: calc(clamp(4px, 6%, 9px) - 6px);
+      border: 1px solid rgba(255, 255, 255, 0.30);
       pointer-events: none;
+    }
+
+    /* ── Card-back SVG art overlay (ornate rosette + corners) ── */
+    .card-back-art {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
     }
 
     /* ── Face-up ── */
@@ -782,6 +793,12 @@
         <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
       </svg>
       <span id="new-game-label">New Game</span>
+    </button>
+    <button class="ctrl-btn" id="card-style-btn" aria-label="Change card back style" title="Card back colour">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+      </svg>
+      <span id="card-style-label">Blue</span>
     </button>
     <div class="lang-selector">
       <button class="lang-btn" id="lang-btn" aria-label="Change language">
@@ -1505,6 +1522,31 @@ function overlapDown() { return Math.min(16, getCardH() * 0.155); }
 function overlapUp()   { return Math.min(28, getCardH() * 0.28);  }
 
 /* ══════════════════════════════════════════════════════════
+   CARD-BACK SVG ART (Classic ornate rosette + corner ornaments)
+   ══════════════════════════════════════════════════════════ */
+function makeCardBackSVG() {
+  // 8-petal rosette at centre — each petal rotated 45° apart
+  const petals = Array.from({ length: 8 }, (_, i) =>
+    `<path d="M0,-17 C5,-11 5,-6 0,0 C-5,-6 -5,-11 0,-17 Z" transform="rotate(${i * 45})" fill="rgba(255,255,255,0.40)"/>`
+  ).join('');
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140" preserveAspectRatio="xMidYMid meet">
+    <!-- Centre rosette -->
+    <g transform="translate(50,70)">
+      ${petals}
+      <circle r="10" fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="1.2"/>
+      <path d="M0,-6 L6,0 L0,6 L-6,0 Z" fill="rgba(255,255,255,0.70)"/>
+      <circle r="2.5" fill="rgba(255,255,255,0.88)"/>
+    </g>
+    <!-- Corner diamond ornaments -->
+    <path d="M12,7 L16,11 L12,15 L8,11 Z"    fill="rgba(255,255,255,0.58)"/>
+    <path d="M88,7 L92,11 L88,15 L84,11 Z"    fill="rgba(255,255,255,0.58)"/>
+    <path d="M12,125 L16,129 L12,133 L8,129 Z"  fill="rgba(255,255,255,0.58)"/>
+    <path d="M88,125 L92,129 L88,133 L84,129 Z"  fill="rgba(255,255,255,0.58)"/>
+  </svg>`;
+}
+
+/* ══════════════════════════════════════════════════════════
    FACE CARD SVG ART (Classic court card portraits)
    ══════════════════════════════════════════════════════════ */
 function makeFaceCardSVG(value) {
@@ -1728,6 +1770,11 @@ function makeCard(c, fromPile, fromCol, cardIdx) {
   if (!c.faceUp) {
     el.classList.add('card--back');
     el.setAttribute('aria-label', 'Face-down card');
+    // Inject ornate back art (rosette + corner ornaments)
+    const backArt = document.createElement('div');
+    backArt.className = 'card-back-art';
+    backArt.innerHTML = makeCardBackSVG();
+    el.appendChild(backArt);
     return el;
   }
 
@@ -1868,6 +1915,10 @@ function render() {
     const backCard = document.createElement('div');
     backCard.className = 'card card--back';
     backCard.style.cssText = 'inset:0;width:100%;height:100%;cursor:pointer;';
+    const stockBackArt = document.createElement('div');
+    stockBackArt.className = 'card-back-art';
+    stockBackArt.innerHTML = makeCardBackSVG();
+    backCard.appendChild(stockBackArt);
     stockWrap.appendChild(backCard);
   }
   stockWrap.addEventListener('click', clickStock);
@@ -3036,6 +3087,46 @@ function initTranslation() {
 }
 
 initTranslation();
+
+/* ══════════════════════════════════════════════════════════
+   CARD BACK STYLE — cycle through classic colour palettes
+   ══════════════════════════════════════════════════════════ */
+const CARD_BACK_STYLES = [
+  { name: 'Blue',  back: null,      back2: null      }, // default — let CSS handle (dark-mode aware)
+  { name: 'Red',   back: '#b22222', back2: '#8b0000' },
+  { name: 'Green', back: '#1e6641', back2: '#155230' },
+  { name: 'Navy',  back: '#1e3a6e', back2: '#152a50' },
+];
+const CARD_STYLE_KEY = 'ataraxia_card_style';
+let cardBackStyleIdx = 0;
+
+function applyCardBackStyle(idx) {
+  cardBackStyleIdx = idx;
+  const style = CARD_BACK_STYLES[idx];
+  const root = document.documentElement;
+  if (style.back) {
+    root.style.setProperty('--card-back',   style.back);
+    root.style.setProperty('--card-back-2', style.back2);
+  } else {
+    root.style.removeProperty('--card-back');
+    root.style.removeProperty('--card-back-2');
+  }
+  const label = document.getElementById('card-style-label');
+  if (label) label.textContent = style.name;
+  try { localStorage.setItem(CARD_STYLE_KEY, idx); } catch(e) {}
+  render();
+}
+
+function initCardStyle() {
+  const saved = parseInt(localStorage.getItem(CARD_STYLE_KEY) || '0', 10);
+  const idx = CARD_BACK_STYLES[saved] ? saved : 0;
+  applyCardBackStyle(idx);
+  document.getElementById('card-style-btn').addEventListener('click', () => {
+    applyCardBackStyle((cardBackStyleIdx + 1) % CARD_BACK_STYLES.length);
+  });
+}
+
+initCardStyle();
 </script>
 </body>
 </html>

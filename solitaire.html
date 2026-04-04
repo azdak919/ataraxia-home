@@ -1641,8 +1641,13 @@ function checkNoMoves() {
     const wCard = waste[waste.length - 1];
     for (let fi = 0; fi < 4; fi++) if (canDropOnFoundation(wCard, fi)) { hideBanner(); return; }
     for (let tc = 0; tc < 7; tc++) if (canDropOnTableau(wCard, tc))    { hideBanner(); return; }
-    // Waste can still be recycled (stock empty but waste non-empty = recycle is available)
-    hideBanner(); return;
+    // Waste can be recycled, but only useful if some waste card can actually be played
+    for (let wi = 0; wi < waste.length; wi++) {
+      const wc = waste[wi];
+      for (let fi = 0; fi < 4; fi++) if (canDropOnFoundation(wc, fi)) { hideBanner(); return; }
+      for (let tc = 0; tc < 7; tc++) if (canDropOnTableau(wc, tc))    { hideBanner(); return; }
+    }
+    // No waste card is playable — fall through to tableau check
   }
 
   // Stock and waste both empty — check tableau only
@@ -3422,12 +3427,16 @@ function findBestMove() {
     }
   }
 
-  // 6. Draw from stock (or recycle waste)
+  // 6. Draw from stock (or recycle waste — only if some waste card is playable)
   if (stock.length > 0) {
     return { fromPile: 'stock', fromCol: null, cardIdx: null, toPile: null, toCol: null };
   }
   if (waste.length > 0) {
-    return { fromPile: 'recycle', fromCol: null, cardIdx: null, toPile: null, toCol: null };
+    for (let wi = 0; wi < waste.length; wi++) {
+      const wc = waste[wi];
+      for (let fi = 0; fi < 4; fi++) if (canDropOnFoundation(wc, fi)) return { fromPile: 'recycle', fromCol: null, cardIdx: null, toPile: null, toCol: null };
+      for (let tc = 0; tc < 7; tc++) if (canDropOnTableau(wc, tc))    return { fromPile: 'recycle', fromCol: null, cardIdx: null, toPile: null, toCol: null };
+    }
   }
 
   return null;

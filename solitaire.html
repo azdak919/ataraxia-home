@@ -57,6 +57,8 @@
       --col-gap:   8px;
       --board-pad: 12px;
       --header-h:  56px;
+      /* inset for .card-svg to prevent border-radius clipping corner labels */
+      --card-svg-inset: 2px;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -429,12 +431,11 @@
     /* ── Face-up ── */
     .card--face { background: var(--card-face); }
 
-    /* ── SVG card sprite art (fills entire card) ── */
+    /* ── SVG card sprite art (fills entire card, inset var(--card-svg-inset) to avoid
+          border-radius clipping the rank/suit corner labels) ── */
     .card-svg {
       position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
+      inset: var(--card-svg-inset);
       pointer-events: none;
     }
 
@@ -587,18 +588,51 @@
     }
 
     /* ════════════════════════════════════════
-       NO-MOVES BANNER
+       NO-MOVES BANNER (kept for layout; hidden — game-over overlay used instead)
        ════════════════════════════════════════ */
-    #no-moves-banner {
-      text-align: center;
-      padding: 0.5rem 1rem;
-      background: rgba(191, 59, 47, 0.12);
-      color: var(--card-red);
-      font-size: 0.82rem;
-      letter-spacing: 0.08em;
-      border-bottom: 1px solid rgba(191, 59, 47, 0.2);
+    #no-moves-banner { display: none; }
+
+    /* ════════════════════════════════════════
+       GAME-OVER OVERLAY
+       ════════════════════════════════════════ */
+    #game-over-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      background: rgba(245, 240, 235, 0.88);
+      backdrop-filter: blur(14px) saturate(1.2);
+      -webkit-backdrop-filter: blur(14px) saturate(1.2);
+      animation: overlayFadeIn 0.5s ease;
     }
-    #no-moves-banner.hidden { display: none; }
+    @media (prefers-color-scheme: dark) {
+      #game-over-overlay { background: rgba(26, 24, 22, 0.88); }
+    }
+    #game-over-overlay.hidden { display: none; }
+    .game-over-icon {
+      font-size: clamp(2rem, 8vw, 3rem);
+      margin-bottom: 0.2rem;
+      animation: winSlideUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+    }
+    #game-over-title {
+      font-size: clamp(2.2rem, 8vw, 3.8rem);
+      font-weight: 300;
+      letter-spacing: 0.04em;
+      color: var(--card-red);
+      animation: winSlideUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+    }
+    #game-over-sub {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 1.6rem;
+      animation: winSlideUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
+    }
 
     /* ════════════════════════════════════════
        HINT HIGHLIGHT
@@ -803,7 +837,7 @@
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/>
       </svg>
-      <span>Hint</span>
+      <span id="hint-label">Hint</span>
     </button>
     <div class="lang-selector">
       <button class="lang-btn" id="lang-btn" aria-label="Change language">
@@ -842,22 +876,30 @@
   <div class="win-stats" id="win-stats">
     <div class="win-stat">
       <div class="win-stat-value" id="stat-win-played">—</div>
-      <div class="win-stat-label">Played</div>
+      <div class="win-stat-label" id="stat-played-label">Played</div>
     </div>
     <div class="win-stat">
       <div class="win-stat-value" id="stat-win-won">—</div>
-      <div class="win-stat-label">Won</div>
+      <div class="win-stat-label" id="stat-won-label">Won</div>
     </div>
     <div class="win-stat">
       <div class="win-stat-value" id="stat-win-streak">—</div>
-      <div class="win-stat-label">Streak</div>
+      <div class="win-stat-label" id="stat-streak-label">Streak</div>
     </div>
     <div class="win-stat">
       <div class="win-stat-value" id="stat-win-best">—</div>
-      <div class="win-stat-label">Best</div>
+      <div class="win-stat-label" id="stat-best-label">Best</div>
     </div>
   </div>
   <button class="win-btn" id="play-again-btn">Play Again</button>
+</div>
+
+<!-- ══════════════════════ GAME-OVER OVERLAY ══════════════════════ -->
+<div id="game-over-overlay" class="hidden" role="dialog" aria-live="polite" aria-label="Game over">
+  <div class="game-over-icon" aria-hidden="true">✕</div>
+  <div id="game-over-title">Game Over</div>
+  <div id="game-over-sub">No more moves available</div>
+  <button class="win-btn" id="game-over-btn">New Game</button>
 </div>
 
 <!-- ══════════════════════ CASCADE CONTAINER ══════════════════════ -->
@@ -946,6 +988,9 @@ const SOL_UI_EN = {
   undo: 'Undo', newGame: 'New Game', moves: 'moves',
   noMoves: 'No more moves available', youWin: 'You Win ✦',
   allCards: 'All cards placed', playAgain: 'Play Again', solitaire: 'Solitaire',
+  hint: 'Hint', autoComplete: 'Auto Complete',
+  played: 'Played', won: 'Won', streak: 'Streak', best: 'Best',
+  gameOver: 'Game Over',
 };
 
 /* ══════════════════════════════════════════════════════════
@@ -1569,13 +1614,13 @@ function checkNoMoves() {
 }
 
 function showBanner() {
-  const b = document.getElementById('no-moves-banner');
-  if (b) b.classList.remove('hidden');
+  const o = document.getElementById('game-over-overlay');
+  if (o) o.classList.remove('hidden');
 }
 
 function hideBanner() {
-  const b = document.getElementById('no-moves-banner');
-  if (b) b.classList.add('hidden');
+  const o = document.getElementById('game-over-overlay');
+  if (o) o.classList.add('hidden');
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -1846,6 +1891,19 @@ function makePipCardSVG(value, suit) {
 }
 
 /* ══════════════════════════════════════════════════════════
+   CARD BACK HTML HELPER (sprite or custom SVG fallback)
+   ══════════════════════════════════════════════════════════ */
+function makeCardBackHTML() {
+  if (spriteReady) {
+    return `<svg class="card-svg" viewBox="0 0 169.075 244.640"
+                 xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+              <use href="#back"/>
+            </svg>`;
+  }
+  return `<div class="card-back-art">${makeCardBackSVG()}</div>`;
+}
+
+/* ══════════════════════════════════════════════════════════
    BUILD CARD ELEMENT
    ══════════════════════════════════════════════════════════ */
 function makeCard(c, fromPile, fromCol, cardIdx) {
@@ -1855,17 +1913,7 @@ function makeCard(c, fromPile, fromCol, cardIdx) {
   if (!c.faceUp) {
     el.classList.add('card--back');
     el.setAttribute('aria-label', 'Face-down card');
-    if (spriteReady) {
-      el.innerHTML = `<svg class="card-svg" viewBox="0 0 169.075 244.640"
-                           xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
-                        <use href="#back"/>
-                      </svg>`;
-    } else {
-      const backArt = document.createElement('div');
-      backArt.className = 'card-back-art';
-      backArt.innerHTML = makeCardBackSVG();
-      el.appendChild(backArt);
-    }
+    el.innerHTML = makeCardBackHTML();
     return el;
   }
 
@@ -2014,10 +2062,7 @@ function render() {
     const backCard = document.createElement('div');
     backCard.className = 'card card--back';
     backCard.style.cssText = 'inset:0;width:100%;height:100%;cursor:pointer;';
-    const stockBackArt = document.createElement('div');
-    stockBackArt.className = 'card-back-art';
-    stockBackArt.innerHTML = makeCardBackSVG();
-    backCard.appendChild(stockBackArt);
+    backCard.innerHTML = makeCardBackHTML();
     stockWrap.appendChild(backCard);
   }
   stockWrap.addEventListener('click', clickStock);
@@ -2092,6 +2137,7 @@ document.getElementById('play-again-btn').addEventListener('click', newGame);
 document.getElementById('undo-btn').addEventListener('click', undoMove);
 document.getElementById('hint-btn').addEventListener('click', showHint);
 document.getElementById('autocomplete-btn').addEventListener('click', autoComplete);
+document.getElementById('game-over-btn').addEventListener('click', newGame);
 
 // Keyboard shortcuts
 document.addEventListener('keydown', e => {
@@ -3085,6 +3131,15 @@ function applyUIStrings(strings) {
   const winSub = document.getElementById('win-sub');
   const playAgainBtn = document.getElementById('play-again-btn');
   const gameTitle = document.querySelector('.game-title');
+  const hintLabel = document.getElementById('hint-label');
+  const autoCompleteBtn = document.getElementById('autocomplete-btn');
+  const playedLabel = document.getElementById('stat-played-label');
+  const wonLabel = document.getElementById('stat-won-label');
+  const streakLabel = document.getElementById('stat-streak-label');
+  const bestLabel = document.getElementById('stat-best-label');
+  const gameOverTitle = document.getElementById('game-over-title');
+  const gameOverSub = document.getElementById('game-over-sub');
+  const gameOverBtn = document.getElementById('game-over-btn');
 
   if (undoLabel) undoLabel.textContent = strings.undo;
   if (newGameLabel) newGameLabel.textContent = strings.newGame;
@@ -3094,6 +3149,15 @@ function applyUIStrings(strings) {
   if (winSub && !winSub.dataset.hasScore) winSub.textContent = strings.allCards;
   if (playAgainBtn) playAgainBtn.textContent = strings.playAgain;
   if (gameTitle) gameTitle.textContent = strings.solitaire;
+  if (hintLabel) hintLabel.textContent = strings.hint;
+  if (autoCompleteBtn) autoCompleteBtn.textContent = strings.autoComplete;
+  if (playedLabel) playedLabel.textContent = strings.played;
+  if (wonLabel) wonLabel.textContent = strings.won;
+  if (streakLabel) streakLabel.textContent = strings.streak;
+  if (bestLabel) bestLabel.textContent = strings.best;
+  if (gameOverTitle) gameOverTitle.textContent = strings.gameOver;
+  if (gameOverSub) gameOverSub.textContent = strings.noMoves;
+  if (gameOverBtn) gameOverBtn.textContent = strings.newGame;
 }
 
 function setLanguageStatus(msg) {
@@ -3357,8 +3421,11 @@ function showHint() {
    AUTO-COMPLETE — play all remaining cards to foundations
    ══════════════════════════════════════════════════════════ */
 function canAutoComplete() {
-  // Can auto-complete when: stock empty, waste empty, all tableau cards face-up
-  if (stock.length > 0 || waste.length > 0) return false;
+  // Auto-complete is available when:
+  //   • stock is empty (no hidden cards remain in the draw pile)
+  //   • every card in the tableau is face-up (no hidden cards there either)
+  // Waste cards are already face-up so they don't block completion.
+  if (stock.length > 0) return false;
   for (let col = 0; col < 7; col++) {
     if (tableau[col].some(c => !c.faceUp)) return false;
   }
@@ -3380,8 +3447,33 @@ function autoComplete() {
   if (!canAutoComplete()) return;
   document.getElementById('autocomplete-banner').classList.add('hidden');
 
+  // Safety ceiling: prevents looping in degenerate states.
+  // With 52 cards, worst case is ~10 full waste recycles (each ≤52 draws)
+  // plus one move per card to a foundation (52) = well under 600 total steps.
+  let budget = 500;
+
   function stepMove() {
-    // Find one card to move to foundation
+    if (--budget < 0) return; // absolute safety net
+
+    // 1. Waste → foundation
+    if (waste.length > 0) {
+      const wCard = waste[waste.length - 1];
+      for (let fi = 0; fi < 4; fi++) {
+        if (canDropOnFoundation(wCard, fi)) {
+          saveHistory();
+          moveCount++;
+          waste.pop();
+          foundations[fi].push(wCard);
+          updateStats();
+          render();
+          if (foundations.every(f => f.length === 13)) { showWin(); return; }
+          setTimeout(stepMove, 80);
+          return;
+        }
+      }
+    }
+
+    // 2. Tableau → foundation
     for (let col = 0; col < 7; col++) {
       const pile = tableau[col];
       if (!pile.length) continue;
@@ -3395,15 +3487,55 @@ function autoComplete() {
           foundations[fi].push(card);
           updateStats();
           render();
-          if (foundations.every(f => f.length === 13)) {
-            showWin();
-            return;
-          }
+          if (foundations.every(f => f.length === 13)) { showWin(); return; }
           setTimeout(stepMove, 80);
           return;
         }
       }
     }
+
+    // 3. Waste → tableau (unblock: the waste top can't reach a foundation yet)
+    if (waste.length > 0) {
+      const wCard = waste[waste.length - 1];
+      for (let tc = 0; tc < 7; tc++) {
+        if (canDropOnTableau(wCard, tc)) {
+          saveHistory();
+          moveCount++;
+          waste.pop();
+          tableau[tc].push(wCard);
+          updateStats();
+          render();
+          setTimeout(stepMove, 80);
+          return;
+        }
+      }
+    }
+
+    // 4. Draw one card from stock (populated by the recycle step below)
+    if (stock.length > 0) {
+      const c = stock.pop();
+      c.faceUp = true;
+      waste.push(c);
+      moveCount++;
+      updateStats();
+      render();
+      setTimeout(stepMove, 80);
+      return;
+    }
+
+    // 5. Recycle waste into stock so we can reach buried waste cards.
+    //    This is only reached when stock is empty and waste has cards that
+    //    couldn't be played by steps 1–3 (top waste card is unplayable).
+    if (waste.length > 0) {
+      stock = [...waste].reverse().map(c => ({ ...c, faceUp: false }));
+      waste = [];
+      moveCount++;
+      updateStats();
+      render();
+      setTimeout(stepMove, 80);
+      return;
+    }
+    // Nothing left to do — stop.
   }
   stepMove();
 }

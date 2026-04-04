@@ -927,7 +927,6 @@ let startTime   = null;
 let timerInterval = null;
 let timerStarted = false;
 let cascadeAnimFrame = null;
-let drawMode    = 1;                  // draw 1 card at a time
 let gameInProgress = false;           // true once first move made in this game
 let gameWon        = false;           // true after win
 
@@ -1230,7 +1229,7 @@ function tryAutoPlace(pile, col, cardIdx) {
 function clickStock() {
   if (stock.length > 0) {
     saveHistory();
-    const count = Math.min(drawMode, stock.length);
+    const count = Math.min(1, stock.length);
     for (let i = 0; i < count; i++) {
       const c = stock.pop();
       c.faceUp = true;
@@ -1981,7 +1980,7 @@ function render() {
   wasteWrap.appendChild(wasteSlot);
 
   if (waste.length > 0) {
-    const fanCount = drawMode === 1 ? 1 : 3;
+    const fanCount = 3;
     const visCount = Math.min(fanCount, waste.length);
     for (let i = 0; i < visCount; i++) {
       const wIdx = waste.length - visCount + i;

@@ -57,6 +57,8 @@
       --col-gap:   8px;
       --board-pad: 12px;
       --header-h:  56px;
+      /* inset for .card-svg to prevent border-radius clipping corner labels */
+      --card-svg-inset: 2px;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -429,11 +431,11 @@
     /* ── Face-up ── */
     .card--face { background: var(--card-face); }
 
-    /* ── SVG card sprite art (fills entire card, inset 2 px to avoid
+    /* ── SVG card sprite art (fills entire card, inset var(--card-svg-inset) to avoid
           border-radius clipping the rank/suit corner labels) ── */
     .card-svg {
       position: absolute;
-      inset: 2px;
+      inset: var(--card-svg-inset);
       pointer-events: none;
     }
 
@@ -1889,6 +1891,19 @@ function makePipCardSVG(value, suit) {
 }
 
 /* ══════════════════════════════════════════════════════════
+   CARD BACK HTML HELPER (sprite or custom SVG fallback)
+   ══════════════════════════════════════════════════════════ */
+function makeCardBackHTML() {
+  if (spriteReady) {
+    return `<svg class="card-svg" viewBox="0 0 169.075 244.640"
+                 xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+              <use href="#back"/>
+            </svg>`;
+  }
+  return `<div class="card-back-art">${makeCardBackSVG()}</div>`;
+}
+
+/* ══════════════════════════════════════════════════════════
    BUILD CARD ELEMENT
    ══════════════════════════════════════════════════════════ */
 function makeCard(c, fromPile, fromCol, cardIdx) {
@@ -1898,17 +1913,7 @@ function makeCard(c, fromPile, fromCol, cardIdx) {
   if (!c.faceUp) {
     el.classList.add('card--back');
     el.setAttribute('aria-label', 'Face-down card');
-    if (spriteReady) {
-      el.innerHTML = `<svg class="card-svg" viewBox="0 0 169.075 244.640"
-                           xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
-                        <use href="#back"/>
-                      </svg>`;
-    } else {
-      const backArt = document.createElement('div');
-      backArt.className = 'card-back-art';
-      backArt.innerHTML = makeCardBackSVG();
-      el.appendChild(backArt);
-    }
+    el.innerHTML = makeCardBackHTML();
     return el;
   }
 
@@ -2057,17 +2062,7 @@ function render() {
     const backCard = document.createElement('div');
     backCard.className = 'card card--back';
     backCard.style.cssText = 'inset:0;width:100%;height:100%;cursor:pointer;';
-    if (spriteReady) {
-      backCard.innerHTML = `<svg class="card-svg" viewBox="0 0 169.075 244.640"
-                                 xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
-                              <use href="#back"/>
-                            </svg>`;
-    } else {
-      const stockBackArt = document.createElement('div');
-      stockBackArt.className = 'card-back-art';
-      stockBackArt.innerHTML = makeCardBackSVG();
-      backCard.appendChild(stockBackArt);
-    }
+    backCard.innerHTML = makeCardBackHTML();
     stockWrap.appendChild(backCard);
   }
   stockWrap.addEventListener('click', clickStock);

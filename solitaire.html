@@ -58,7 +58,7 @@
       --board-pad: 12px;
       --header-h:  56px;
       /* inset for .card-svg to prevent border-radius clipping corner labels */
-      --card-svg-inset: 2px;
+      --card-svg-inset: 6px;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -429,7 +429,13 @@
     .card--back { cursor: default; }
 
     /* ── Face-up ── */
-    .card--face { background: var(--card-face); }
+    .card--face {
+      background: var(--card-face);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 4px 5px;
+    }
 
     /* ── SVG card sprite art (fills entire card, inset var(--card-svg-inset) to avoid
           border-radius clipping the rank/suit corner labels) ── */
@@ -924,7 +930,7 @@
 /* ══════════════════════════════════════════════════════════
    VERSION
    ══════════════════════════════════════════════════════════ */
-const VERSION = 'v1.2.15';
+const VERSION = 'v1.2.17';
 
 /* ══════════════════════════════════════════════════════════
    CARD SPRITE (svg-cards v4, LGPL-2.1 — htdebeer/SVG-cards)
@@ -991,6 +997,51 @@ const SOL_UI_EN = {
   hint: 'Hint', autoComplete: 'Auto Complete',
   played: 'Played', won: 'Won', streak: 'Streak', best: 'Best',
   gameOver: 'Game Over',
+};
+
+// Hardcoded translations for languages where the generic API produces wrong results
+// (e.g. "Hint" → "Remarque" in French, "moves" untranslated)
+const SOL_UI_HARDCODED = {
+  fr: {
+    undo: 'Annuler', newGame: 'Nouvelle partie', moves: 'coups',
+    noMoves: 'Aucun mouvement possible', youWin: 'Victoire ✦',
+    allCards: 'Toutes les cartes placées', playAgain: 'Rejouer',
+    solitaire: 'Solitaire', hint: 'Indice', autoComplete: 'Compléter',
+    played: 'Joués', won: 'Gagnés', streak: 'Série', best: 'Meilleur',
+    gameOver: 'Partie terminée',
+  },
+  es: {
+    undo: 'Deshacer', newGame: 'Nueva partida', moves: 'movimientos',
+    noMoves: 'Sin movimientos posibles', youWin: 'Victoria ✦',
+    allCards: 'Todas las cartas colocadas', playAgain: 'Jugar de nuevo',
+    solitaire: 'Solitario', hint: 'Pista', autoComplete: 'Completar',
+    played: 'Jugadas', won: 'Ganadas', streak: 'Racha', best: 'Mejor',
+    gameOver: 'Fin de partida',
+  },
+  de: {
+    undo: 'Rückgängig', newGame: 'Neues Spiel', moves: 'Züge',
+    noMoves: 'Keine Züge mehr möglich', youWin: 'Gewonnen ✦',
+    allCards: 'Alle Karten platziert', playAgain: 'Nochmal spielen',
+    solitaire: 'Solitär', hint: 'Hinweis', autoComplete: 'Vervollständigen',
+    played: 'Gespielt', won: 'Gewonnen', streak: 'Serie', best: 'Beste',
+    gameOver: 'Spiel vorbei',
+  },
+  it: {
+    undo: 'Annulla', newGame: 'Nuova partita', moves: 'mosse',
+    noMoves: 'Nessuna mossa disponibile', youWin: 'Vittoria ✦',
+    allCards: 'Tutte le carte posizionate', playAgain: 'Gioca ancora',
+    solitaire: 'Solitario', hint: 'Suggerimento', autoComplete: 'Completare',
+    played: 'Giocate', won: 'Vinte', streak: 'Serie', best: 'Migliore',
+    gameOver: 'Partita finita',
+  },
+  pt: {
+    undo: 'Desfazer', newGame: 'Novo jogo', moves: 'movimentos',
+    noMoves: 'Sem movimentos disponíveis', youWin: 'Vitória ✦',
+    allCards: 'Todas as cartas colocadas', playAgain: 'Jogar novamente',
+    solitaire: 'Paciência', hint: 'Dica', autoComplete: 'Completar',
+    played: 'Jogadas', won: 'Ganhas', streak: 'Série', best: 'Melhor',
+    gameOver: 'Fim de jogo',
+  },
 };
 
 /* ══════════════════════════════════════════════════════════
@@ -2952,7 +3003,10 @@ function nextBackground() {
 
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('version-badge').textContent = VERSION;
+  // Use the version stored by index.html if available, so all pages stay in sync
+  let lsVersion;
+  try { lsVersion = localStorage.getItem('ataraxia_version'); } catch(e) {}
+  document.getElementById('version-badge').textContent = lsVersion || VERSION;
 });
 
 // Start: load card sprite, then deal
@@ -3173,6 +3227,14 @@ function setLanguageStatus(msg) {
 async function translateUIStrings(lang) {
   if (lang === 'en') {
     applyUIStrings(SOL_UI_EN);
+    return;
+  }
+
+  // Use hardcoded translations when available — avoids API mistranslations
+  // (e.g. "Hint" → "Remarque" in French, "moves" left untranslated)
+  if (SOL_UI_HARDCODED[lang]) {
+    _cachedUIStrings[lang] = SOL_UI_HARDCODED[lang];
+    applyUIStrings(SOL_UI_HARDCODED[lang]);
     return;
   }
 

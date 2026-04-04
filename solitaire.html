@@ -1641,6 +1641,68 @@ function makeFaceCardSVG(value) {
 }
 
 /* ══════════════════════════════════════════════════════════
+   PIP CARD SVG ART (Bicycle-style pip layouts)
+   ══════════════════════════════════════════════════════════ */
+function makePipCardSVG(value, suit) {
+  // Pip font size by card value (viewBox 0 0 100 140)
+  const pipSize = {
+    'A': 32, '2': 19, '3': 18, '4': 17, '5': 16,
+    '6': 15, '7': 14, '8': 13, '9': 12, '10': 11
+  }[value] || 14;
+
+  // [x, y, rotated180] — classic Bicycle pip positions
+  // Corners occupy ~y 0-38 and ~y 102-140, so safe zone is y 38-102
+  // but pips may overlap corners visually since corners have z-index:2
+  const positions = {
+    'A':  [[50, 70, false]],
+    '2':  [[50, 35, false], [50, 105, true]],
+    '3':  [[50, 35, false], [50, 70, false], [50, 105, true]],
+    '4':  [[30, 35, false], [70, 35, false],
+           [30, 105, true], [70, 105, true]],
+    '5':  [[30, 35, false], [70, 35, false], [50, 70, false],
+           [30, 105, true], [70, 105, true]],
+    '6':  [[30, 35, false], [70, 35, false],
+           [30, 70, false], [70, 70, false],
+           [30, 105, true], [70, 105, true]],
+    '7':  [[30, 35, false], [70, 35, false], [50, 52, false],
+           [30, 70, false], [70, 70, false],
+           [30, 105, true], [70, 105, true]],
+    '8':  [[30, 35, false], [70, 35, false], [50, 52, false],
+           [30, 70, false], [70, 70, false],
+           [50, 88, true],  [30, 105, true], [70, 105, true]],
+    '9':  [[30, 31, false], [70, 31, false],
+           [30, 54, false], [70, 54, false], [50, 70, false],
+           [30, 86, true],  [70, 86, true],
+           [30, 109, true], [70, 109, true]],
+    '10': [[30, 31, false], [70, 31, false], [50, 43, false],
+           [30, 57, false], [70, 57, false],
+           [30, 83, true],  [70, 83, true],
+           [50, 97, true],  [30, 109, true], [70, 109, true]],
+  }[value] || [];
+
+  const pips = positions.map(([x, y, rotated]) => {
+    const rot = rotated ? `transform="rotate(180 ${x} ${y})"` : '';
+    return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central"
+      font-size="${pipSize}" font-family="inherit" ${rot}>${suit}</text>`;
+  }).join('\n    ');
+
+  // Ace gets a double inner border for classic ornate look
+  const border = value === 'A'
+    ? `<rect x="5"  y="5"  width="90" height="130" rx="3"
+             fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.28"/>
+       <rect x="11" y="11" width="78" height="118" rx="2"
+             fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.18"/>`
+    : `<rect x="5" y="5" width="90" height="130" rx="3"
+             fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.28"/>`;
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140"
+              preserveAspectRatio="xMidYMid meet">
+    ${border}
+    ${pips}
+  </svg>`;
+}
+
+/* ══════════════════════════════════════════════════════════
    BUILD CARD ELEMENT
    ══════════════════════════════════════════════════════════ */
 function makeCard(c, fromPile, fromCol, cardIdx) {
@@ -1680,17 +1742,14 @@ function makeCard(c, fromPile, fromCol, cardIdx) {
 
   el.appendChild(cornerTL);
 
+  const artEl = document.createElement('div');
+  artEl.className = 'card-face-art';
   if (c.value === 'J' || c.value === 'Q' || c.value === 'K') {
-    const artEl = document.createElement('div');
-    artEl.className = 'card-face-art';
     artEl.innerHTML = makeFaceCardSVG(c.value);
-    el.appendChild(artEl);
   } else {
-    const center = document.createElement('span');
-    center.className = 'card-center';
-    center.textContent = c.suit;
-    el.appendChild(center);
+    artEl.innerHTML = makePipCardSVG(c.value, c.suit);
   }
+  el.appendChild(artEl);
 
   el.appendChild(cornerBR);
 

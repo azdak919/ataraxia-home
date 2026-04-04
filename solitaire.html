@@ -265,6 +265,7 @@
     }
     .lang-btn:hover { background: var(--bg-glass-hover); color: var(--text-primary); border-color: var(--accent); }
     .lang-btn svg { width: 14px; height: 14px; fill: currentColor; opacity: 0.7; flex-shrink: 0; }
+    .lang-btn span { max-width: 6rem; overflow: hidden; text-overflow: ellipsis; }
 
     .lang-dropdown {
       position: absolute;
@@ -2675,7 +2676,7 @@ function applyUIStrings(strings) {
   if (newGameLabel) newGameLabel.textContent = strings.newGame;
   if (movesLabel) movesLabel.textContent = strings.moves;
   if (noMovesText) noMovesText.textContent = strings.noMoves;
-  if (winTitle && !winTitle.dataset.hasScore) winTitle.textContent = strings.youWin;
+  if (winTitle) winTitle.textContent = strings.youWin;
   if (winSub && !winSub.dataset.hasScore) winSub.textContent = strings.allCards;
   if (playAgainBtn) playAgainBtn.textContent = strings.playAgain;
   if (gameTitle) gameTitle.textContent = strings.solitaire;
@@ -2718,7 +2719,7 @@ async function switchLanguage(langCode) {
   localStorage.setItem(LANG_PREF_KEY, langCode);
 
   const langData = SUPPORTED_LANGS.find(l => l.code === langCode);
-  document.getElementById('lang-label').textContent = langData ? langData.native.slice(0, 6) : langCode.toUpperCase();
+  document.getElementById('lang-label').textContent = langData ? langData.native : langCode.toUpperCase();
   document.documentElement.lang = langCode;
 
   document.querySelectorAll('.lang-option').forEach(btn => {
@@ -2775,7 +2776,7 @@ function initTranslation() {
     switchLanguage(saved);
   } else if (!saved) {
     const browserLang = (navigator.language || 'en').split('-')[0].toLowerCase();
-    if (browserLang !== 'en' && SUPPORTED_LANGS.find(l => l.code === browserLang)) {
+    if (browserLang !== 'en' && SUPPORTED_LANGS.some(l => l.code === browserLang)) {
       switchLanguage(browserLang);
     }
   }

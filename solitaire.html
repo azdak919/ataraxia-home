@@ -3421,8 +3421,11 @@ function showHint() {
    AUTO-COMPLETE — play all remaining cards to foundations
    ══════════════════════════════════════════════════════════ */
 function canAutoComplete() {
-  // Can auto-complete when: stock empty, waste empty, all tableau cards face-up
-  if (stock.length > 0 || waste.length > 0) return false;
+  // Auto-complete is available when:
+  //   • stock is empty (no hidden cards remain in the draw pile)
+  //   • every card in the tableau is face-up (no hidden cards there either)
+  // Waste cards are already face-up so they don't block completion.
+  if (stock.length > 0) return false;
   for (let col = 0; col < 7; col++) {
     if (tableau[col].some(c => !c.faceUp)) return false;
   }
@@ -3445,7 +3448,25 @@ function autoComplete() {
   document.getElementById('autocomplete-banner').classList.add('hidden');
 
   function stepMove() {
-    // Find one card to move to foundation
+    // 1. Try waste → foundation
+    if (waste.length > 0) {
+      const wCard = waste[waste.length - 1];
+      for (let fi = 0; fi < 4; fi++) {
+        if (canDropOnFoundation(wCard, fi)) {
+          saveHistory();
+          moveCount++;
+          waste.pop();
+          foundations[fi].push(wCard);
+          updateStats();
+          render();
+          if (foundations.every(f => f.length === 13)) { showWin(); return; }
+          setTimeout(stepMove, 80);
+          return;
+        }
+      }
+    }
+
+    // 2. Try tableau → foundation
     for (let col = 0; col < 7; col++) {
       const pile = tableau[col];
       if (!pile.length) continue;
@@ -3459,14 +3480,56 @@ function autoComplete() {
           foundations[fi].push(card);
           updateStats();
           render();
-          if (foundations.every(f => f.length === 13)) {
-            showWin();
-            return;
-          }
+          if (foundations.every(f => f.length === 13)) { showWin(); return; }
           setTimeout(stepMove, 80);
           return;
         }
       }
+    }
+
+    // 3. Try waste → tableau (unblock: waste card not yet playable to foundation)
+    if (waste.length > 0) {
+      const wCard = waste[waste.length - 1];
+      for (let tc = 0; tc < 7; tc++) {
+        if (canDropOnTableau(wCard, tc)) {
+          saveHistory();
+          moveCount++;
+          waste.pop();
+          tableau[tc].push(wCard);
+          updateStats();
+          render();
+          setTimeout(stepMove, 80);
+          return;
+        }
+      }
+    }
+
+    // 4. Recycle waste into stock so we can reach remaining waste cards
+    if (waste.length > 0 && stock.length === 0) {
+      saveHistory();
+      stock = [...waste].reverse().map(c => ({ ...c, faceUp: false }));
+      waste = [];
+      // Draw one card at a time until we find something playable
+      function drawAndStep() {
+        if (stock.length === 0) { setTimeout(stepMove, 80); return; }
+        const c = stock.pop();
+        c.faceUp = true;
+        waste.push(c);
+        moveCount++;
+        updateStats();
+        render();
+        // Check if this newly drawn card can go somewhere useful
+        const top = waste[waste.length - 1];
+        const canFoundation = Array.from({ length: 4 }, (_, fi) => canDropOnFoundation(top, fi)).some(Boolean);
+        const canTab = Array.from({ length: 7 }, (_, tc) => canDropOnTableau(top, tc)).some(Boolean);
+        if (canFoundation || canTab) {
+          setTimeout(stepMove, 80);
+        } else {
+          setTimeout(drawAndStep, 80);
+        }
+      }
+      setTimeout(drawAndStep, 80);
+      return;
     }
   }
   stepMove();

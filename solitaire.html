@@ -453,6 +453,8 @@
       align-items: center;
       line-height: 1;
       gap: 0px;
+      position: relative;
+      z-index: 2;
     }
     .card-corner--br {
       align-self: flex-end;
@@ -475,6 +477,15 @@
       font-size: clamp(18px, calc(var(--card-w) * 0.52), 42px);
       line-height: 1;
       pointer-events: none;
+    }
+    .card-face-art {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
     }
 
     /* ── Selected ── */
@@ -1472,6 +1483,164 @@ function overlapDown() { return Math.min(16, getCardH() * 0.155); }
 function overlapUp()   { return Math.min(28, getCardH() * 0.28);  }
 
 /* ══════════════════════════════════════════════════════════
+   FACE CARD SVG ART (Bicycle-style portraits)
+   ══════════════════════════════════════════════════════════ */
+function makeFaceCardSVG(value) {
+  // Each portrait is drawn for the top half (viewBox 0 0 100 140),
+  // then mirrored 180° for the bottom half — classic two-way card design.
+  const portraits = {
+    K: `
+      <!-- Crown: 3 peaks with jewels -->
+      <polygon points="20,24 24,10 32,19 40,6 50,2 60,6 68,19 76,10 80,24"
+               fill="currentColor" stroke="currentColor" stroke-width="0.5" stroke-linejoin="round"/>
+      <rect x="20" y="23" width="60" height="5" rx="1.5" fill="currentColor"/>
+      <circle cx="40" cy="9"  r="2.2" fill="white" opacity="0.85"/>
+      <circle cx="50" cy="4"  r="2.5" fill="white" opacity="0.85"/>
+      <circle cx="60" cy="9"  r="2.2" fill="white" opacity="0.85"/>
+      <!-- Face -->
+      <ellipse cx="50" cy="40" rx="13" ry="14"
+               fill="var(--card-face,#fff)" stroke="currentColor" stroke-width="1.5"/>
+      <!-- Eyes -->
+      <ellipse cx="44" cy="36" rx="2" ry="2.5" fill="currentColor"/>
+      <ellipse cx="56" cy="36" rx="2" ry="2.5" fill="currentColor"/>
+      <!-- Eyebrows -->
+      <path d="M40,31 Q44,28 48,31" stroke="currentColor" stroke-width="1.5"
+            fill="none" stroke-linecap="round"/>
+      <path d="M52,31 Q56,28 60,31" stroke="currentColor" stroke-width="1.5"
+            fill="none" stroke-linecap="round"/>
+      <!-- Nose -->
+      <path d="M49,38 L47,43 L53,43" stroke="currentColor" stroke-width="1"
+            fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+      <!-- Mustache -->
+      <path d="M43,46 Q46,49 50,47 Q54,49 57,46"
+            stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <!-- Beard -->
+      <path d="M38,49 C36,57 38,63 50,65 C62,63 64,57 62,49 Q56,54 50,54 Q44,54 38,49 Z"
+            fill="currentColor" opacity="0.85"/>
+      <!-- Robe -->
+      <path d="M30,65 L26,70 L74,70 L70,65 C62,59 38,59 30,65 Z"
+            fill="currentColor" opacity="0.75"/>
+      <!-- Robe V-collar -->
+      <path d="M42,61 L50,56 L58,61" stroke="white" stroke-width="1.2"
+            fill="none" opacity="0.65"/>
+      <!-- Sword (behind figure, subtle) -->
+      <line x1="50" y1="28" x2="50" y2="69"
+            stroke="currentColor" stroke-width="1.2" opacity="0.35"/>
+      <!-- Crossguard -->
+      <line x1="43" y1="63" x2="57" y2="63"
+            stroke="currentColor" stroke-width="2.5" opacity="0.85"/>
+      <circle cx="50" cy="28" r="2.5" fill="currentColor" opacity="0.8"/>
+    `,
+    Q: `
+      <!-- Crown: 5 peaks, ornate -->
+      <polygon points="22,24 24,12 30,19 36,8 42,16 50,5 58,16 64,8 70,19 76,12 78,24"
+               fill="currentColor" stroke="currentColor" stroke-width="0.5" stroke-linejoin="round"/>
+      <rect x="22" y="23" width="56" height="4" rx="1.5" fill="currentColor"/>
+      <circle cx="36" cy="10" r="2"   fill="white" opacity="0.85"/>
+      <circle cx="50" cy="7"  r="2.5" fill="white" opacity="0.85"/>
+      <circle cx="64" cy="10" r="2"   fill="white" opacity="0.85"/>
+      <!-- Hair on sides -->
+      <path d="M37,48 C33,44 32,36 36,30 C34,34 35,42 38,46"
+            stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.7"/>
+      <path d="M63,48 C67,44 68,36 64,30 C66,34 65,42 62,46"
+            stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.7"/>
+      <!-- Face -->
+      <ellipse cx="50" cy="39" rx="12" ry="13"
+               fill="var(--card-face,#fff)" stroke="currentColor" stroke-width="1.5"/>
+      <!-- Eyes -->
+      <ellipse cx="44" cy="35" rx="2" ry="2.5" fill="currentColor"/>
+      <ellipse cx="56" cy="35" rx="2" ry="2.5" fill="currentColor"/>
+      <!-- Eyelashes / brows -->
+      <path d="M40,31 Q44,28 48,31" stroke="currentColor" stroke-width="1.3"
+            fill="none" stroke-linecap="round"/>
+      <path d="M52,31 Q56,28 60,31" stroke="currentColor" stroke-width="1.3"
+            fill="none" stroke-linecap="round"/>
+      <!-- Nose -->
+      <path d="M49,37 L47,41 L53,41" stroke="currentColor" stroke-width="1"
+            fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+      <!-- Lips -->
+      <path d="M45,47 Q50,51 55,47" stroke="currentColor" stroke-width="2"
+            fill="none" stroke-linecap="round"/>
+      <path d="M45,47 Q50,44 55,47" stroke="currentColor" stroke-width="1.2"
+            fill="none" stroke-linecap="round" opacity="0.45"/>
+      <!-- Robe / gown -->
+      <path d="M30,52 C28,60 28,70 72,70 C72,60 70,52 64,48 Q56,43 44,43 Q38,43 30,52 Z"
+            fill="currentColor" opacity="0.72"/>
+      <!-- Neckline detail -->
+      <path d="M39,51 Q50,45 61,51" stroke="white" stroke-width="1.2"
+            fill="none" opacity="0.65"/>
+      <!-- Orb/scepter in right hand -->
+      <line x1="67" y1="46" x2="67" y2="68" stroke="currentColor" stroke-width="2" opacity="0.65"/>
+      <circle cx="67" cy="44" r="4.5"
+              fill="var(--card-face,#fff)" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="67" cy="44" r="2"   fill="currentColor" opacity="0.65"/>
+    `,
+    J: `
+      <!-- Wide hat brim -->
+      <ellipse cx="50" cy="22" rx="29" ry="5.5" fill="currentColor" opacity="0.88"/>
+      <!-- Hat crown -->
+      <path d="M28,22 L30,7 L70,7 L72,22 Z" fill="currentColor" opacity="0.88"/>
+      <!-- Hat highlight -->
+      <line x1="31" y1="8" x2="69" y2="8" stroke="white" stroke-width="1" opacity="0.35"/>
+      <!-- Hat band -->
+      <rect x="29" y="18" width="42" height="4" rx="1" fill="white" opacity="0.2"/>
+      <!-- Feather plume -->
+      <path d="M30,21 C26,16 22,10 24,6 C26,10 28,12 30,9 C28,13 24,15 28,19"
+            fill="currentColor" opacity="0.78"/>
+      <path d="M26,18 C22,13 20,8 22,5 C25,9 24,13 26,16"
+            fill="currentColor" opacity="0.55"/>
+      <!-- Face -->
+      <ellipse cx="50" cy="38" rx="12" ry="13"
+               fill="var(--card-face,#fff)" stroke="currentColor" stroke-width="1.5"/>
+      <!-- Eyes -->
+      <ellipse cx="44" cy="34" rx="2" ry="2.5" fill="currentColor"/>
+      <ellipse cx="56" cy="34" rx="2" ry="2.5" fill="currentColor"/>
+      <!-- Eyebrows (young, slightly arched) -->
+      <path d="M41,30 Q44,27 47,30" stroke="currentColor" stroke-width="1.4"
+            fill="none" stroke-linecap="round"/>
+      <path d="M53,30 Q56,27 59,30" stroke="currentColor" stroke-width="1.4"
+            fill="none" stroke-linecap="round"/>
+      <!-- Nose -->
+      <path d="M50,36 L48,40 L52,40" stroke="currentColor" stroke-width="1"
+            fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+      <!-- Slight smile -->
+      <path d="M44,45 Q50,49 56,45" stroke="currentColor" stroke-width="1.5"
+            fill="none" stroke-linecap="round"/>
+      <!-- Tunic / body -->
+      <path d="M32,52 L28,70 L72,70 L68,52 C60,47 40,47 32,52 Z"
+            fill="currentColor" opacity="0.7"/>
+      <!-- Tunic collar -->
+      <path d="M40,52 L50,47 L60,52" stroke="white" stroke-width="1.2"
+            fill="none" opacity="0.65"/>
+      <!-- Tunic cross-belt detail -->
+      <path d="M32,56 L68,64" stroke="white" stroke-width="1" opacity="0.25"/>
+      <path d="M32,64 L68,56" stroke="white" stroke-width="1" opacity="0.25"/>
+      <!-- Halberd / polearm -->
+      <line x1="72" y1="28" x2="65" y2="70"
+            stroke="currentColor" stroke-width="2" opacity="0.72" stroke-linecap="round"/>
+      <!-- Blade -->
+      <path d="M68,28 L76,23 L75,33 L68,31 Z" fill="currentColor" opacity="0.82"/>
+    `
+  };
+
+  const top = portraits[value] || '';
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140"
+              preserveAspectRatio="xMidYMid meet">
+    <!-- Inner border frame -->
+    <rect x="4" y="4" width="92" height="132" rx="3"
+          fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.28"/>
+    <!-- Centre divider -->
+    <line x1="5" y1="70" x2="95" y2="70"
+          stroke="currentColor" stroke-width="0.6" opacity="0.2"/>
+    <!-- Top half portrait -->
+    <g>${top}</g>
+    <!-- Bottom half: mirrored 180° -->
+    <g transform="translate(100,140) rotate(180)">${top}</g>
+  </svg>`;
+}
+
+/* ══════════════════════════════════════════════════════════
    BUILD CARD ELEMENT
    ══════════════════════════════════════════════════════════ */
 function makeCard(c, fromPile, fromCol, cardIdx) {
@@ -1504,17 +1673,25 @@ function makeCard(c, fromPile, fromCol, cardIdx) {
   cornerTL.innerHTML =
     `<span class="card-val">${c.value}</span><span class="card-suit-sm">${c.suit}</span>`;
 
-  const center = document.createElement('span');
-  center.className = 'card-center';
-  center.textContent = c.suit;
-
   const cornerBR = document.createElement('div');
   cornerBR.className = 'card-corner card-corner--br';
   cornerBR.innerHTML =
     `<span class="card-val">${c.value}</span><span class="card-suit-sm">${c.suit}</span>`;
 
   el.appendChild(cornerTL);
-  el.appendChild(center);
+
+  if (c.value === 'J' || c.value === 'Q' || c.value === 'K') {
+    const artEl = document.createElement('div');
+    artEl.className = 'card-face-art';
+    artEl.innerHTML = makeFaceCardSVG(c.value);
+    el.appendChild(artEl);
+  } else {
+    const center = document.createElement('span');
+    center.className = 'card-center';
+    center.textContent = c.suit;
+    el.appendChild(center);
+  }
+
   el.appendChild(cornerBR);
 
   // Interactions

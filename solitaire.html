@@ -1947,7 +1947,7 @@ function makePipCardSVG(value, suit) {
 function makeCardBackHTML() {
   if (spriteReady) {
     return `<svg class="card-svg" viewBox="0 0 169.075 244.640"
-                 xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+                 xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
               <use href="#back"/>
             </svg>`;
   }
@@ -2005,7 +2005,7 @@ function makeCardFaceHTML(c) {
     const v = VALUE_MAP[c.value] || c.value;
     const s = SUIT_MAP[c.suit];
     return `<svg class="card-svg" viewBox="0 0 169.075 244.640"
-                 xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+                 xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
               <use href="#${s}_${v}"/>
             </svg>`;
   }
@@ -2188,7 +2188,7 @@ function render() {
       const dy = prev.top - curr.top;
       if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
       el.animate(
-        [{ translate: `${dx}px ${dy}px` }, { translate: '0px 0px' }],
+        [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'translate(0px, 0px)' }],
         { duration: 200, easing: 'cubic-bezier(0.2, 0, 0.2, 1)', fill: 'none' }
       );
     });

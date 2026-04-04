@@ -3448,7 +3448,8 @@ function autoComplete() {
   document.getElementById('autocomplete-banner').classList.add('hidden');
 
   // Safety ceiling: prevents looping in degenerate states.
-  // 52 cards × ~4 steps each + draws + recycles is well under 500.
+  // With 52 cards, worst case is ~10 full waste recycles (each ≤52 draws)
+  // plus one move per card to a foundation (52) = well under 600 total steps.
   let budget = 500;
 
   function stepMove() {

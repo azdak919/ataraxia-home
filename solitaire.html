@@ -612,53 +612,6 @@
     }
 
     /* ════════════════════════════════════════
-       NO-MOVES BANNER (kept for layout; hidden — game-over overlay used instead)
-       ════════════════════════════════════════ */
-    #no-moves-banner { display: none; }
-
-    /* ════════════════════════════════════════
-       GAME-OVER OVERLAY
-       ════════════════════════════════════════ */
-    #game-over-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 300;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.4rem;
-      background: rgba(245, 240, 235, 0.88);
-      backdrop-filter: blur(14px) saturate(1.2);
-      -webkit-backdrop-filter: blur(14px) saturate(1.2);
-      animation: overlayFadeIn 0.5s ease;
-    }
-    @media (prefers-color-scheme: dark) {
-      #game-over-overlay { background: rgba(26, 24, 22, 0.88); }
-    }
-    #game-over-overlay.hidden { display: none; }
-    .game-over-icon {
-      font-size: clamp(2rem, 8vw, 3rem);
-      margin-bottom: 0.2rem;
-      animation: winSlideUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
-    }
-    #game-over-title {
-      font-size: clamp(2.2rem, 8vw, 3.8rem);
-      font-weight: 300;
-      letter-spacing: 0.04em;
-      color: var(--card-red);
-      animation: winSlideUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
-    }
-    #game-over-sub {
-      font-size: 0.88rem;
-      color: var(--text-muted);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-bottom: 1.6rem;
-      animation: winSlideUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
-    }
-
-    /* ════════════════════════════════════════
        HINT HIGHLIGHT
        ════════════════════════════════════════ */
     .card--hint {
@@ -880,11 +833,6 @@
   <span><span id="stat-time">0:00</span></span>
 </div>
 
-<!-- ══════════════════════ NO-MOVES BANNER ══════════════════════ -->
-<div id="no-moves-banner" class="hidden" role="alert">
-  <span id="no-moves-text">No more moves available</span>
-</div>
-
 <!-- ══════════════════════ AUTO-COMPLETE BANNER ══════════════════════ -->
 <div id="autocomplete-banner" class="hidden" role="complementary">
   <button id="autocomplete-btn">Auto Complete</button>
@@ -916,14 +864,6 @@
     </div>
   </div>
   <button class="win-btn" id="play-again-btn">Play Again</button>
-</div>
-
-<!-- ══════════════════════ GAME-OVER OVERLAY ══════════════════════ -->
-<div id="game-over-overlay" class="hidden" role="dialog" aria-live="polite" aria-label="Game over">
-  <div class="game-over-icon" aria-hidden="true">✕</div>
-  <div id="game-over-title">Game Over</div>
-  <div id="game-over-sub">No more moves available</div>
-  <button class="win-btn" id="game-over-btn">New Game</button>
 </div>
 
 <!-- ══════════════════════ CASCADE CONTAINER ══════════════════════ -->
@@ -1010,11 +950,10 @@ let currentLang = 'en';
 let _cachedUIStrings = {};
 const SOL_UI_EN = {
   undo: 'Undo', newGame: 'New Game', moves: 'moves',
-  noMoves: 'No more moves available', youWin: 'You Win ✦',
+  youWin: 'You Win ✦',
   allCards: 'All cards placed', playAgain: 'Play Again', solitaire: 'Solitaire',
   hint: 'Hint', autoComplete: 'Auto Complete',
   played: 'Played', won: 'Won', streak: 'Streak', best: 'Best',
-  gameOver: 'Game Over',
 };
 
 // Hardcoded translations for languages where the generic API produces wrong results
@@ -1022,43 +961,38 @@ const SOL_UI_EN = {
 const SOL_UI_HARDCODED = {
   fr: {
     undo: 'Annuler', newGame: 'Nouvelle partie', moves: 'coups',
-    noMoves: 'Aucun mouvement possible', youWin: 'Victoire ✦',
+    youWin: 'Victoire ✦',
     allCards: 'Toutes les cartes placées', playAgain: 'Rejouer',
     solitaire: 'Solitaire', hint: 'Indice', autoComplete: 'Compléter',
     played: 'Joués', won: 'Gagnés', streak: 'Série', best: 'Meilleur',
-    gameOver: 'Partie terminée',
   },
   es: {
     undo: 'Deshacer', newGame: 'Nueva partida', moves: 'movimientos',
-    noMoves: 'Sin movimientos posibles', youWin: 'Victoria ✦',
+    youWin: 'Victoria ✦',
     allCards: 'Todas las cartas colocadas', playAgain: 'Jugar de nuevo',
     solitaire: 'Solitario', hint: 'Pista', autoComplete: 'Completar',
     played: 'Jugadas', won: 'Ganadas', streak: 'Racha', best: 'Mejor',
-    gameOver: 'Fin de partida',
   },
   de: {
     undo: 'Rückgängig', newGame: 'Neues Spiel', moves: 'Züge',
-    noMoves: 'Keine Züge mehr möglich', youWin: 'Gewonnen ✦',
+    youWin: 'Gewonnen ✦',
     allCards: 'Alle Karten platziert', playAgain: 'Nochmal spielen',
     solitaire: 'Solitär', hint: 'Hinweis', autoComplete: 'Vervollständigen',
     played: 'Gespielt', won: 'Gewonnen', streak: 'Serie', best: 'Beste',
-    gameOver: 'Spiel vorbei',
   },
   it: {
     undo: 'Annulla', newGame: 'Nuova partita', moves: 'mosse',
-    noMoves: 'Nessuna mossa disponibile', youWin: 'Vittoria ✦',
+    youWin: 'Vittoria ✦',
     allCards: 'Tutte le carte posizionate', playAgain: 'Gioca ancora',
     solitaire: 'Solitario', hint: 'Suggerimento', autoComplete: 'Completare',
     played: 'Giocate', won: 'Vinte', streak: 'Serie', best: 'Migliore',
-    gameOver: 'Partita finita',
   },
   pt: {
     undo: 'Desfazer', newGame: 'Novo jogo', moves: 'movimentos',
-    noMoves: 'Sem movimentos disponíveis', youWin: 'Vitória ✦',
+    youWin: 'Vitória ✦',
     allCards: 'Todas as cartas colocadas', playAgain: 'Jogar novamente',
     solitaire: 'Paciência', hint: 'Dica', autoComplete: 'Completar',
     played: 'Jogadas', won: 'Ganhas', streak: 'Série', best: 'Melhor',
-    gameOver: 'Fim de jogo',
   },
 };
 
@@ -1096,11 +1030,6 @@ function shuffle(arr) {
    NEW GAME
    ══════════════════════════════════════════════════════════ */
 function newGame() {
-  // If a game was in progress but not won, record as a loss
-  if (gameInProgress && !gameWon) {
-    recordGameResult(false);
-  }
-
   const deck = shuffle(createDeck());
   foundations = [[], [], [], []];
   tableau     = Array.from({ length: 7 }, () => []);
@@ -1137,7 +1066,6 @@ function newGame() {
   }
   clearCascade();
   clearHint();
-  hideBanner();
   updateAutoCompleteUI();
   updateStats();
   render();
@@ -1166,7 +1094,6 @@ function undoMove() {
   selected    = null;
   updateUndoBtn();
   render();
-  checkNoMoves();
 }
 
 function updateUndoBtn() {
@@ -1359,7 +1286,6 @@ function clickStock() {
   moveCount++;
   updateStats();
   render();
-  checkNoMoves();
   updateAutoCompleteUI();
 }
 
@@ -1375,7 +1301,6 @@ function onCardClick(e, fromPile, fromCol, cardIdx) {
     if (tryAutoFoundation(fromPile, fromCol)) {
       render();
       checkWin();
-      checkNoMoves();
     }
     return;
   }
@@ -1410,14 +1335,12 @@ function onCardClick(e, fromPile, fromCol, cardIdx) {
       selected = null;
       render();
       checkWin();
-      checkNoMoves();
     } else {
       // Manual move failed — auto-place the clicked card instead
       selected = null;
       if (tryAutoPlace(fromPile, fromCol, cardIdx)) {
         render();
         checkWin();
-        checkNoMoves();
       } else {
         // Nothing worked — select the clicked card for manual drag
         onCardClick(e, fromPile, fromCol, cardIdx);
@@ -1430,7 +1353,6 @@ function onCardClick(e, fromPile, fromCol, cardIdx) {
   if (tryAutoPlace(fromPile, fromCol, cardIdx)) {
     render();
     checkWin();
-    checkNoMoves();
     return;
   }
 
@@ -1464,7 +1386,6 @@ function onSlotClick(e, toPile, toCol) {
     selected = null;
     render();
     checkWin();
-    checkNoMoves();
   }
 }
 
@@ -1529,7 +1450,6 @@ function onDrop(e, toPile, toCol) {
   if (moved) {
     render();
     checkWin();
-    checkNoMoves();
   }
 }
 
@@ -1669,56 +1589,6 @@ function updateStats() {
   const timeEl  = document.getElementById('stat-time');
   if (movesEl) movesEl.textContent = moveCount;
   if (timeEl) timeEl.textContent = startTime ? formatTime(Date.now() - startTime) : '0:00';
-}
-
-/* ══════════════════════════════════════════════════════════
-   NO-MOVES BANNER
-   ══════════════════════════════════════════════════════════ */
-function checkNoMoves() {
-  // If stock has cards, a move is always available (draw)
-  if (stock.length > 0) { hideBanner(); return; }
-
-  // Waste can be recycled or played
-  if (waste.length > 0) {
-    const wCard = waste[waste.length - 1];
-    for (let fi = 0; fi < 4; fi++) if (canDropOnFoundation(wCard, fi)) { hideBanner(); return; }
-    for (let tc = 0; tc < 7; tc++) if (canDropOnTableau(wCard, tc))    { hideBanner(); return; }
-    // Waste can be recycled, but only useful if some waste card can actually be played
-    for (let wi = 0; wi < waste.length; wi++) {
-      const wc = waste[wi];
-      for (let fi = 0; fi < 4; fi++) if (canDropOnFoundation(wc, fi)) { hideBanner(); return; }
-      for (let tc = 0; tc < 7; tc++) if (canDropOnTableau(wc, tc))    { hideBanner(); return; }
-    }
-    // No waste card is playable — fall through to tableau check
-  }
-
-  // Stock and waste both empty — check tableau only
-  for (let col = 0; col < 7; col++) {
-    const pile = tableau[col];
-    for (let ci = 0; ci < pile.length; ci++) {
-      if (!pile[ci].faceUp) continue;
-      const card = pile[ci];
-      if (ci === pile.length - 1) {
-        for (let fi = 0; fi < 4; fi++) if (canDropOnFoundation(card, fi)) { hideBanner(); return; }
-      }
-      for (let tc = 0; tc < 7; tc++) {
-        if (tc === col) continue;
-        if (canDropOnTableau(card, tc)) { hideBanner(); return; }
-      }
-    }
-  }
-
-  showBanner();
-}
-
-function showBanner() {
-  const o = document.getElementById('game-over-overlay');
-  if (o) o.classList.remove('hidden');
-}
-
-function hideBanner() {
-  const o = document.getElementById('game-over-overlay');
-  if (o) o.classList.add('hidden');
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -2259,7 +2129,6 @@ document.getElementById('play-again-btn').addEventListener('click', newGame);
 document.getElementById('undo-btn').addEventListener('click', undoMove);
 document.getElementById('hint-btn').addEventListener('click', showHint);
 document.getElementById('autocomplete-btn').addEventListener('click', autoComplete);
-document.getElementById('game-over-btn').addEventListener('click', newGame);
 
 // Keyboard shortcuts
 document.addEventListener('keydown', e => {
@@ -3251,7 +3120,6 @@ function applyUIStrings(strings) {
   const undoLabel = document.getElementById('undo-label');
   const newGameLabel = document.getElementById('new-game-label');
   const movesLabel = document.getElementById('moves-label');
-  const noMovesText = document.getElementById('no-moves-text');
   const winTitle = document.getElementById('win-title');
   const winSub = document.getElementById('win-sub');
   const playAgainBtn = document.getElementById('play-again-btn');
@@ -3262,14 +3130,10 @@ function applyUIStrings(strings) {
   const wonLabel = document.getElementById('stat-won-label');
   const streakLabel = document.getElementById('stat-streak-label');
   const bestLabel = document.getElementById('stat-best-label');
-  const gameOverTitle = document.getElementById('game-over-title');
-  const gameOverSub = document.getElementById('game-over-sub');
-  const gameOverBtn = document.getElementById('game-over-btn');
 
   if (undoLabel) undoLabel.textContent = strings.undo;
   if (newGameLabel) newGameLabel.textContent = strings.newGame;
   if (movesLabel) movesLabel.textContent = strings.moves;
-  if (noMovesText) noMovesText.textContent = strings.noMoves;
   if (winTitle) winTitle.textContent = strings.youWin;
   if (winSub && !winSub.dataset.hasScore) winSub.textContent = strings.allCards;
   if (playAgainBtn) playAgainBtn.textContent = strings.playAgain;
@@ -3280,9 +3144,6 @@ function applyUIStrings(strings) {
   if (wonLabel) wonLabel.textContent = strings.won;
   if (streakLabel) streakLabel.textContent = strings.streak;
   if (bestLabel) bestLabel.textContent = strings.best;
-  if (gameOverTitle) gameOverTitle.textContent = strings.gameOver;
-  if (gameOverSub) gameOverSub.textContent = strings.noMoves;
-  if (gameOverBtn) gameOverBtn.textContent = strings.newGame;
 }
 
 function setLanguageStatus(msg) {

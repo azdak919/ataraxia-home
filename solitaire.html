@@ -601,6 +601,75 @@
     #no-moves-banner.hidden { display: none; }
 
     /* ════════════════════════════════════════
+       HINT HIGHLIGHT
+       ════════════════════════════════════════ */
+    .card--hint {
+      animation: hint-pulse 0.75s ease-in-out infinite !important;
+      box-shadow: 0 0 0 3px #f5c518, 0 4px 18px rgba(245,197,24,0.55) !important;
+      z-index: 50 !important;
+    }
+    .slot--hint {
+      background: rgba(245,197,24,0.22) !important;
+      border-color: #f5c518 !important;
+      box-shadow: 0 0 0 2px #f5c518, 0 4px 14px rgba(245,197,24,0.45) !important;
+    }
+    @keyframes hint-pulse {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-4px); }
+    }
+
+    /* ════════════════════════════════════════
+       AUTO-COMPLETE BANNER
+       ════════════════════════════════════════ */
+    #autocomplete-banner {
+      text-align: center;
+      padding: 0.45rem 1rem;
+      background: rgba(139,111,78,0.14);
+      border-bottom: 1px solid rgba(139,111,78,0.28);
+    }
+    #autocomplete-banner.hidden { display: none; }
+    #autocomplete-btn {
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.38rem 1.4rem;
+      border-radius: 100px;
+      border: 1px solid var(--accent);
+      background: transparent;
+      color: var(--accent);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    #autocomplete-btn:hover { background: var(--accent); color: #fff; }
+
+    /* ════════════════════════════════════════
+       WIN STATS
+       ════════════════════════════════════════ */
+    .win-stats {
+      display: flex;
+      gap: 1.8rem;
+      margin-bottom: 0.6rem;
+      animation: winSlideUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
+    }
+    .win-stat {
+      text-align: center;
+    }
+    .win-stat-value {
+      font-size: 1.4rem;
+      font-weight: 300;
+      color: var(--accent);
+      line-height: 1.2;
+    }
+    .win-stat-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* ════════════════════════════════════════
        REDUCED MOTION (was after cascadeFall keyframes, now after cascade-card)
        ════════════════════════════════════════ */
     @media (prefers-reduced-motion: reduce) {
@@ -730,6 +799,18 @@
       </svg>
       <span id="new-game-label">New Game</span>
     </button>
+    <button class="ctrl-btn" id="draw-mode-btn" aria-label="Toggle draw mode" title="Draw mode">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M2 4v3h.01L2 20c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2L22 4H2zm2 16V8h12v12H4zm14-10h2v8h-2v-8zm-2-2H4V6h12v2z"/>
+      </svg>
+      <span id="draw-mode-label">Draw 3</span>
+    </button>
+    <button class="ctrl-btn" id="hint-btn" aria-label="Show a hint (H)" title="Hint (H)">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/>
+      </svg>
+      <span>Hint</span>
+    </button>
     <button class="ctrl-btn" id="card-style-btn" aria-label="Change card back style" title="Card back color">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
@@ -758,6 +839,11 @@
   <span id="no-moves-text">No more moves available</span>
 </div>
 
+<!-- ══════════════════════ AUTO-COMPLETE BANNER ══════════════════════ -->
+<div id="autocomplete-banner" class="hidden" role="complementary">
+  <button id="autocomplete-btn">Auto Complete</button>
+</div>
+
 <!-- ══════════════════════ GAME BOARD (rendered by JS) ══════════════════════ -->
 <div id="game-board" role="main" aria-label="Solitaire game board"></div>
 
@@ -765,6 +851,20 @@
 <div id="win-overlay" class="hidden" role="dialog" aria-live="polite" aria-label="You win">
   <div class="win-title" id="win-title">You Win ✦</div>
   <div class="win-sub" id="win-sub">All cards placed</div>
+  <div class="win-stats" id="win-stats">
+    <div class="win-stat">
+      <div class="win-stat-value" id="stat-win-played">—</div>
+      <div class="win-stat-label">Played</div>
+    </div>
+    <div class="win-stat">
+      <div class="win-stat-value" id="stat-win-won">—</div>
+      <div class="win-stat-label">Won</div>
+    </div>
+    <div class="win-stat">
+      <div class="win-stat-value" id="stat-win-streak">—</div>
+      <div class="win-stat-label">Streak</div>
+    </div>
+  </div>
   <button class="win-btn" id="play-again-btn">Play Again</button>
 </div>
 
@@ -830,6 +930,18 @@ let startTime   = null;
 let timerInterval = null;
 let timerStarted = false;
 let cascadeAnimFrame = null;
+let drawMode    = 3;                  // 1 or 3 — draw mode
+let gameInProgress = false;           // true once first move made in this game
+let gameWon        = false;           // true after win
+
+// Statistics (loaded from localStorage)
+let gamesPlayed = 0;
+let gamesWon    = 0;
+let winStreak   = 0;
+let bestTime    = Infinity;
+
+// Hint state
+let hintTimer   = null;
 
 // Translation state (populated later by initTranslation)
 let currentLang = 'en';
@@ -874,6 +986,13 @@ function shuffle(arr) {
    NEW GAME
    ══════════════════════════════════════════════════════════ */
 function newGame() {
+  // If a game was in progress but not won, count it as played (loss)
+  if (gameInProgress && !gameWon) {
+    gamesPlayed++;
+    winStreak = 0;
+    saveGameStats();
+  }
+
   const deck = shuffle(createDeck());
   foundations = [[], [], [], []];
   tableau     = Array.from({ length: 7 }, () => []);
@@ -883,6 +1002,8 @@ function newGame() {
   moveCount   = 0;
   startTime   = null;
   timerStarted = false;
+  gameInProgress = false;
+  gameWon        = false;
   if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
 
   // Deal tableau: column i gets i+1 cards, last face-up
@@ -907,7 +1028,9 @@ function newGame() {
     winSubEl.textContent = strings.allCards || SOL_UI_EN.allCards;
   }
   clearCascade();
+  clearHint();
   hideBanner();
+  updateAutoCompleteUI();
   updateStats();
   render();
 }
@@ -1027,6 +1150,8 @@ function executeMove(from, to) {
   }
 
   flipExposed();
+  clearHint();
+  updateAutoCompleteUI();
   return true;
 }
 
@@ -1110,7 +1235,7 @@ function tryAutoPlace(pile, col, cardIdx) {
 function clickStock() {
   if (stock.length > 0) {
     saveHistory();
-    const count = Math.min(3, stock.length);
+    const count = Math.min(drawMode, stock.length);
     for (let i = 0; i < count; i++) {
       const c = stock.pop();
       c.faceUp = true;
@@ -1122,10 +1247,12 @@ function clickStock() {
     waste = [];
   }
   selected = null;
+  clearHint();
   moveCount++;
   updateStats();
   render();
   checkNoMoves();
+  updateAutoCompleteUI();
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -1307,12 +1434,24 @@ function checkWin() {
 
 function showWin() {
   if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+
+  // Track statistics
+  gameWon = true;
+  gamesPlayed++;
+  gamesWon++;
+  winStreak++;
+  const elapsed = startTime ? Date.now() - startTime : 0;
+  if (elapsed > 0 && elapsed < bestTime) bestTime = elapsed;
+  saveGameStats();
+  updateWinStats();
+
   const winSubEl = document.getElementById('win-sub');
   if (winSubEl) {
     const movesWord = (_cachedUIStrings[currentLang] && _cachedUIStrings[currentLang].moves) || SOL_UI_EN.moves;
-    winSubEl.textContent = `${moveCount} ${movesWord} · ${formatTime(Date.now() - startTime)}`;
+    winSubEl.textContent = `${moveCount} ${movesWord} · ${formatTime(elapsed)}`;
     winSubEl.dataset.hasScore = '1';
   }
+  updateAutoCompleteUI();
   document.getElementById('win-overlay').classList.remove('hidden');
   startCascade();
 }
@@ -1393,6 +1532,9 @@ function updateStats() {
     timerStarted = true;
     startTime = Date.now();
     timerInterval = setInterval(updateStats, 1000);
+  }
+  if (moveCount === 1 && !gameInProgress) {
+    gameInProgress = true;
   }
   const movesEl = document.getElementById('stat-moves');
   const timeEl  = document.getElementById('stat-time');
@@ -1805,7 +1947,7 @@ function render() {
   // Foundations (4) — leftmost
   for (let fi = 0; fi < 4; fi++) {
     const fw = document.createElement('div');
-    fw.className = 'pile-wrapper';
+    fw.className = 'pile-wrapper foundation-wrapper';
     fw.setAttribute('aria-label', `Foundation ${fi + 1}`);
 
     const fSlot = document.createElement('div');
@@ -1834,7 +1976,7 @@ function render() {
   spacer.style.visibility = 'hidden';
   topRow.appendChild(spacer);
 
-  // Waste — show up to 3 cards fanned left
+  // Waste — show cards fanned left (1 card in draw-1 mode, up to 3 in draw-3 mode)
   const wasteWrap = document.createElement('div');
   wasteWrap.className = 'pile-wrapper';
   wasteWrap.style.overflow = 'visible';
@@ -1847,7 +1989,8 @@ function render() {
   wasteWrap.appendChild(wasteSlot);
 
   if (waste.length > 0) {
-    const visCount = Math.min(3, waste.length);
+    const fanCount = drawMode === 1 ? 1 : 3;
+    const visCount = Math.min(fanCount, waste.length);
     for (let i = 0; i < visCount; i++) {
       const wIdx = waste.length - visCount + i;
       const wCard = makeCard(waste[wIdx], 'waste', null, wIdx);
@@ -1956,6 +2099,8 @@ function addDropListeners(el, toPile, toCol) {
 document.getElementById('new-game-btn').addEventListener('click', newGame);
 document.getElementById('play-again-btn').addEventListener('click', newGame);
 document.getElementById('undo-btn').addEventListener('click', undoMove);
+document.getElementById('hint-btn').addEventListener('click', showHint);
+document.getElementById('autocomplete-btn').addEventListener('click', autoComplete);
 
 // Keyboard shortcuts
 document.addEventListener('keydown', e => {
@@ -1966,6 +2111,9 @@ document.addEventListener('keydown', e => {
   if (e.key === 'z' && (e.ctrlKey || e.metaKey)) {
     e.preventDefault();
     undoMove();
+  }
+  if ((e.key === 'h' || e.key === 'H') && !e.ctrlKey && !e.metaKey) {
+    showHint();
   }
 });
 
@@ -3094,6 +3242,272 @@ function initCardStyle() {
 }
 
 initCardStyle();
+
+/* ══════════════════════════════════════════════════════════
+   DRAW MODE — toggle between draw-1 and draw-3
+   ══════════════════════════════════════════════════════════ */
+const DRAW_MODE_KEY = 'ataraxia_draw_mode';
+
+function applyDrawMode(mode) {
+  drawMode = mode;
+  const label = document.getElementById('draw-mode-label');
+  if (label) label.textContent = `Draw ${mode}`;
+  try { localStorage.setItem(DRAW_MODE_KEY, String(mode)); } catch(e) {}
+}
+
+function initDrawMode() {
+  const saved = parseInt(localStorage.getItem(DRAW_MODE_KEY) || '3', 10);
+  applyDrawMode(saved === 1 ? 1 : 3);
+
+  document.getElementById('draw-mode-btn').addEventListener('click', () => {
+    const newMode = drawMode === 3 ? 1 : 3;
+    if (moveCount > 0 && !gameWon) {
+      if (!confirm(`Switch to Draw ${newMode}? This will start a new game.`)) return;
+    }
+    applyDrawMode(newMode);
+    newGame();
+  });
+}
+
+initDrawMode();
+
+/* ══════════════════════════════════════════════════════════
+   HINT — highlight the best available move
+   ══════════════════════════════════════════════════════════ */
+function findBestMove() {
+  // Priority: foundation > non-empty tableau > empty tableau
+
+  // 1. Waste → foundation
+  if (waste.length > 0) {
+    const card = waste[waste.length - 1];
+    for (let fi = 0; fi < 4; fi++) {
+      if (canDropOnFoundation(card, fi)) {
+        return { fromPile: 'waste', fromCol: null, cardIdx: waste.length - 1, toPile: 'foundation', toCol: fi };
+      }
+    }
+  }
+
+  // 2. Tableau → foundation
+  for (let col = 0; col < 7; col++) {
+    const pile = tableau[col];
+    if (!pile.length) continue;
+    const card = pile[pile.length - 1];
+    if (!card.faceUp) continue;
+    for (let fi = 0; fi < 4; fi++) {
+      if (canDropOnFoundation(card, fi)) {
+        return { fromPile: 'tableau', fromCol: col, cardIdx: pile.length - 1, toPile: 'foundation', toCol: fi };
+      }
+    }
+  }
+
+  // 3. Waste → non-empty tableau
+  if (waste.length > 0) {
+    const card = waste[waste.length - 1];
+    for (let tc = 0; tc < 7; tc++) {
+      if (tableau[tc].length > 0 && canDropOnTableau(card, tc)) {
+        return { fromPile: 'waste', fromCol: null, cardIdx: waste.length - 1, toPile: 'tableau', toCol: tc };
+      }
+    }
+  }
+
+  // 4. Tableau run → non-empty tableau
+  for (let col = 0; col < 7; col++) {
+    const pile = tableau[col];
+    for (let ci = 0; ci < pile.length; ci++) {
+      if (!pile[ci].faceUp) continue;
+      const card = pile[ci];
+      for (let tc = 0; tc < 7; tc++) {
+        if (tc === col) continue;
+        if (tableau[tc].length > 0 && canDropOnTableau(card, tc)) {
+          return { fromPile: 'tableau', fromCol: col, cardIdx: ci, toPile: 'tableau', toCol: tc };
+        }
+      }
+    }
+  }
+
+  // 5. King → empty tableau column
+  for (let col = 0; col < 7; col++) {
+    const pile = tableau[col];
+    if (!pile.length) continue;
+    for (let ci = 0; ci < pile.length; ci++) {
+      if (!pile[ci].faceUp) continue;
+      const card = pile[ci];
+      if (card.value !== 'K') continue;
+      // Only suggest moving King to empty if it uncovers face-down cards
+      if (ci > 0 && !pile[ci - 1].faceUp) {
+        for (let tc = 0; tc < 7; tc++) {
+          if (tc === col) continue;
+          if (tableau[tc].length === 0) {
+            return { fromPile: 'tableau', fromCol: col, cardIdx: ci, toPile: 'tableau', toCol: tc };
+          }
+        }
+      }
+    }
+  }
+
+  // 6. Draw from stock (or recycle waste)
+  if (stock.length > 0) {
+    return { fromPile: 'stock', fromCol: null, cardIdx: null, toPile: null, toCol: null };
+  }
+  if (waste.length > 0) {
+    return { fromPile: 'recycle', fromCol: null, cardIdx: null, toPile: null, toCol: null };
+  }
+
+  return null;
+}
+
+function clearHint() {
+  if (hintTimer) { clearTimeout(hintTimer); hintTimer = null; }
+  document.querySelectorAll('.card--hint, .slot--hint').forEach(el => {
+    el.classList.remove('card--hint', 'slot--hint');
+  });
+}
+
+function showHint() {
+  clearHint();
+  const move = findBestMove();
+  if (!move) return;
+
+  // Highlight stock (draw) or recycle
+  if (move.fromPile === 'stock' || move.fromPile === 'recycle') {
+    const sw = document.querySelector('.stock-wrapper');
+    if (sw) {
+      sw.classList.add('card--hint');
+      hintTimer = setTimeout(clearHint, 2500);
+    }
+    return;
+  }
+
+  // Highlight source card
+  let sourceEl = null;
+  if (move.fromPile === 'waste') {
+    // Last card element in the waste wrapper
+    const wasteWrapper = document.querySelector('[aria-label^="Waste"]');
+    if (wasteWrapper) {
+      const cards = wasteWrapper.querySelectorAll('.card');
+      if (cards.length) sourceEl = cards[cards.length - 1];
+    }
+  } else if (move.fromPile === 'tableau') {
+    const cols = document.querySelectorAll('.tableau-pile');
+    if (cols[move.fromCol]) {
+      const cards = cols[move.fromCol].querySelectorAll('.card');
+      if (cards.length) {
+        // cardIdx relative to top of pile DOM order
+        const pileArr = tableau[move.fromCol];
+        const offsetFromTop = pileArr.length - 1 - move.cardIdx;
+        const targetIdx = cards.length - 1 - offsetFromTop;
+        sourceEl = cards[Math.max(0, targetIdx)] || cards[cards.length - 1];
+      }
+    }
+  }
+  if (sourceEl) sourceEl.classList.add('card--hint');
+
+  // Highlight destination — show the top card (if column has cards) or the empty slot
+  function highlightDest(wrapper) {
+    if (!wrapper) return;
+    const topCard = wrapper.querySelector('.card--face');
+    const slot    = wrapper.querySelector('.card-slot');
+    if (topCard) topCard.classList.add('slot--hint');
+    else if (slot) slot.classList.add('slot--hint');
+  }
+
+  if (move.toPile === 'foundation') {
+    const fw = document.querySelectorAll('#game-board .top-row .foundation-wrapper');
+    highlightDest(fw[move.toCol]);
+  } else if (move.toPile === 'tableau') {
+    const cols = document.querySelectorAll('.tableau-pile');
+    highlightDest(cols[move.toCol]);
+  }
+
+  hintTimer = setTimeout(clearHint, 3000);
+}
+
+/* ══════════════════════════════════════════════════════════
+   AUTO-COMPLETE — play all remaining cards to foundations
+   ══════════════════════════════════════════════════════════ */
+function canAutoComplete() {
+  // Can auto-complete when: stock empty, waste empty, all tableau cards face-up
+  if (stock.length > 0 || waste.length > 0) return false;
+  for (let col = 0; col < 7; col++) {
+    if (tableau[col].some(c => !c.faceUp)) return false;
+  }
+  return foundations.some(f => f.length < 13); // not already won
+}
+
+function updateAutoCompleteUI() {
+  const banner = document.getElementById('autocomplete-banner');
+  if (banner) {
+    if (canAutoComplete()) {
+      banner.classList.remove('hidden');
+    } else {
+      banner.classList.add('hidden');
+    }
+  }
+}
+
+function autoComplete() {
+  if (!canAutoComplete()) return;
+  document.getElementById('autocomplete-banner').classList.add('hidden');
+
+  function stepMove() {
+    // Find one card to move to foundation
+    for (let col = 0; col < 7; col++) {
+      const pile = tableau[col];
+      if (!pile.length) continue;
+      const card = pile[pile.length - 1];
+      if (!card.faceUp) continue;
+      for (let fi = 0; fi < 4; fi++) {
+        if (canDropOnFoundation(card, fi)) {
+          saveHistory();
+          moveCount++;
+          pile.pop();
+          foundations[fi].push(card);
+          updateStats();
+          render();
+          if (foundations.every(f => f.length === 13)) {
+            showWin();
+            return;
+          }
+          setTimeout(stepMove, 80);
+          return;
+        }
+      }
+    }
+  }
+  stepMove();
+}
+
+/* ══════════════════════════════════════════════════════════
+   GAME STATISTICS — persist win/loss record
+   ══════════════════════════════════════════════════════════ */
+const STATS_KEY = 'ataraxia_sol_stats';
+
+function loadGameStats() {
+  try {
+    const data = JSON.parse(localStorage.getItem(STATS_KEY) || '{}');
+    gamesPlayed = data.gamesPlayed || 0;
+    gamesWon    = data.gamesWon    || 0;
+    winStreak   = data.winStreak   || 0;
+    bestTime    = data.bestTime    || Infinity;
+  } catch(e) {}
+}
+
+function saveGameStats() {
+  try {
+    localStorage.setItem(STATS_KEY, JSON.stringify({ gamesPlayed, gamesWon, winStreak, bestTime }));
+  } catch(e) {}
+}
+
+function updateWinStats() {
+  const playedEl = document.getElementById('stat-win-played');
+  const wonEl    = document.getElementById('stat-win-won');
+  const streakEl = document.getElementById('stat-win-streak');
+  if (playedEl) playedEl.textContent = gamesPlayed;
+  if (wonEl)    wonEl.textContent    = gamesWon;
+  if (streakEl) streakEl.textContent = winStreak;
+}
+
+loadGameStats();
 </script>
 </body>
 </html>

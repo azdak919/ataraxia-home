@@ -32,6 +32,8 @@
       --accent-glow:     rgba(139, 111, 78, 0.18);
       --shadow-soft:     rgba(44, 40, 36, 0.06);
       --shadow-medium:   rgba(44, 40, 36, 0.12);
+      --settings-bg:     rgba(252, 249, 246, 0.96);
+      --settings-border: rgba(160, 148, 132, 0.45);
 
       /* Card colours */
       --card-face:           #faf8f5;
@@ -84,6 +86,8 @@
         --slot-border:       rgba(201, 168, 124, 0.18);
         --selected-outline:  #c9a87c;
         --selected-glow:     rgba(201, 168, 124, 0.30);
+        --settings-bg:       rgba(30, 27, 24, 0.97);
+        --settings-border:   rgba(100, 88, 72, 0.55);
       }
     }
 
@@ -223,6 +227,99 @@
       .ctrl-btn { padding: 0.38rem; width: 32px; height: 32px; border-radius: 50%; justify-content: center; }
       .back-link span { display: none; }
       .back-link { padding: 0.38rem; width: 32px; height: 32px; border-radius: 50%; justify-content: center; }
+      .lang-btn span { display: none; }
+      .lang-btn { padding: 0.38rem; width: 32px; height: 32px; border-radius: 50%; justify-content: center; }
+    }
+
+    /* On small-mid screens: hide lang text label to save space */
+    @media (max-width: 480px) and (min-width: 381px) {
+      .lang-btn span { display: none; }
+      .lang-btn { padding: 0.38rem 0.6rem; }
+    }
+
+    /* ════════════════════════════════════════
+       LANGUAGE SELECTOR
+       ════════════════════════════════════════ */
+    .lang-selector {
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .lang-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.38rem 0.85rem;
+      border-radius: 100px;
+      border: 1px solid var(--border-glass);
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+      white-space: nowrap;
+    }
+    .lang-btn:hover { background: var(--bg-glass-hover); color: var(--text-primary); border-color: var(--accent); }
+    .lang-btn svg { width: 14px; height: 14px; fill: currentColor; opacity: 0.7; flex-shrink: 0; }
+
+    .lang-dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      background: var(--settings-bg);
+      border: 1px solid var(--settings-border);
+      border-radius: 12px;
+      padding: 0.35rem;
+      min-width: 150px;
+      max-height: 280px;
+      overflow-y: auto;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 8px 32px var(--shadow-medium);
+      display: none;
+      z-index: 200;
+    }
+    .lang-dropdown.open { display: block; animation: fadeSlideIn 0.25s ease; }
+
+    .lang-option {
+      display: block;
+      width: 100%;
+      text-align: left;
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      color: var(--text-primary);
+      background: none;
+      border: none;
+      border-radius: 8px;
+      padding: 0.4rem 0.6rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .lang-option:hover { background: var(--accent-glow); }
+    .lang-option.active { color: var(--accent); font-weight: 500; }
+
+    .lang-translating {
+      position: absolute;
+      top: calc(100% + 4px);
+      right: 0;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-align: right;
+      padding: 0.2rem 0;
+      opacity: 0;
+      transition: opacity 0.3s;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .lang-translating.visible { opacity: 1; }
+
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     /* ════════════════════════════════════════
@@ -596,6 +693,27 @@
       display: inline-block;
       transform: scaleX(-1);
     }
+
+    /* ════════════════════════════════════════
+       RESPONSIVE CREDITS — small screens
+       ════════════════════════════════════════ */
+    @media (max-width: 600px) {
+      .bottom-badges {
+        bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+        right: max(0.5rem, env(safe-area-inset-right, 0px));
+        max-width: calc(100vw - 1rem);
+        width: fit-content;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        text-align: right;
+        font-size: 0.58rem;
+        padding: 0.25rem 0.6rem;
+      }
+      .img-credit { flex-basis: 100%; text-align: right; max-width: 100%; }
+      .bottom-badges .img-credit + .credits-divider { display: none; }
+      .bottom-badges .credits-divider { margin: 0 0.35rem; }
+      .img-credit { font-size: inherit; }
+    }
   </style>
 </head>
 <body>
@@ -622,26 +740,34 @@
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/>
       </svg>
-      <span>Undo</span>
+      <span id="undo-label">Undo</span>
     </button>
     <button class="ctrl-btn" id="new-game-btn" aria-label="Start new game">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
       </svg>
-      <span>New Game</span>
+      <span id="new-game-label">New Game</span>
     </button>
+    <div class="lang-selector">
+      <button class="lang-btn" id="lang-btn" aria-label="Change language">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0014.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
+        <span id="lang-label">EN</span>
+      </button>
+      <div class="lang-dropdown" id="lang-dropdown"></div>
+      <div class="lang-translating" id="lang-status"></div>
+    </div>
   </div>
 </header>
 
 <!-- ══════════════════════ STATS BAR ══════════════════════ -->
 <div id="stats-bar">
-  <span><span id="stat-moves">0</span> moves</span>
+  <span><span id="stat-moves">0</span> <span id="moves-label">moves</span></span>
   <span><span id="stat-time">0:00</span></span>
 </div>
 
 <!-- ══════════════════════ NO-MOVES BANNER ══════════════════════ -->
 <div id="no-moves-banner" class="hidden" role="alert">
-  No more moves available
+  <span id="no-moves-text">No more moves available</span>
 </div>
 
 <!-- ══════════════════════ GAME BOARD (rendered by JS) ══════════════════════ -->
@@ -649,8 +775,8 @@
 
 <!-- ══════════════════════ WIN OVERLAY ══════════════════════ -->
 <div id="win-overlay" class="hidden" role="dialog" aria-live="polite" aria-label="You win">
-  <div class="win-title">You Win ✦</div>
-  <div class="win-sub">All cards placed</div>
+  <div class="win-title" id="win-title">You Win ✦</div>
+  <div class="win-sub" id="win-sub">All cards placed</div>
   <button class="win-btn" id="play-again-btn">Play Again</button>
 </div>
 
@@ -694,6 +820,15 @@ let startTime   = null;
 let timerInterval = null;
 let timerStarted = false;
 let cascadeAnimFrame = null;
+
+// Translation state (populated later by initTranslation)
+let currentLang = 'en';
+let _cachedUIStrings = {};
+const SOL_UI_EN = {
+  undo: 'Undo', newGame: 'New Game', moves: 'moves',
+  noMoves: 'No more moves available', youWin: 'You Win ✦',
+  allCards: 'All cards placed', playAgain: 'Play Again', solitaire: 'Solitaire',
+};
 
 /* ══════════════════════════════════════════════════════════
    CARD HELPERS
@@ -754,6 +889,13 @@ function newGame() {
 
   updateUndoBtn();
   document.getElementById('win-overlay').classList.add('hidden');
+  // Reset win sub to translated "All cards placed" default
+  const winSubEl = document.getElementById('win-sub');
+  if (winSubEl) {
+    delete winSubEl.dataset.hasScore;
+    const strings = (_cachedUIStrings && _cachedUIStrings[currentLang]) || SOL_UI_EN;
+    winSubEl.textContent = strings.allCards || SOL_UI_EN.allCards;
+  }
   clearCascade();
   hideBanner();
   updateStats();
@@ -1155,8 +1297,12 @@ function checkWin() {
 
 function showWin() {
   if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-  const winSub = document.querySelector('.win-sub');
-  if (winSub) winSub.textContent = `${moveCount} moves · ${formatTime(Date.now() - startTime)}`;
+  const winSubEl = document.getElementById('win-sub');
+  if (winSubEl) {
+    const movesWord = (_cachedUIStrings[currentLang] && _cachedUIStrings[currentLang].moves) || SOL_UI_EN.moves;
+    winSubEl.textContent = `${moveCount} ${movesWord} · ${formatTime(Date.now() - startTime)}`;
+    winSubEl.dataset.hasScore = '1';
+  }
   document.getElementById('win-overlay').classList.remove('hidden');
   startCascade();
 }
@@ -2353,6 +2499,289 @@ function nextBackground() {
 // Start
 updateCardSize();
 newGame();
+
+/* ══════════════════════════════════════════════════════════
+   TRANSLATION SYSTEM — same as index.html
+   ══════════════════════════════════════════════════════════ */
+
+const SUPPORTED_LANGS = [
+  { code: 'en', name: 'English',    native: 'English' },
+  { code: 'es', name: 'Spanish',    native: 'Español' },
+  { code: 'fr', name: 'French',     native: 'Français' },
+  { code: 'de', name: 'German',     native: 'Deutsch' },
+  { code: 'it', name: 'Italian',    native: 'Italiano' },
+  { code: 'pt', name: 'Portuguese', native: 'Português' },
+  { code: 'nl', name: 'Dutch',      native: 'Nederlands' },
+  { code: 'ru', name: 'Russian',    native: 'Русский' },
+  { code: 'ja', name: 'Japanese',   native: '日本語' },
+  { code: 'ko', name: 'Korean',     native: '한국어' },
+  { code: 'zh', name: 'Chinese',    native: '中文' },
+  { code: 'ar', name: 'Arabic',     native: 'العربية' },
+  { code: 'hi', name: 'Hindi',      native: 'हिन्दी' },
+  { code: 'tr', name: 'Turkish',    native: 'Türkçe' },
+  { code: 'pl', name: 'Polish',     native: 'Polski' },
+  { code: 'uk', name: 'Ukrainian',  native: 'Українська' },
+  { code: 'sv', name: 'Swedish',    native: 'Svenska' },
+  { code: 'da', name: 'Danish',     native: 'Dansk' },
+  { code: 'no', name: 'Norwegian',  native: 'Norsk' },
+  { code: 'fi', name: 'Finnish',    native: 'Suomi' },
+  { code: 'el', name: 'Greek',      native: 'Ελληνικά' },
+  { code: 'he', name: 'Hebrew',     native: 'עברית' },
+  { code: 'th', name: 'Thai',       native: 'ไทย' },
+  { code: 'vi', name: 'Vietnamese', native: 'Tiếng Việt' },
+  { code: 'id', name: 'Indonesian', native: 'Bahasa Indonesia' },
+  { code: 'ms', name: 'Malay',      native: 'Bahasa Melayu' },
+  { code: 'ro', name: 'Romanian',   native: 'Română' },
+  { code: 'cs', name: 'Czech',      native: 'Čeština' },
+  { code: 'hu', name: 'Hungarian',  native: 'Magyar' },
+  { code: 'bg', name: 'Bulgarian',  native: 'Български' },
+];
+
+// Solitaire-specific UI strings
+// (SOL_UI_EN is declared early in the STATE section)
+
+const TRANSLATION_CACHE_KEY = 'stoicflow_translations';
+const LANG_PREF_KEY = 'stoicflow_lang';
+
+// currentLang and _cachedUIStrings are declared early in the STATE section
+let translationCache = {};
+
+function loadTranslationCache() {
+  try {
+    const raw = localStorage.getItem(TRANSLATION_CACHE_KEY);
+    if (raw) translationCache = JSON.parse(raw);
+  } catch(e) { translationCache = {}; }
+}
+
+function saveTranslationCache() {
+  try {
+    localStorage.setItem(TRANSLATION_CACHE_KEY, JSON.stringify(translationCache));
+  } catch(e) {}
+}
+
+function getCacheKey(text, targetLang) {
+  return `en|${targetLang}|${text}`;
+}
+
+function getCachedTranslation(text, targetLang) {
+  return translationCache[getCacheKey(text, targetLang)] || null;
+}
+
+function setCachedTranslation(text, targetLang, translated) {
+  translationCache[getCacheKey(text, targetLang)] = translated;
+}
+
+function _gtLang(lang) {
+  const map = { zh: 'zh-CN', he: 'iw' };
+  return map[lang] || lang;
+}
+
+async function translateText(text, targetLang) {
+  if (targetLang === 'en') return text;
+  if (!text || !text.trim()) return text;
+
+  const cached = getCachedTranslation(text, targetLang);
+  if (cached) return cached;
+
+  const encoded = encodeURIComponent(text);
+
+  // Provider 1: MyMemory
+  try {
+    const url = `https://api.mymemory.translated.net/get?q=${encoded}&langpair=en|${targetLang}`;
+    const resp = await fetch(url);
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data.responseStatus === 200 && data.responseData && data.responseData.translatedText) {
+        const translated = data.responseData.translatedText;
+        if (translated !== text.toUpperCase()) {
+          setCachedTranslation(text, targetLang, translated);
+          return translated;
+        }
+      }
+    }
+  } catch(e) {}
+
+  // Provider 2: Google Translate (unofficial web endpoint)
+  try {
+    const tl = _gtLang(targetLang);
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${tl}&dt=t&q=${encoded}`;
+    const resp = await fetch(url);
+    if (resp.ok) {
+      const data = await resp.json();
+      const translated = data?.[0]?.map(s => s?.[0]).filter(Boolean).join('');
+      if (translated) {
+        setCachedTranslation(text, targetLang, translated);
+        return translated;
+      }
+    }
+  } catch(e) {}
+
+  // Provider 3: LibreTranslate
+  try {
+    const resp = await fetch('https://libretranslate.com/translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ q: text, source: 'en', target: targetLang, format: 'text' }),
+    });
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data.translatedText) {
+        setCachedTranslation(text, targetLang, data.translatedText);
+        return data.translatedText;
+      }
+    }
+  } catch(e) {}
+
+  return text;
+}
+
+async function batchTranslate(texts, targetLang) {
+  if (targetLang === 'en') return [...texts];
+
+  const results = new Array(texts.length);
+  const uncached = [];
+
+  for (let i = 0; i < texts.length; i++) {
+    const cached = getCachedTranslation(texts[i], targetLang);
+    if (cached) {
+      results[i] = cached;
+    } else {
+      uncached.push(i);
+    }
+  }
+
+  const CONCURRENCY = 3;
+  for (let start = 0; start < uncached.length; start += CONCURRENCY) {
+    const batch = uncached.slice(start, start + CONCURRENCY);
+    const promises = batch.map(idx => translateText(texts[idx], targetLang).then(t => { results[idx] = t; }));
+    await Promise.all(promises);
+  }
+
+  saveTranslationCache();
+  return results;
+}
+
+function applyUIStrings(strings) {
+  const undoLabel = document.getElementById('undo-label');
+  const newGameLabel = document.getElementById('new-game-label');
+  const movesLabel = document.getElementById('moves-label');
+  const noMovesText = document.getElementById('no-moves-text');
+  const winTitle = document.getElementById('win-title');
+  const winSub = document.getElementById('win-sub');
+  const playAgainBtn = document.getElementById('play-again-btn');
+  const gameTitle = document.querySelector('.game-title');
+
+  if (undoLabel) undoLabel.textContent = strings.undo;
+  if (newGameLabel) newGameLabel.textContent = strings.newGame;
+  if (movesLabel) movesLabel.textContent = strings.moves;
+  if (noMovesText) noMovesText.textContent = strings.noMoves;
+  if (winTitle && !winTitle.dataset.hasScore) winTitle.textContent = strings.youWin;
+  if (winSub && !winSub.dataset.hasScore) winSub.textContent = strings.allCards;
+  if (playAgainBtn) playAgainBtn.textContent = strings.playAgain;
+  if (gameTitle) gameTitle.textContent = strings.solitaire;
+}
+
+function setLanguageStatus(msg) {
+  const el = document.getElementById('lang-status');
+  if (msg) {
+    el.textContent = msg;
+    el.classList.add('visible');
+  } else {
+    el.classList.remove('visible');
+  }
+}
+
+async function translateUIStrings(lang) {
+  if (lang === 'en') {
+    applyUIStrings(SOL_UI_EN);
+    return;
+  }
+
+  if (_cachedUIStrings[lang]) {
+    applyUIStrings(_cachedUIStrings[lang]);
+    return;
+  }
+
+  const keys = Object.keys(SOL_UI_EN);
+  const values = keys.map(k => SOL_UI_EN[k]);
+  const translated = await batchTranslate(values, lang);
+
+  const langStrings = {};
+  keys.forEach((k, i) => { langStrings[k] = translated[i]; });
+  _cachedUIStrings[lang] = langStrings;
+
+  applyUIStrings(langStrings);
+}
+
+async function switchLanguage(langCode) {
+  currentLang = langCode;
+  localStorage.setItem(LANG_PREF_KEY, langCode);
+
+  const langData = SUPPORTED_LANGS.find(l => l.code === langCode);
+  document.getElementById('lang-label').textContent = langData ? langData.native.slice(0, 6) : langCode.toUpperCase();
+  document.documentElement.lang = langCode;
+
+  document.querySelectorAll('.lang-option').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === langCode);
+  });
+
+  document.getElementById('lang-dropdown').classList.remove('open');
+
+  if (langCode === 'en') {
+    applyUIStrings(SOL_UI_EN);
+    setLanguageStatus('');
+    return;
+  }
+
+  setLanguageStatus('Translating…');
+
+  try {
+    await translateUIStrings(langCode);
+  } catch(e) {}
+
+  setLanguageStatus('');
+}
+
+function buildLangDropdown() {
+  const dropdown = document.getElementById('lang-dropdown');
+  dropdown.innerHTML = SUPPORTED_LANGS.map(lang =>
+    `<button class="lang-option${lang.code === currentLang ? ' active' : ''}" data-lang="${lang.code}">${lang.native}</button>`
+  ).join('');
+
+  dropdown.addEventListener('click', (e) => {
+    const btn = e.target.closest('.lang-option');
+    if (btn) switchLanguage(btn.dataset.lang);
+  });
+}
+
+function initTranslation() {
+  loadTranslationCache();
+  buildLangDropdown();
+
+  const langBtn = document.getElementById('lang-btn');
+  const dropdown = document.getElementById('lang-dropdown');
+  langBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dropdown.classList.toggle('open');
+  });
+  document.addEventListener('click', (e) => {
+    if (!dropdown.contains(e.target) && e.target !== langBtn) {
+      dropdown.classList.remove('open');
+    }
+  });
+
+  const saved = localStorage.getItem(LANG_PREF_KEY);
+  if (saved && saved !== 'en') {
+    switchLanguage(saved);
+  } else if (!saved) {
+    const browserLang = (navigator.language || 'en').split('-')[0].toLowerCase();
+    if (browserLang !== 'en' && SUPPORTED_LANGS.find(l => l.code === browserLang)) {
+      switchLanguage(browserLang);
+    }
+  }
+}
+
+initTranslation();
 </script>
 </body>
 </html>

@@ -471,29 +471,53 @@
     }
 
     .cascade-card {
-      position: absolute;
+      position: fixed;
       width: var(--card-w);
       height: var(--card-h);
       border-radius: clamp(4px, 6%, 9px);
       border: 1px solid var(--card-border);
+      background: var(--card-face);
+      color: var(--card-black);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: clamp(14px, calc(var(--card-w) * 0.38), 32px);
-      top: calc(-1 * var(--card-h));
-      background: var(--card-face);
-      color: var(--card-black);
-      animation: cascadeFall var(--dur) var(--delay) ease-in forwards;
+      font-size: clamp(14px, calc(var(--card-w) * 0.44), 36px);
+      box-shadow: 0 2px 8px var(--card-shadow);
+      /* NO animation property - JS driven */
     }
     .cascade-card.cascade-red { color: var(--card-red); }
-    @keyframes cascadeFall {
-      0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
-      70%  { opacity: 1; }
-      100% { transform: translateY(115vh) rotate(var(--spin)); opacity: 0; }
+
+    /* ════════════════════════════════════════
+       STATS BAR
+       ════════════════════════════════════════ */
+    #stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      padding: 0.35rem 1rem;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      background: var(--bg-glass);
+      border-bottom: 1px solid var(--border-glass);
     }
 
     /* ════════════════════════════════════════
-       REDUCED MOTION
+       NO-MOVES BANNER
+       ════════════════════════════════════════ */
+    #no-moves-banner {
+      text-align: center;
+      padding: 0.5rem 1rem;
+      background: rgba(191, 59, 47, 0.12);
+      color: var(--card-red);
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      border-bottom: 1px solid rgba(191, 59, 47, 0.2);
+    }
+    #no-moves-banner.hidden { display: none; }
+
+    /* ════════════════════════════════════════
+       REDUCED MOTION (was after cascadeFall keyframes, now after cascade-card)
        ════════════════════════════════════════ */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
@@ -538,6 +562,17 @@
   </div>
 </header>
 
+<!-- ══════════════════════ STATS BAR ══════════════════════ -->
+<div id="stats-bar">
+  <span><span id="stat-moves">0</span> moves</span>
+  <span><span id="stat-time">0:00</span></span>
+</div>
+
+<!-- ══════════════════════ NO-MOVES BANNER ══════════════════════ -->
+<div id="no-moves-banner" class="hidden" role="alert">
+  No more moves available
+</div>
+
 <!-- ══════════════════════ GAME BOARD (rendered by JS) ══════════════════════ -->
 <div id="game-board" role="main" aria-label="Solitaire game board"></div>
 
@@ -570,6 +605,10 @@ let foundations = [[], [], [], []];   // 4 piles, any suit order
 let tableau     = Array.from({ length: 7 }, () => []);
 let history     = [];                 // serialised snapshots for undo
 let selected    = null;               // { pile, col, cardIdx }
+let moveCount   = 0;
+let startTime   = null;
+let timerInterval = null;
+let cascadeAnimFrame = null;
 
 /* ══════════════════════════════════════════════════════════
    CARD HELPERS
@@ -611,6 +650,10 @@ function newGame() {
   waste       = [];
   history     = [];
   selected    = null;
+  moveCount   = 0;
+  startTime   = Date.now();
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(updateStats, 1000);
 
   // Deal tableau: column i gets i+1 cards, last face-up
   let di = 0;
@@ -627,6 +670,8 @@ function newGame() {
   updateUndoBtn();
   document.getElementById('win-overlay').classList.add('hidden');
   clearCascade();
+  hideBanner();
+  updateStats();
   render();
 }
 
@@ -653,6 +698,7 @@ function undoMove() {
   selected    = null;
   updateUndoBtn();
   render();
+  checkNoMoves();
 }
 
 function updateUndoBtn() {
@@ -724,6 +770,8 @@ function executeMove(from, to) {
   }
 
   saveHistory();
+  moveCount++;
+  updateStats();
 
   // Remove from source
   if (from.pile === 'waste') {
@@ -764,6 +812,8 @@ function tryAutoFoundation(pile, col) {
   for (let fi = 0; fi < 4; fi++) {
     if (canDropOnFoundation(card, fi)) {
       saveHistory();
+      moveCount++;
+      updateStats();
       if (pile === 'waste') waste.pop();
       else tableau[col].pop();
       foundations[fi].push(card);
@@ -823,17 +873,22 @@ function tryAutoPlace(pile, col, cardIdx) {
 function clickStock() {
   if (stock.length > 0) {
     saveHistory();
-    const c = stock.pop();
-    c.faceUp = true;
-    waste.push(c);
+    const count = Math.min(3, stock.length);
+    for (let i = 0; i < count; i++) {
+      const c = stock.pop();
+      c.faceUp = true;
+      waste.push(c);
+    }
   } else if (waste.length > 0) {
-    // Recycle
     saveHistory();
     stock = [...waste].reverse().map(c => ({ ...c, faceUp: false }));
     waste = [];
   }
   selected = null;
+  moveCount++;
+  updateStats();
   render();
+  checkNoMoves();
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -848,6 +903,7 @@ function onCardClick(e, fromPile, fromCol, cardIdx) {
     if (tryAutoFoundation(fromPile, fromCol)) {
       render();
       checkWin();
+      checkNoMoves();
     }
     return;
   }
@@ -882,12 +938,14 @@ function onCardClick(e, fromPile, fromCol, cardIdx) {
       selected = null;
       render();
       checkWin();
+      checkNoMoves();
     } else {
       // Manual move failed — auto-place the clicked card instead
       selected = null;
       if (tryAutoPlace(fromPile, fromCol, cardIdx)) {
         render();
         checkWin();
+        checkNoMoves();
       } else {
         // Nothing worked — select the clicked card for manual drag
         onCardClick(e, fromPile, fromCol, cardIdx);
@@ -900,6 +958,7 @@ function onCardClick(e, fromPile, fromCol, cardIdx) {
   if (tryAutoPlace(fromPile, fromCol, cardIdx)) {
     render();
     checkWin();
+    checkNoMoves();
     return;
   }
 
@@ -933,6 +992,7 @@ function onSlotClick(e, toPile, toCol) {
     selected = null;
     render();
     checkWin();
+    checkNoMoves();
   }
 }
 
@@ -997,6 +1057,7 @@ function onDrop(e, toPile, toCol) {
   if (moved) {
     render();
     checkWin();
+    checkNoMoves();
   }
 }
 
@@ -1008,33 +1069,134 @@ function checkWin() {
 }
 
 function showWin() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  const winSub = document.querySelector('.win-sub');
+  if (winSub) winSub.textContent = `${moveCount} moves · ${formatTime(Date.now() - startTime)}`;
   document.getElementById('win-overlay').classList.remove('hidden');
   startCascade();
 }
 
 function startCascade() {
+  if (cascadeAnimFrame) { cancelAnimationFrame(cascadeAnimFrame); cascadeAnimFrame = null; }
   const container = document.getElementById('cascade-container');
   container.innerHTML = '';
-  let delay = 0;
 
-  for (let i = 0; i < 52; i++) {
+  const cardW = getCardW();
+  const cardH = getCardH();
+  const sw = window.innerWidth;
+  const sh = window.innerHeight;
+
+  const cards = [];
+  const count = 8;
+  for (let i = 0; i < count; i++) {
     const suit = SUITS[i % 4];
-    const el   = document.createElement('div');
+    const el = document.createElement('div');
     el.className = 'cascade-card' + (isRed(suit) ? ' cascade-red' : '');
-    const x    = (Math.random() * 88 + 3).toFixed(1);
-    const spin = ((Math.random() - 0.5) * 540).toFixed(1);
-    const dur  = (1.4 + Math.random() * 1.4).toFixed(2);
-    el.style.cssText =
-      `left:${x}%;--dur:${dur}s;--delay:${delay.toFixed(2)}s;--spin:${spin}deg;`;
     el.textContent = suit;
     container.appendChild(el);
-    delay += 0.07;
+    cards.push({
+      el,
+      x: Math.random() * (sw - cardW),
+      y: -cardH - Math.random() * sh * 0.5, // start above screen
+      vx: (Math.random() - 0.5) * 6,
+      vy: 2 + Math.random() * 3,
+      bounces: 0
+    });
   }
+
+  function frame() {
+    for (const c of cards) {
+      c.vy += 0.45; // gravity
+      c.x += c.vx;
+      c.y += c.vy;
+
+      // Floor bounce
+      if (c.y + cardH >= sh) {
+        c.y = sh - cardH;
+        c.vy *= -0.8;
+        c.bounces++;
+        // After many bounces, just slide on floor
+        if (Math.abs(c.vy) < 1.5) c.vy = 0;
+      }
+      // Ceiling
+      if (c.y < 0) { c.y = 0; c.vy = Math.abs(c.vy); }
+      // Walls
+      if (c.x < 0) { c.x = 0; c.vx = Math.abs(c.vx); }
+      if (c.x + cardW > sw) { c.x = sw - cardW; c.vx = -Math.abs(c.vx); }
+
+      c.el.style.left = `${c.x.toFixed(1)}px`;
+      c.el.style.top = `${c.y.toFixed(1)}px`;
+    }
+    cascadeAnimFrame = requestAnimationFrame(frame);
+  }
+  cascadeAnimFrame = requestAnimationFrame(frame);
 }
 
 function clearCascade() {
+  if (cascadeAnimFrame) { cancelAnimationFrame(cascadeAnimFrame); cascadeAnimFrame = null; }
   const container = document.getElementById('cascade-container');
   if (container) container.innerHTML = '';
+}
+
+/* ══════════════════════════════════════════════════════════
+   STATS (move counter + timer)
+   ══════════════════════════════════════════════════════════ */
+function formatTime(ms) {
+  const s = Math.floor(ms / 1000);
+  const m = Math.floor(s / 60);
+  return `${m}:${String(s % 60).padStart(2, '0')}`;
+}
+
+function updateStats() {
+  const movesEl = document.getElementById('stat-moves');
+  const timeEl  = document.getElementById('stat-time');
+  if (movesEl) movesEl.textContent = moveCount;
+  if (timeEl && startTime) timeEl.textContent = formatTime(Date.now() - startTime);
+}
+
+/* ══════════════════════════════════════════════════════════
+   NO-MOVES BANNER
+   ══════════════════════════════════════════════════════════ */
+function checkNoMoves() {
+  // If stock has cards, a move is always available (draw)
+  if (stock.length > 0) { hideBanner(); return; }
+
+  // Waste can be recycled or played
+  if (waste.length > 0) {
+    const wCard = waste[waste.length - 1];
+    for (let fi = 0; fi < 4; fi++) if (canDropOnFoundation(wCard, fi)) { hideBanner(); return; }
+    for (let tc = 0; tc < 7; tc++) if (canDropOnTableau(wCard, tc))    { hideBanner(); return; }
+    // Waste can still be recycled (stock empty but waste non-empty = recycle is available)
+    hideBanner(); return;
+  }
+
+  // Stock and waste both empty — check tableau only
+  for (let col = 0; col < 7; col++) {
+    const pile = tableau[col];
+    for (let ci = 0; ci < pile.length; ci++) {
+      if (!pile[ci].faceUp) continue;
+      const card = pile[ci];
+      if (ci === pile.length - 1) {
+        for (let fi = 0; fi < 4; fi++) if (canDropOnFoundation(card, fi)) { hideBanner(); return; }
+      }
+      for (let tc = 0; tc < 7; tc++) {
+        if (tc === col) continue;
+        if (canDropOnTableau(card, tc)) { hideBanner(); return; }
+      }
+    }
+  }
+
+  showBanner();
+}
+
+function showBanner() {
+  const b = document.getElementById('no-moves-banner');
+  if (b) b.classList.remove('hidden');
+}
+
+function hideBanner() {
+  const b = document.getElementById('no-moves-banner');
+  if (b) b.classList.add('hidden');
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -1138,54 +1300,7 @@ function render() {
   const topRow = document.createElement('div');
   topRow.className = 'top-row';
 
-  // Stock
-  const stockWrap = document.createElement('div');
-  stockWrap.className = 'pile-wrapper stock-wrapper';
-  stockWrap.setAttribute('aria-label', stock.length
-    ? `Stock: ${stock.length} cards`
-    : 'Stock empty – click to recycle');
-
-  const stockSlot = document.createElement('div');
-  stockSlot.className = 'card-slot';
-  stockSlot.innerHTML = `<span class="slot-label" aria-hidden="true">${stock.length === 0 ? '↩' : ''}</span>`;
-  stockSlot.addEventListener('dragover', e => { e.preventDefault(); });
-  stockWrap.appendChild(stockSlot);
-
-  if (stock.length > 0) {
-    const backCard = document.createElement('div');
-    backCard.className = 'card card--back';
-    backCard.style.cssText = 'inset:0;width:100%;height:100%;cursor:pointer;';
-    stockWrap.appendChild(backCard);
-  }
-  stockWrap.addEventListener('click', clickStock);
-  topRow.appendChild(stockWrap);
-
-  // Waste
-  const wasteWrap = document.createElement('div');
-  wasteWrap.className = 'pile-wrapper';
-  wasteWrap.setAttribute('aria-label', waste.length
-    ? `Waste: top card ${waste[waste.length-1].value} of ${waste[waste.length-1].suit}`
-    : 'Waste empty');
-
-  const wasteSlot = document.createElement('div');
-  wasteSlot.className = 'card-slot';
-  wasteWrap.appendChild(wasteSlot);
-
-  if (waste.length > 0) {
-    const topWaste = makeCard(waste[waste.length - 1], 'waste', null, waste.length - 1);
-    topWaste.style.cssText = 'position:absolute;inset:0;width:100%;height:var(--card-h);';
-    wasteWrap.appendChild(topWaste);
-  }
-  topRow.appendChild(wasteWrap);
-
-  // Spacer
-  const spacer = document.createElement('div');
-  spacer.className = 'pile-wrapper';
-  spacer.setAttribute('aria-hidden', 'true');
-  spacer.style.visibility = 'hidden';
-  topRow.appendChild(spacer);
-
-  // Foundations (4)
+  // Foundations (4) — leftmost
   for (let fi = 0; fi < 4; fi++) {
     const fw = document.createElement('div');
     fw.className = 'pile-wrapper';
@@ -1209,6 +1324,64 @@ function render() {
 
     topRow.appendChild(fw);
   }
+
+  // Spacer
+  const spacer = document.createElement('div');
+  spacer.className = 'pile-wrapper';
+  spacer.setAttribute('aria-hidden', 'true');
+  spacer.style.visibility = 'hidden';
+  topRow.appendChild(spacer);
+
+  // Waste — show up to 3 cards fanned left
+  const wasteWrap = document.createElement('div');
+  wasteWrap.className = 'pile-wrapper';
+  wasteWrap.style.overflow = 'visible';
+  wasteWrap.setAttribute('aria-label', waste.length
+    ? `Waste: top card ${waste[waste.length-1].value} of ${waste[waste.length-1].suit}`
+    : 'Waste empty');
+
+  const wasteSlot = document.createElement('div');
+  wasteSlot.className = 'card-slot';
+  wasteWrap.appendChild(wasteSlot);
+
+  if (waste.length > 0) {
+    const visCount = Math.min(3, waste.length);
+    for (let i = 0; i < visCount; i++) {
+      const wIdx = waste.length - visCount + i;
+      const wCard = makeCard(waste[wIdx], 'waste', null, wIdx);
+      const offset = (visCount - 1 - i) * 16; // fan left: front card has 0 offset
+      wCard.style.cssText = `position:absolute;left:${offset}px;top:0;width:100%;height:var(--card-h);z-index:${i+1};`;
+      if (i < visCount - 1) {
+        // Not the top card: remove interaction
+        wCard.style.pointerEvents = 'none';
+        wCard.removeAttribute('draggable');
+      }
+      wasteWrap.appendChild(wCard);
+    }
+  }
+  topRow.appendChild(wasteWrap);
+
+  // Stock — rightmost
+  const stockWrap = document.createElement('div');
+  stockWrap.className = 'pile-wrapper stock-wrapper';
+  stockWrap.setAttribute('aria-label', stock.length
+    ? `Stock: ${stock.length} cards`
+    : 'Stock empty – click to recycle');
+
+  const stockSlot = document.createElement('div');
+  stockSlot.className = 'card-slot';
+  stockSlot.innerHTML = `<span class="slot-label" aria-hidden="true">${stock.length === 0 ? '↩' : ''}</span>`;
+  stockSlot.addEventListener('dragover', e => { e.preventDefault(); });
+  stockWrap.appendChild(stockSlot);
+
+  if (stock.length > 0) {
+    const backCard = document.createElement('div');
+    backCard.className = 'card card--back';
+    backCard.style.cssText = 'inset:0;width:100%;height:100%;cursor:pointer;';
+    stockWrap.appendChild(backCard);
+  }
+  stockWrap.addEventListener('click', clickStock);
+  topRow.appendChild(stockWrap);
 
   board.appendChild(topRow);
 

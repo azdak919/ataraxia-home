@@ -828,6 +828,12 @@
       </svg>
       <span id="hint-label">Hint</span>
     </button>
+    <button class="ctrl-btn" id="shuffle-bg-btn" aria-label="Shuffle background" title="Shuffle Background">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/>
+      </svg>
+      <span id="shuffle-bg-label">Background</span>
+    </button>
     <div class="lang-selector">
       <button class="lang-btn" id="lang-btn" aria-label="Change language">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0014.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
@@ -2101,6 +2107,7 @@ document.getElementById('new-game-btn').addEventListener('click', newGame);
 document.getElementById('play-again-btn').addEventListener('click', newGame);
 document.getElementById('undo-btn').addEventListener('click', undoMove);
 document.getElementById('hint-btn').addEventListener('click', showHint);
+document.getElementById('shuffle-bg-btn').addEventListener('click', nextBackground);
 document.getElementById('autocomplete-btn').addEventListener('click', autoComplete);
 
 // Keyboard shortcuts

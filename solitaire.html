@@ -1593,7 +1593,7 @@ function runBounce(container) {
   const activeCards = [];
   let launchedCount = 0;
   let tick = 0;
-  const LAUNCH_EVERY = 7;
+  const LAUNCH_EVERY = 7; // ~60fps → ~8-9 cards/second
 
   function launchCard() {
     if (launchedCount >= allCardDefs.length) return;
@@ -1729,6 +1729,7 @@ function runFireworks(container) {
   const COLORS = ['#ff4757','#ffa502','#ffdd59','#7bed9f','#70a1ff','#eccc68','#ff6b81','#a29bfe','#fd79a8','#ffffff'];
   const PARTICLES_PER_BURST = 36;
   const MAX_BURSTS = 6;
+  const BURST_INTERVAL = 80; // ticks between bursts (~1.3s at 60fps)
   const particles = [];
   let burstCount = 0;
   let lastBurstTick = -9999;
@@ -1768,8 +1769,8 @@ function runFireworks(container) {
   function frame() {
     tick++;
 
-    // Fire a new burst every ~80 ticks (~1.3s), starting immediately
-    if (tick - lastBurstTick >= 80) {
+    // Fire a new burst every BURST_INTERVAL ticks, starting immediately
+    if (tick - lastBurstTick >= BURST_INTERVAL) {
       lastBurstTick = tick;
       addBurst();
     }

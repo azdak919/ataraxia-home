@@ -668,6 +668,37 @@
     #autocomplete-btn:hover { background: var(--accent); color: #fff; }
 
     /* ════════════════════════════════════════
+       NO MORE MOVES TOAST
+       ════════════════════════════════════════ */
+    #no-moves-toast {
+      position: fixed;
+      top: calc(var(--header-h) + 3.5rem);
+      left: 50%;
+      transform: translateX(-50%) translateY(-10px);
+      background: var(--settings-bg);
+      border: 1px solid var(--settings-border);
+      border-radius: 12px;
+      padding: 0.65rem 1.4rem;
+      font-size: 0.82rem;
+      color: var(--text-primary);
+      letter-spacing: 0.06em;
+      text-align: center;
+      box-shadow: 0 4px 20px var(--shadow-medium);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 150;
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+      max-width: min(90vw, 32rem);
+      overflow-wrap: break-word;
+    }
+    #no-moves-toast.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ════════════════════════════════════════
        WIN STATS
        ════════════════════════════════════════ */
     .win-stats {
@@ -884,6 +915,9 @@
   <button class="win-btn" id="play-again-btn">Play Again</button>
 </div>
 
+<!-- ══════════════════════ NO MORE MOVES TOAST ══════════════════════ -->
+<div id="no-moves-toast" role="status" aria-live="polite"></div>
+
 <!-- ══════════════════════ CASCADE CONTAINER ══════════════════════ -->
 <div id="cascade-container" aria-hidden="true"></div>
 
@@ -946,6 +980,7 @@ let bestTime    = Infinity;
 
 // Hint state
 let hintTimer   = null;
+let noMovesToastTimer = null;
 
 // Translation state (populated later by initTranslation)
 let currentLang = 'en';
@@ -956,6 +991,7 @@ const SOL_UI_EN = {
   allCards: 'All cards placed', playAgain: 'Play Again', solitaire: 'Solitaire',
   hint: 'Hint', autoComplete: 'Auto Complete',
   played: 'Played', won: 'Won', streak: 'Streak', best: 'Best',
+  shuffleBg: 'Background', noMoves: 'No more productive moves — try Undo or New Game',
 };
 
 // Hardcoded translations for languages where the generic API produces wrong results
@@ -967,6 +1003,7 @@ const SOL_UI_HARDCODED = {
     allCards: 'Toutes les cartes placées', playAgain: 'Rejouer',
     solitaire: 'Solitaire', hint: 'Indice', autoComplete: 'Compléter',
     played: 'Joués', won: 'Gagnés', streak: 'Série', best: 'Meilleur',
+    shuffleBg: 'Arrière-plan', noMoves: 'Plus de coups productifs — Annuler ou Nouvelle partie',
   },
   es: {
     undo: 'Deshacer', newGame: 'Nueva partida', moves: 'movimientos',
@@ -974,6 +1011,7 @@ const SOL_UI_HARDCODED = {
     allCards: 'Todas las cartas colocadas', playAgain: 'Jugar de nuevo',
     solitaire: 'Solitario', hint: 'Pista', autoComplete: 'Completar',
     played: 'Jugadas', won: 'Ganadas', streak: 'Racha', best: 'Mejor',
+    shuffleBg: 'Fondo', noMoves: 'Sin más movimientos productivos — Deshacer o Nueva partida',
   },
   de: {
     undo: 'Rückgängig', newGame: 'Neues Spiel', moves: 'Züge',
@@ -981,6 +1019,7 @@ const SOL_UI_HARDCODED = {
     allCards: 'Alle Karten platziert', playAgain: 'Nochmal spielen',
     solitaire: 'Solitär', hint: 'Hinweis', autoComplete: 'Vervollständigen',
     played: 'Gespielt', won: 'Gewonnen', streak: 'Serie', best: 'Beste',
+    shuffleBg: 'Hintergrund', noMoves: 'Keine produktiven Züge mehr — Rückgängig oder Neues Spiel',
   },
   it: {
     undo: 'Annulla', newGame: 'Nuova partita', moves: 'mosse',
@@ -988,6 +1027,7 @@ const SOL_UI_HARDCODED = {
     allCards: 'Tutte le carte posizionate', playAgain: 'Gioca ancora',
     solitaire: 'Solitario', hint: 'Suggerimento', autoComplete: 'Completare',
     played: 'Giocate', won: 'Vinte', streak: 'Serie', best: 'Migliore',
+    shuffleBg: 'Sfondo', noMoves: 'Nessuna mossa produttiva — Annulla o Nuova partita',
   },
   pt: {
     undo: 'Desfazer', newGame: 'Novo jogo', moves: 'movimentos',
@@ -995,6 +1035,7 @@ const SOL_UI_HARDCODED = {
     allCards: 'Todas as cartas colocadas', playAgain: 'Jogar novamente',
     solitaire: 'Paciência', hint: 'Dica', autoComplete: 'Completar',
     played: 'Jogadas', won: 'Ganhas', streak: 'Série', best: 'Melhor',
+    shuffleBg: 'Fundo', noMoves: 'Sem mais movimentos produtivos — Desfazer ou Novo jogo',
   },
 };
 
@@ -1068,6 +1109,9 @@ function newGame() {
   }
   clearCascade();
   clearHint();
+  if (noMovesToastTimer) { clearTimeout(noMovesToastTimer); noMovesToastTimer = null; }
+  const noMovesToast = document.getElementById('no-moves-toast');
+  if (noMovesToast) noMovesToast.classList.remove('visible');
   updateAutoCompleteUI();
   updateStats();
   render();
@@ -1499,58 +1543,89 @@ function startCascade() {
   hint.textContent = 'Click anywhere to play again';
   container.appendChild(hint);
 
-  // Win95-style: cards launch from the foundation area (top-center) in all directions
-  const cards = [];
-  const count = 26;
-  for (let i = 0; i < count; i++) {
-    const suit = SUITS[i % 4];
+  // 52 cards shuffled for random launch order
+  const allCardDefs = [];
+  for (const suit of SUITS) {
+    for (const val of VALUES) allCardDefs.push({ suit, value: val });
+  }
+  for (let i = allCardDefs.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [allCardDefs[i], allCardDefs[j]] = [allCardDefs[j], allCardDefs[i]];
+  }
+
+  const activeCards = [];
+  let launchedCount = 0;
+  let tick = 0;
+  const LAUNCH_EVERY = 9; // ~60fps → ~6-7 cards/second
+
+  function launchCard() {
+    if (launchedCount >= allCardDefs.length) return;
+    const def = allCardDefs[launchedCount++];
+
     const el = document.createElement('div');
-    el.className = 'cascade-card' + (isRed(suit) ? ' cascade-red' : '');
-    el.textContent = suit;
+    el.className = 'cascade-card' + (isRed(def.suit) ? ' cascade-red' : '');
+    el.textContent = def.suit;
     container.appendChild(el);
 
-    // Stagger launch from approximate foundation area
-    const startX = sw * 0.45 + (Math.random() - 0.5) * sw * 0.3;
-    const startY = sh * 0.12 + Math.random() * sh * 0.15;
+    // Launch from foundation area (top-right of screen)
+    const startX = sw * 0.52 + Math.random() * sw * 0.38;
+    const startY = sh * 0.04 + Math.random() * sh * 0.14;
 
-    // Random velocity in all directions — bias upward and sideways
-    const speed = 7 + Math.random() * 9;
-    const angle = Math.random() * Math.PI * 2;
+    // Velocity biased leftward and upward to spread across the screen
+    const speed = 7 + Math.random() * 12;
+    // Angle: between ~117° and ~234° from positive-x axis (left hemisphere, upward/downward)
+    const angle = Math.PI * (0.65 + Math.random() * 0.65);
+    const vx = Math.cos(angle) * speed * (0.8 + Math.random() * 0.6);
+    const vy = Math.sin(angle) * speed;
 
-    cards.push({
+    activeCards.push({
       el,
-      x: startX,
-      y: startY,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed,
-      rot: Math.random() * 360,
-      rotSpeed: (Math.random() - 0.5) * 9,
-      delay: Math.floor(i * 4), // stagger launch so they don't all fly at once
+      x: startX, y: startY,
+      vx, vy,
+      rot: (Math.random() - 0.5) * 80,
+      rotSpeed: (Math.random() - 0.5) * 12,
+      settled: false,
     });
   }
 
-  let tick = 0;
-
   function frame() {
     tick++;
-    for (const c of cards) {
-      if (tick < c.delay) continue;
 
-      c.vy += 0.22; // light gravity — similar to Win95 feel
+    // Stagger card launches
+    if (tick % LAUNCH_EVERY === 1) launchCard();
+
+    for (const c of activeCards) {
+      if (c.settled) continue;
+
+      c.vy += 0.50; // gravity
       c.x += c.vx;
       c.y += c.vy;
       c.rot += c.rotSpeed;
 
-      // Elastic bounce off all four walls (Win95 style — no settling)
-      if (c.x < 0) { c.x = 0; c.vx = Math.abs(c.vx) * 0.92; }
-      if (c.x + cardW > sw) { c.x = sw - cardW; c.vx = -Math.abs(c.vx) * 0.92; }
-      if (c.y < 0) { c.y = 0; c.vy = Math.abs(c.vy) * 0.88; }
-      if (c.y + cardH > sh) { c.y = sh - cardH; c.vy = -Math.abs(c.vy) * 0.88; }
+      // Bottom bounce — Win95/XP style energy loss
+      if (c.y + cardH >= sh) {
+        c.y = sh - cardH;
+        c.vy = -Math.abs(c.vy) * 0.60;
+        c.vx *= 0.88;
+        c.rotSpeed *= 0.70;
+        if (Math.abs(c.vy) < 1.8) {
+          c.vy = 0;
+          c.settled = true;
+          c.rotSpeed = 0;
+        }
+      }
 
-      c.el.style.left = `${c.x.toFixed(1)}px`;
-      c.el.style.top = `${c.y.toFixed(1)}px`;
+      // Side walls — soft bounce
+      if (c.x < 0)          { c.x = 0;          c.vx =  Math.abs(c.vx) * 0.72; }
+      if (c.x + cardW > sw) { c.x = sw - cardW;  c.vx = -Math.abs(c.vx) * 0.72; }
+      // Top wall (rarely hit)
+      if (c.y < 0)          { c.y = 0;           c.vy =  Math.abs(c.vy) * 0.80; }
+
+      c.el.style.left      = `${c.x.toFixed(1)}px`;
+      c.el.style.top       = `${c.y.toFixed(1)}px`;
       c.el.style.transform = `rotate(${c.rot.toFixed(1)}deg)`;
     }
+
     cascadeAnimFrame = requestAnimationFrame(frame);
   }
   cascadeAnimFrame = requestAnimationFrame(frame);
@@ -2078,7 +2153,17 @@ function render() {
   if (prevRects.size > 0) {
     board.querySelectorAll('.card[data-key]').forEach(el => {
       const prev = prevRects.get(el.dataset.key);
-      if (!prev) return;
+      if (!prev) {
+        // Newly revealed card (face-down → face-up) — play a flip/reveal animation
+        el.animate(
+          [
+            { transform: 'scaleX(0.08)', filter: 'brightness(1.5)', offset: 0 },
+            { transform: 'scaleX(1)',    filter: 'brightness(1)',   offset: 1 },
+          ],
+          { duration: 220, easing: 'ease-out', fill: 'none' }
+        );
+        return;
+      }
       const curr = el.getBoundingClientRect();
       const dx = prev.left - curr.left;
       const dy = prev.top - curr.top;
@@ -3108,6 +3193,7 @@ function applyUIStrings(strings) {
   const wonLabel = document.getElementById('stat-won-label');
   const streakLabel = document.getElementById('stat-streak-label');
   const bestLabel = document.getElementById('stat-best-label');
+  const shuffleBgLabel = document.getElementById('shuffle-bg-label');
 
   if (undoLabel) undoLabel.textContent = strings.undo;
   if (newGameLabel) newGameLabel.textContent = strings.newGame;
@@ -3122,6 +3208,7 @@ function applyUIStrings(strings) {
   if (wonLabel) wonLabel.textContent = strings.won;
   if (streakLabel) streakLabel.textContent = strings.streak;
   if (bestLabel) bestLabel.textContent = strings.best;
+  if (shuffleBgLabel) shuffleBgLabel.textContent = strings.shuffleBg || SOL_UI_EN.shuffleBg;
 }
 
 function setLanguageStatus(msg) {
@@ -3238,7 +3325,8 @@ initTranslation();
    HINT — highlight the best available move
    ══════════════════════════════════════════════════════════ */
 function findBestMove() {
-  // Priority: foundation > non-empty tableau > empty tableau
+  // Priority: foundation moves → face-uncovering tableau moves → stock draw → recycle
+  // Non-productive face-level cycling is intentionally excluded to avoid infinite loops.
 
   // 1. Waste → foundation
   if (waste.length > 0) {
@@ -3273,22 +3361,26 @@ function findBestMove() {
     }
   }
 
-  // 4. Tableau run → non-empty tableau
+  // 4. Tableau run → tableau — ONLY if it uncovers a face-down card in the source pile.
+  //    This prevents suggesting circular face-level moves that loop without ending.
   for (let col = 0; col < 7; col++) {
     const pile = tableau[col];
     for (let ci = 0; ci < pile.length; ci++) {
       if (!pile[ci].faceUp) continue;
-      const card = pile[ci];
-      for (let tc = 0; tc < 7; tc++) {
-        if (tc === col) continue;
-        if (tableau[tc].length > 0 && canDropOnTableau(card, tc)) {
-          return { fromPile: 'tableau', fromCol: col, cardIdx: ci, toPile: 'tableau', toCol: tc };
+      // Only suggest if moving this run reveals a hidden card below it
+      if (ci > 0 && !pile[ci - 1].faceUp) {
+        const card = pile[ci];
+        for (let tc = 0; tc < 7; tc++) {
+          if (tc === col) continue;
+          if (tableau[tc].length > 0 && canDropOnTableau(card, tc)) {
+            return { fromPile: 'tableau', fromCol: col, cardIdx: ci, toPile: 'tableau', toCol: tc };
+          }
         }
       }
     }
   }
 
-  // 5. King → empty tableau column
+  // 5. King → empty tableau column — ONLY if it uncovers a face-down card
   for (let col = 0; col < 7; col++) {
     const pile = tableau[col];
     if (!pile.length) continue;
@@ -3296,7 +3388,6 @@ function findBestMove() {
       if (!pile[ci].faceUp) continue;
       const card = pile[ci];
       if (card.value !== 'K') continue;
-      // Only suggest moving King to empty if it uncovers face-down cards
       if (ci > 0 && !pile[ci - 1].faceUp) {
         for (let tc = 0; tc < 7; tc++) {
           if (tc === col) continue;
@@ -3308,10 +3399,12 @@ function findBestMove() {
     }
   }
 
-  // 6. Draw from stock (or recycle waste — only if some waste card is playable)
+  // 6. Draw from stock
   if (stock.length > 0) {
     return { fromPile: 'stock', fromCol: null, cardIdx: null, toPile: null, toCol: null };
   }
+
+  // 7. Recycle waste (only if at least one waste card could be played)
   if (waste.length > 0) {
     for (let wi = 0; wi < waste.length; wi++) {
       const wc = waste[wi];
@@ -3320,6 +3413,7 @@ function findBestMove() {
     }
   }
 
+  // No productive move found
   return null;
 }
 
@@ -3330,10 +3424,28 @@ function clearHint() {
   });
 }
 
+function showStuckNotification() {
+  const toast = document.getElementById('no-moves-toast');
+  if (!toast) return;
+  if (noMovesToastTimer) { clearTimeout(noMovesToastTimer); noMovesToastTimer = null; }
+  const strings = (_cachedUIStrings && _cachedUIStrings[currentLang]) || SOL_UI_EN;
+  toast.textContent = strings.noMoves || SOL_UI_EN.noMoves;
+  toast.classList.add('visible');
+  noMovesToastTimer = setTimeout(() => {
+    toast.classList.remove('visible');
+    noMovesToastTimer = null;
+  }, 3200);
+}
+
 function showHint() {
   clearHint();
   const move = findBestMove();
-  if (!move) return;
+
+  if (!move) {
+    // No productive move exists — inform the player
+    showStuckNotification();
+    return;
+  }
 
   // Highlight stock (draw) or recycle
   if (move.fromPile === 'stock' || move.fromPile === 'recycle') {

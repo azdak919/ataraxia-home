@@ -690,7 +690,8 @@
       opacity: 0;
       transition: opacity 0.3s ease, transform 0.3s ease;
       pointer-events: none;
-      white-space: nowrap;
+      max-width: min(90vw, 32rem);
+      overflow-wrap: break-word;
     }
     #no-moves-toast.visible {
       opacity: 1;
@@ -1555,7 +1556,7 @@ function startCascade() {
   const activeCards = [];
   let launchedCount = 0;
   let tick = 0;
-  const LAUNCH_EVERY = 9; // ~60fps → ~7 cards/second
+  const LAUNCH_EVERY = 9; // ~60fps → ~6-7 cards/second
 
   function launchCard() {
     if (launchedCount >= allCardDefs.length) return;
@@ -1572,7 +1573,7 @@ function startCascade() {
 
     // Velocity biased leftward and upward to spread across the screen
     const speed = 7 + Math.random() * 12;
-    // Angle: between 120° and 240° from positive-x axis (left hemisphere, upward)
+    // Angle: between ~117° and ~234° from positive-x axis (left hemisphere, upward/downward)
     const angle = Math.PI * (0.65 + Math.random() * 0.65);
     const vx = Math.cos(angle) * speed * (0.8 + Math.random() * 0.6);
     const vy = Math.sin(angle) * speed;

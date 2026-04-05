@@ -685,12 +685,12 @@
       padding: 0.38rem 1.4rem;
       border-radius: 100px;
       border: 1px solid var(--accent);
-      background: transparent;
-      color: var(--accent);
+      background: var(--accent);
+      color: #fff;
       cursor: pointer;
-      transition: background 0.2s, color 0.2s;
+      transition: opacity 0.2s;
     }
-    #autocomplete-btn:hover { background: var(--accent); color: #fff; }
+    #autocomplete-btn:hover { opacity: 0.85; }
 
     /* ════════════════════════════════════════
        NO MORE MOVES TOAST
@@ -1564,13 +1564,7 @@ function startCascade() {
   hint.textContent = 'Click anywhere to play again';
   container.appendChild(hint);
 
-  // Pick a random win animation
-  const modes = ['bounce', 'confetti', 'fireworks'];
-  const mode = modes[Math.floor(Math.random() * modes.length)];
-
-  if (mode === 'confetti') runConfetti(container);
-  else if (mode === 'fireworks') runFireworks(container);
-  else runBounce(container);
+  runBounce(container);
 }
 
 /* ── Windows Solitaire–style bouncing cards ─────────────────────── */

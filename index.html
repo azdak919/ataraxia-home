@@ -5191,22 +5191,23 @@ const UI_STRINGS = {
 /**
  * QUOTE TRANSLATION SYSTEM — DESIGN NOTES
  *
- * - Quote *text* is translated on demand via public free APIs (MyMemory primary,
- *   Google web fallback, LibreTranslate last resort) with localStorage caching
- *   keyed on the original English text.
- * - Author attributions are **never** sent to the translation APIs.
- *   We always use the clean English form (authorEn || author) provided in the
- *   source data. This avoids mangled names, book titles, and the <g id="N">...
- *   </g> alignment tags that some providers (esp. Google) occasionally leak.
- * - A defensive cleanTranslation() stripper is applied to all translated text
- *   and all author display paths as a safety net.
- * - On startup we sanitize the entire in-memory QUOTES author fields so search
- *   (if re-added later), random selection, and display always see clean data.
- * - UI strings (buttons, labels) have hand-curated translations in UI_STRINGS.
- *   Only the quote body text goes through machine translation.
+ * - Both the quote *text* and the author attribution line are translated on demand
+ *   via public free APIs (MyMemory primary, Google web fallback, LibreTranslate).
+ *   This provides full immersion, including for story titles like
+ *   "Algonquin Story — Wisakedjak and the Sun Snare".
+ * - Translation always starts from the clean English source (authorEn || author
+ *   for the attribution, original text for the body) + localStorage caching.
+ * - A strong defensive cleanTranslation() is applied to *every* result from the
+ *   APIs before use or caching. It strips <g id="..."> tags and any other leaked
+ *   markup that some providers (especially the Google endpoint) occasionally
+ *   return.
+ * - On startup the entire QUOTES dataset has its author/authorEn fields
+ *   sanitized so all display paths see clean base data.
+ * - UI chrome (buttons, labels, settings) uses hand-curated strings in
+ *   UI_STRINGS — only the quote body + author line go through MT.
  *
- * This keeps the experience consistent, readable, and free of garbage markup
- * across all 30+ languages while remaining fully client-side and dependency-free.
+ * The result is smooth, consistent, and free of garbage across languages while
+ * staying 100% client-side with no external dependencies or build step.
  */
 const TRANSLATION_CACHE_KEY = 'stoicflow_translations';
 const LANG_PREF_KEY = 'stoicflow_lang';
@@ -5377,20 +5378,20 @@ async function translateCurrentQuote() {
   textEl.style.opacity = '0';
   authorEl.style.opacity = '0';
 
-  // We deliberately only translate the quote *text*.
-  // Author attributions (proper names + work titles like "Epictetus · Discourses")
-  // are kept in their clean English form (authorEn) for consistency and readability.
-  // Machine-translating them was the source of <g id="..."> leakage and poor results
-  // (e.g. "Epictète, <g...>Discours</g>").
-  const translatedText = await translateText(quote.text, currentLang);
+  // We translate *both* the quote body and the author attribution line.
+  // This is desired for full immersion, especially when the attribution is a
+  // story title (e.g. "Algonquin Story — Wisakedjak and the Sun Snare" →
+  // French equivalent). We start from the clean English source data.
+  const authorSource = quote.authorEn || quote.author;
+  const [translatedText, translatedAuthor] = await batchTranslate(
+    [quote.text, authorSource],
+    currentLang
+  );
 
-  // Only update if still showing the same quote.
+  // Only update if still showing the same quote (stale calls are ignored).
   if (currentQuoteIdx === QUOTES.indexOf(quote)) {
     textEl.textContent = cleanTranslation(translatedText);
-
-    // Always use the pre-provided clean English author (never the translated version).
-    const authorToShow = quote.authorEn || quote.author;
-    authorEl.textContent = cleanTranslation(authorToShow);
+    authorEl.textContent = cleanTranslation(translatedAuthor);
 
     // Double rAF ensures browser renders opacity:0 before starting fade-in transition
     requestAnimationFrame(() => requestAnimationFrame(() => {

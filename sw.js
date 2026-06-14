@@ -27,10 +27,21 @@ const SHELL_ASSETS = [
   './site.webmanifest',
   './favicon.svg',
   './favicon.ico',
+  './favicon-16x16.png',
+  './favicon-32x32.png',
   './favicon-96x96.png',
+  './favicon-128x128.png',
   './apple-touch-icon.png',
-  './web-app-manifest-192x192.png',
-  './web-app-manifest-512x512.png',
+  './apple-touch-icon-120x120.png',
+  './apple-touch-icon-152x152.png',
+  './apple-touch-icon-180x180.png',
+  './icon-192.png',
+  './icon-192-maskable.png',
+  './icon-512.png',
+  './icon-512-maskable.png',
+  './safari-pinned-tab.svg',
+  './browserconfig.xml',
+  './sw.js',
 ];
 
 // ── Install ──────────────────────────────────────────────

@@ -2127,7 +2127,7 @@
       <!-- Search bar for quotes — added during audit for discoverability (addresses original "search bar" description).
            Filters the in-memory quote list by text/author and loads a random matching one. -->
       <div class="quote-search">
-        <input type="search" id="quote-search-input" placeholder="Search quotes..." aria-label="Search stoic quotes by text or author">
+        <input type="search" id="quote-search-input" placeholder="Search quotes or authors..." aria-label="Search stoic quotes by text or author">
       </div>
 
       <div class="quote-action-row">
@@ -3270,7 +3270,8 @@ function showRandomQuote() {
     textEl.textContent = QUOTES[idx].text;
     // Always prefer the English author name (authorEn) so native-script text
     // (e.g. "Μάρκος Αὐρήλιος") is never shown to readers in any language.
-    authorEl.textContent = QUOTES[idx].authorEn || QUOTES[idx].author;
+    const authorSrc = QUOTES[idx].authorEn || QUOTES[idx].author;
+    authorEl.textContent = cleanTranslation(authorSrc);
 
     // Pick a background culturally appropriate for this quote's author
     if (QUOTES[idx].culture) {
@@ -3312,7 +3313,10 @@ function searchQuotes(term) {
   const textEl = document.getElementById('quote-text');
   const authorEl = document.getElementById('quote-author');
   if (textEl) textEl.textContent = chosen.text;
-  if (authorEl) authorEl.textContent = chosen.authorEn || chosen.author;
+  if (authorEl) {
+    const authorSrc = chosen.authorEn || chosen.author;
+    authorEl.textContent = cleanTranslation(authorSrc);
+  }
 
   if (chosen.culture && typeof pickCulturalBackground === 'function') {
     pickCulturalBackground(chosen.culture);
@@ -4302,6 +4306,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // Persist version so solitaire.html (and any other sub-pages) can read it
   try { localStorage.setItem('ataraxia_version', VERSION); } catch(e) {}
 
+  // One-time cleanup of author fields across the entire quote database.
+  // This protects against any <g id="..."> leakage that may have been
+  // present in the original data or introduced by previous translation runs.
+  try {
+    QUOTES.forEach(q => {
+      if (q.author) q.author = cleanTranslation(q.author);
+      if (q.authorEn) q.authorEn = cleanTranslation(q.authorEn);
+    });
+  } catch(e) {}
+
   // Random start
   currentBgIdx = Math.floor(Math.random() * BACKGROUNDS.length);
   loadBackground(currentBgIdx);
@@ -4313,7 +4327,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // so the native-script name never flashes before translation kicks in.
   const _initLangSaved = localStorage.getItem(LANG_PREF_KEY);
   const _initLangNonEn = _initLangSaved && _initLangSaved !== 'en';
-  document.getElementById('quote-author').textContent = _initQuote.authorEn || _initQuote.author;
+  const initAuthor = _initQuote.authorEn || _initQuote.author;
+  document.getElementById('quote-author').textContent = cleanTranslation(initAuthor);
 
   // Remove pomo-container animation after it ends so it doesn't create a
   // containing block that breaks position:fixed on minimized children.
@@ -5329,6 +5344,23 @@ function _gtLang(lang) {
   return map[lang] || lang;
 }
 
+/**
+ * Sanitize text coming back from translation APIs.
+ * Some providers (especially the Google web endpoint) occasionally leak
+ * alignment/glossary markup such as <g id="734">Discours</g>.
+ * We strip these so they never appear in the UI for quote text or authors.
+ */
+function cleanTranslation(str) {
+  if (typeof str !== 'string' || !str) return str;
+  // Remove Google-style <g id="...">...</g> tags (and any variant)
+  let out = str.replace(/<g[^>]*>([\s\S]*?)<\/g>/gi, '$1');
+  // Remove any other stray HTML/XML tags that might leak
+  out = out.replace(/<[^>]+>/g, '');
+  // Normalize whitespace
+  out = out.replace(/\s+/g, ' ').trim();
+  return out;
+}
+
 async function translateText(text, targetLang) {
   if (targetLang === 'en') return text;
   if (!text || !text.trim()) return text;
@@ -5345,7 +5377,7 @@ async function translateText(text, targetLang) {
     if (resp.ok) {
       const data = await resp.json();
       if (data.responseStatus === 200 && data.responseData && data.responseData.translatedText) {
-        const translated = data.responseData.translatedText;
+        const translated = cleanTranslation(data.responseData.translatedText);
         // MyMemory returns uppercase when it can't translate — skip those
         if (translated !== text.toUpperCase()) {
           setCachedTranslation(text, targetLang, translated);
@@ -5364,7 +5396,8 @@ async function translateText(text, targetLang) {
     if (resp.ok) {
       const data = await resp.json();
       // Response is nested arrays: [[["translated","original",...],...],...]
-      const translated = data?.[0]?.map(s => s?.[0]).filter(Boolean).join('');
+      const raw = data?.[0]?.map(s => s?.[0]).filter(Boolean).join('');
+      const translated = cleanTranslation(raw);
       if (translated) {
         setCachedTranslation(text, targetLang, translated);
         return translated;
@@ -5382,8 +5415,9 @@ async function translateText(text, targetLang) {
     if (resp.ok) {
       const data = await resp.json();
       if (data.translatedText) {
-        setCachedTranslation(text, targetLang, data.translatedText);
-        return data.translatedText;
+        const translated = cleanTranslation(data.translatedText);
+        setCachedTranslation(text, targetLang, translated);
+        return translated;
       }
     }
   } catch(e) {}
@@ -5443,8 +5477,8 @@ async function translateCurrentQuote() {
   // Only update if still showing the same quote — a stale call must not
   // fade in either, or it would reveal untranslated text/author names.
   if (currentQuoteIdx === QUOTES.indexOf(quote)) {
-    textEl.textContent = translatedText;
-    authorEl.textContent = translatedAuthor;
+    textEl.textContent = cleanTranslation(translatedText);
+    authorEl.textContent = cleanTranslation(translatedAuthor);
     // Double rAF ensures browser renders opacity:0 before starting fade-in transition
     requestAnimationFrame(() => requestAnimationFrame(() => {
       textEl.style.opacity = '1';
@@ -5609,7 +5643,7 @@ window.showRandomQuote = function() {
     // it is readable during the fade-in. The quote text translation follows.
     const q = QUOTES[currentQuoteIdx];
     if (q && q.authorEn) {
-      document.getElementById('quote-author').textContent = q.authorEn;
+      document.getElementById('quote-author').textContent = cleanTranslation(q.authorEn);
     }
     // Translate the quote text after the fade-in delay
     setTimeout(() => translateCurrentQuote(), 450);
@@ -5646,7 +5680,8 @@ async function switchLanguage(langCode) {
   if (langCode === 'en') {
     const quote = QUOTES[currentQuoteIdx];
     document.getElementById('quote-text').textContent = quote.text;
-    document.getElementById('quote-author').textContent = quote.authorEn || quote.author;
+    const a = quote.authorEn || quote.author;
+    document.getElementById('quote-author').textContent = cleanTranslation(a);
     applyUIStrings(UI_STRINGS.en);
     setLanguageStatus('');
     return;
@@ -5656,8 +5691,8 @@ async function switchLanguage(langCode) {
   // while the quote text translation is pending.
   const currentQuote = QUOTES[currentQuoteIdx];
   if (currentQuote) {
-    document.getElementById('quote-author').textContent =
-      currentQuote.authorEn || currentQuote.author;
+    const a = currentQuote.authorEn || currentQuote.author;
+    document.getElementById('quote-author').textContent = cleanTranslation(a);
   }
 
   setLanguageStatus('Translating…');

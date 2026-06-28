@@ -66,6 +66,9 @@
       --chrome-gutter: 0.75rem;
       --chrome-cap: 760px;
       --chrome-width: min(calc(100vw - var(--chrome-gutter)), var(--chrome-cap));
+      --chrome-surface-bg: rgba(0, 0, 0, 0.22);
+      --chrome-surface-border: rgba(255, 255, 255, 0.1);
+      --chrome-surface-blur: blur(12px);
       --credits-max-width: var(--chrome-width);
       --credits-pad-y: 0.38rem;
       --credits-pad-x: 0.85rem;
@@ -187,11 +190,10 @@
       width: var(--chrome-width);
       max-width: var(--chrome-width);
       border-radius: 20px;
-      background: rgba(0, 0, 0, 0.38);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(22px) saturate(1.3);
-      -webkit-backdrop-filter: blur(22px) saturate(1.3);
-      box-shadow: 0 6px 28px rgba(0, 0, 0, 0.22);
+      background: var(--chrome-surface-bg);
+      border: 1px solid var(--chrome-surface-border);
+      backdrop-filter: var(--chrome-surface-blur);
+      -webkit-backdrop-filter: var(--chrome-surface-blur);
     }
 
     .game-toolbar-main {
@@ -845,12 +847,12 @@
       text-align: center;
       color: rgba(255, 255, 255, 0.75);
       text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
-      background: rgba(0, 0, 0, 0.22);
+      background: var(--chrome-surface-bg);
       padding: var(--credits-pad-y) var(--credits-pad-x);
       border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--chrome-surface-border);
+      backdrop-filter: var(--chrome-surface-blur);
+      -webkit-backdrop-filter: var(--chrome-surface-blur);
       letter-spacing: 0.02em;
     }
     .bottom-badges.visible { opacity: var(--credits-opacity-visible); }

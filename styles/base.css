@@ -684,8 +684,31 @@
     justify-content: flex-start;
   }
 
+  /* Espaceur flex : pousse la citation réduite vers le bas */
+  .content:has(.quote-card.is-minimized) .pomo-container {
+    order: 0;
+  }
+
+  .content:has(.quote-card.is-minimized) .quote-card {
+    order: 2;
+    margin-top: 0;
+  }
+
+  .content:has(.quote-card.is-minimized)::after {
+    content: '';
+    order: 1;
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    pointer-events: none;
+  }
+
+  .pomo-container.is-minimized,
   .quote-card.is-minimized {
-    margin-top: auto;
+    align-self: center;
+    width: var(--chrome-width);
+    max-width: var(--chrome-width);
+    box-sizing: border-box;
   }
 
   /* Large ring */

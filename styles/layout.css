@@ -533,6 +533,14 @@ html[data-layout="wide"] .quote-action-row .btn:hover {
     display: flex !important;
   }
 
+  html[data-layout="touch"] .content:has(.is-minimized),
+  html[data-layout="wide"] .content:has(.is-minimized) {
+    justify-content: flex-start !important;
+    align-items: center;
+    flex: 1 1 0;
+    min-height: 0;
+  }
+
   html[data-layout="touch"] .content,
   html[data-layout="wide"] .content {
     flex: 1;
@@ -548,6 +556,22 @@ html[data-layout="wide"] .quote-action-row .btn:hover {
     align-items: center;
     justify-content: stretch;
     overflow: hidden;
+  }
+
+  html[data-layout="touch"] .pomo-container.is-minimized,
+  html[data-layout="wide"] .pomo-container.is-minimized,
+  html[data-layout="touch"] .quote-card.is-minimized,
+  html[data-layout="wide"] .quote-card.is-minimized {
+    width: var(--chrome-width) !important;
+    max-width: var(--chrome-width) !important;
+    align-self: center;
+  }
+
+  html[data-layout="touch"] .pomo-container.is-minimized .panel-restore-chip,
+  html[data-layout="wide"] .pomo-container.is-minimized .panel-restore-chip,
+  html[data-layout="touch"] .quote-card.is-minimized .panel-restore-chip,
+  html[data-layout="wide"] .quote-card.is-minimized .panel-restore-chip {
+    width: 100%;
   }
 
   html[data-layout="touch"] .pomo-container,

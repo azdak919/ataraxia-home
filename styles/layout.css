@@ -14,68 +14,6 @@ html[data-layout="touch"] {
   --scene-bar-offset: 4rem;
 }
 
-/* ── Toolbar: pastille centrée (miroir de la barre scène) ── */
-html[data-layout="touch"] .top-right-actions {
-  top: max(0.45rem, env(safe-area-inset-top, 0px));
-  left: 50%;
-  right: auto;
-  transform: translateX(-50%);
-  flex-wrap: nowrap;
-  justify-content: center;
-  padding: 0.3rem 0.45rem;
-  gap: 0.15rem;
-  width: var(--chrome-width);
-  max-width: var(--chrome-width);
-  border-radius: 20px;
-  background: rgba(0, 0, 0, 0.38);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(22px) saturate(1.3);
-  -webkit-backdrop-filter: blur(22px) saturate(1.3);
-  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.22);
-}
-
-html[data-layout="touch"] .action-link,
-html[data-layout="touch"] .coffee-btn {
-  padding: 0;
-  font-size: 0;
-  gap: 0;
-  justify-content: center;
-  flex: 0 0 40px;
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
-  border-radius: 50%;
-  border-color: transparent;
-  background: transparent;
-  -webkit-tap-highlight-color: transparent;
-}
-html[data-layout="touch"] .action-link span,
-html[data-layout="touch"] .coffee-btn span { display: none; }
-html[data-layout="touch"] .action-link svg,
-html[data-layout="touch"] .coffee-btn svg { width: 17px; height: 17px; opacity: 0.88; }
-
-html[data-layout="touch"] .lang-btn {
-  padding: 0;
-  font-size: 0;
-  gap: 0;
-  justify-content: center;
-  flex: 0 0 40px;
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
-  border-radius: 50%;
-  border-color: transparent;
-  background: transparent;
-  -webkit-tap-highlight-color: transparent;
-}
-html[data-layout="touch"] .lang-btn span { display: none; }
-html[data-layout="touch"] .lang-btn svg { width: 17px; height: 17px; opacity: 0.88; }
-html[data-layout="touch"] .action-link:active,
-html[data-layout="touch"] .coffee-btn:active,
-html[data-layout="touch"] .lang-btn:active {
-  background: rgba(255, 255, 255, 0.1);
-}
-
 /* ── Scene bar ───────────────────────────────────────── */
 .focus-scene-bar { display: none; }
 
@@ -431,18 +369,6 @@ body.is-portrait-locked { overflow: hidden; }
   }
   html[data-layout="touch"] .scene-btn span { display: none; }
   html[data-layout="touch"] .scene-btn { padding: 0.45rem 0.8rem; min-width: 44px; }
-  html[data-layout="touch"] .action-link,
-  html[data-layout="touch"] .coffee-btn,
-  html[data-layout="touch"] .lang-btn {
-    flex-basis: 36px;
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-  }
-  html[data-layout="touch"] .top-right-actions {
-    gap: 0.08rem;
-    padding: 0.2rem 0.24rem;
-  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -454,91 +380,10 @@ body.is-portrait-locked { overflow: hidden; }
     background: rgba(0, 0, 0, 0.52);
     border-color: rgba(255, 255, 255, 0.08);
   }
-  html[data-layout="touch"] .top-right-actions {
-    background: rgba(0, 0, 0, 0.52);
-    border-color: rgba(255, 255, 255, 0.08);
-  }
   html[data-layout="touch"] .scene-btn.active { color: #1a1816; }
 }
 
-/* ── Wide layout : pomo en haut, citation en bas (compact, sans clipping) ── */
-html[data-layout="wide"] .top-right-actions {
-  top: max(0.65rem, env(safe-area-inset-top, 0px));
-  left: 0;
-  right: 0;
-  margin-inline: auto;
-  width: max-content;
-  max-width: var(--chrome-width);
-  padding: 0.35rem 0.55rem;
-  gap: 0.4rem;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.32);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(22px) saturate(1.3);
-  -webkit-backdrop-filter: blur(22px) saturate(1.3);
-  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.2);
-  justify-content: center;
-}
-
-/* Petit viewport en layout wide — pastille Solitaire (icônes, pas de clipping) */
 @media (max-width: 720px) {
-  html[data-layout="wide"] .top-right-actions {
-    top: max(0.45rem, env(safe-area-inset-top, 0px));
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    width: var(--chrome-width);
-    max-width: var(--chrome-width);
-    flex-wrap: nowrap;
-    justify-content: center;
-    padding: 0.3rem 0.45rem;
-    gap: 0.15rem;
-    border-radius: 20px;
-    background: rgba(0, 0, 0, 0.38);
-  }
-
-  html[data-layout="wide"] .action-link,
-  html[data-layout="wide"] .coffee-btn {
-    padding: 0;
-    font-size: 0;
-    gap: 0;
-    justify-content: center;
-    flex: 0 0 40px;
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
-    border-radius: 50%;
-    border-color: transparent;
-    background: transparent;
-  }
-
-  html[data-layout="wide"] .action-link span,
-  html[data-layout="wide"] .coffee-btn span { display: none; }
-
-  html[data-layout="wide"] .action-link svg,
-  html[data-layout="wide"] .coffee-btn svg { width: 17px; height: 17px; opacity: 0.88; }
-
-  html[data-layout="wide"] .lang-btn {
-    padding: 0;
-    font-size: 0;
-    gap: 0;
-    justify-content: center;
-    flex: 0 0 40px;
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
-    border-radius: 50%;
-    border-color: transparent;
-    background: transparent;
-  }
-
-  html[data-layout="wide"] .lang-btn span { display: none; }
-  html[data-layout="wide"] .lang-btn svg { width: 17px; height: 17px; opacity: 0.88; }
-
-  html[data-layout="wide"] .content {
-    padding-top: var(--content-pad-top);
-  }
-
   html[data-layout="wide"] .pomo-settings {
     width: calc(100vw - 1.25rem);
     max-width: 400px;
@@ -546,12 +391,14 @@ html[data-layout="wide"] .top-right-actions {
   }
 }
 
+/* ── Wide layout : pomo en haut, citation en bas (compact, sans clipping) ── */
+
 html[data-layout="wide"] .content {
   justify-content: center;
   align-items: stretch;
   gap: clamp(0.55rem, 1.4dvh, 0.9rem);
   max-width: min(580px, calc(100vw - 2rem));
-  padding-top: clamp(3rem, 5.5dvh, 3.75rem);
+  padding-top: var(--content-pad-top);
   padding-bottom: max(3.5rem, calc(env(safe-area-inset-bottom, 0px) + 2.75rem));
   overflow-y: auto;
   overflow-x: hidden;

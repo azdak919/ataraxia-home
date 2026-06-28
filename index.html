@@ -79,37 +79,34 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- Top-right actions: Coffee + Language -->
-<div class="top-right-actions">
-
-  <a class="action-link coffee-btn" id="solitaire-btn" href="solitaire.html" aria-label="Play Solitaire">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2L5 12l7 10 7-10z"/></svg>
-    <span id="solitaire-btn-label">Solitaire</span>
-  </a>
-
-  <a class="action-link coffee-btn" id="radar-btn"
-     href="https://azdak919.github.io/radios-etudiantes-qc/"
-     target="_blank" rel="noopener noreferrer" aria-label="Le Radar — radios étudiantes du Québec">
-    <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20H9v2h6v-2h-2v-3.08c3.02-.43 5.42-2.78 5.91-5.78.09-.6-.39-1.14-1-1.14z"/></svg>
-    <span id="radar-btn-label">Le Radar</span>
-  </a>
-
-  <a class="action-link coffee-btn" href="https://www.buymeacoffee.com/azdak"
-     target="_blank" rel="noopener noreferrer" aria-label="Buy me a coffee">
-    <svg viewBox="0 0 24 24"><path d="M20 3H4v10c0 3.31 2.69 6 6 6h4c3.31 0 6-2.69 6-6V8h1a1 1 0 000-2h-1V3zm-2 10c0 2.21-1.79 4-4 4h-4c-2.21 0-4-1.79-4-4V5h12v8zm2-7h-1V4h1v2z"/></svg>
-    <span id="coffee-btn-label">Buy me a coffee</span>
-  </a>
-
-  <div class="lang-selector">
-    <button class="lang-btn" id="lang-btn" aria-label="Change language">
-      <svg viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0014.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
-      <span id="lang-label">English</span>
-    </button>
-    <div class="lang-dropdown" id="lang-dropdown"></div>
-    <div class="lang-translating" id="lang-status"></div>
+<!-- Top toolbar — même pattern que Solitaire (une rangée, pas de sous-barre) -->
+<nav class="top-right-actions" aria-label="Navigation">
+  <div class="app-toolbar-main">
+    <a class="toolbar-btn" id="solitaire-btn" href="solitaire.html" aria-label="Play Solitaire">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2L5 12l7 10 7-10z"/></svg>
+      <span id="solitaire-btn-label">Solitaire</span>
+    </a>
+    <a class="toolbar-btn" id="radar-btn"
+       href="https://azdak919.github.io/radios-etudiantes-qc/"
+       target="_blank" rel="noopener noreferrer" aria-label="Le Radar — radios étudiantes du Québec">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20H9v2h6v-2h-2v-3.08c3.02-.43 5.42-2.78 5.91-5.78.09-.6-.39-1.14-1-1.14z"/></svg>
+      <span id="radar-btn-label">Le Radar</span>
+    </a>
+    <a class="toolbar-btn" id="coffee-btn" href="https://www.buymeacoffee.com/azdak"
+       target="_blank" rel="noopener noreferrer" aria-label="Buy me a coffee">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 3H4v10c0 3.31 2.69 6 6 6h4c3.31 0 6-2.69 6-6V8h1a1 1 0 000-2h-1V3zm-2 10c0 2.21-1.79 4-4 4h-4c-2.21 0-4-1.79-4-4V5h12v8zm2-7h-1V4h1v2z"/></svg>
+      <span id="coffee-btn-label">Buy me a coffee</span>
+    </a>
+    <div class="lang-selector">
+      <button class="lang-btn toolbar-btn" id="lang-btn" aria-label="Change language" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0014.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
+        <span id="lang-label">English</span>
+      </button>
+      <div class="lang-dropdown" id="lang-dropdown"></div>
+      <div class="lang-translating" id="lang-status"></div>
+    </div>
   </div>
-
-</div>
+</nav>
 
 <!-- Page layout: quote card and pomo stacked in center -->
 <div class="page-layout">

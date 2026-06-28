@@ -529,22 +529,26 @@ html[data-layout="touch"] .pomo-fullpage-overlay .pomo-ring {
   html[data-layout="touch"] .scene-btn.active { color: #1a1816; }
 }
 
-/* ── Wide layout : pomo dominant en haut, citation en bas ── */
+/* ── Wide layout : pomo en haut, citation en bas (compact, sans clipping) ── */
 html[data-layout="wide"] .content {
-  justify-content: stretch;
+  justify-content: center;
   align-items: stretch;
-  gap: clamp(0.65rem, 1.8dvh, 1.1rem);
-  max-width: min(680px, calc(100vw - 2rem));
-  padding-top: clamp(3.25rem, 7dvh, 4.5rem);
-  padding-bottom: clamp(1.5rem, 4dvh, 2.75rem);
+  gap: clamp(0.5rem, 1.2dvh, 0.85rem);
+  max-width: min(540px, calc(100vw - 2rem));
+  padding-top: clamp(3rem, 5.5dvh, 3.75rem);
+  padding-bottom: max(3.5rem, calc(env(safe-area-inset-bottom, 0px) + 2.75rem));
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
 }
 
 html[data-layout="wide"] .pomo-container {
-  flex: 1.2 1 0;
+  flex: 0 1 auto;
   min-height: 0;
+  max-height: min(34dvh, 260px);
   display: flex;
   justify-content: center;
-  align-items: stretch;
+  align-items: center;
   width: 100%;
   margin-top: 0;
   animation-delay: 0.65s;
@@ -552,77 +556,116 @@ html[data-layout="wide"] .pomo-container {
 
 html[data-layout="wide"] .pomo-widget {
   width: 100%;
-  max-width: min(420px, 100%);
-  height: 100%;
-  min-height: 0;
-  padding: clamp(1.1rem, 2.8dvh, 1.85rem) clamp(1.25rem, 3vw, 2rem) clamp(1rem, 2.2dvh, 1.5rem);
-  gap: clamp(0.35rem, 1.2dvh, 0.65rem);
-  justify-content: space-between;
+  max-width: min(300px, 100%);
+  height: auto;
+  max-height: 100%;
+  padding: 0.95rem 1.1rem 0.85rem;
+  gap: 0.4rem;
+  justify-content: center;
 }
 
 html[data-layout="wide"] .pomo-ring-wrapper {
-  flex: 1 1 auto;
-  width: auto;
-  height: auto;
-  max-width: min(100%, clamp(200px, 32dvh, 280px));
-  max-height: min(100%, clamp(200px, 32dvh, 280px));
+  flex: 0 0 auto;
+  width: clamp(128px, 20dvh, 172px);
+  height: clamp(128px, 20dvh, 172px);
+  max-width: 100%;
   margin: 0 auto;
 }
 
 html[data-layout="wide"] .pomo-time-inside {
-  font-size: clamp(2.4rem, 8dvh, 3.6rem);
+  font-size: clamp(1.85rem, 5dvh, 2.45rem);
 }
 
 html[data-layout="wide"] .pomo-time-unit {
-  font-size: clamp(1rem, 3dvh, 1.35rem);
+  font-size: clamp(0.82rem, 2.2dvh, 1rem);
 }
 
 html[data-layout="wide"] .pomo-label {
-  font-size: clamp(0.62rem, 1.8dvh, 0.78rem);
+  font-size: 0.58rem;
 }
 
 html[data-layout="wide"] .pomo-controls {
-  gap: clamp(0.5rem, 1.5dvh, 0.75rem);
+  gap: 0.45rem;
+  margin-top: 0.1rem;
 }
 
 html[data-layout="wide"] .pomo-btn--primary {
-  width: clamp(56px, 10dvh, 68px);
-  height: clamp(56px, 10dvh, 68px);
+  width: 50px;
+  height: 50px;
 }
 
 html[data-layout="wide"] .pomo-btn--secondary {
-  width: clamp(46px, 8dvh, 56px);
-  height: clamp(46px, 8dvh, 56px);
+  width: 42px;
+  height: 42px;
 }
 
 html[data-layout="wide"] .pomo-btn--primary svg {
-  width: clamp(24px, 4.5dvh, 30px);
-  height: clamp(24px, 4.5dvh, 30px);
+  width: 22px;
+  height: 22px;
 }
 
 html[data-layout="wide"] .pomo-btn--secondary svg {
-  width: clamp(20px, 3.8dvh, 24px);
-  height: clamp(20px, 3.8dvh, 24px);
+  width: 18px;
+  height: 18px;
 }
 
 html[data-layout="wide"] .quote-card {
-  flex: 1 1 0;
+  flex: 0 1 auto;
   min-height: 0;
-  max-height: none;
-  padding: clamp(1rem, 2.5dvh, 1.75rem) clamp(1.25rem, 3vw, 2.25rem);
+  max-height: min(32dvh, 240px);
+  padding: clamp(0.85rem, 2dvh, 1.25rem) clamp(1rem, 2.5vw, 1.65rem);
   animation-delay: 0.9s;
 }
 
 html[data-layout="wide"] .quote-text {
-  font-size: clamp(1rem, 2.8dvh, 1.55rem);
-  line-height: 1.45;
+  font-size: clamp(0.92rem, 2.1dvh, 1.2rem);
+  line-height: 1.42;
 }
 
 html[data-layout="wide"] .quote-author {
-  font-size: clamp(0.62rem, 1.6dvh, 0.78rem);
+  font-size: clamp(0.58rem, 1.4dvh, 0.72rem);
+}
+
+html[data-layout="wide"] .quote-action-row {
+  padding-top: 0.2rem;
 }
 
 html[data-layout="wide"] .quote-action-row .btn {
-  padding: 0.5rem 1.25rem;
-  font-size: 0.72rem;
+  padding: 0.45rem 1.05rem;
+  font-size: 0.68rem;
+}
+
+html[data-layout="wide"] .bottom-badges {
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+  max-width: calc(100vw - 2rem);
+  justify-content: center;
+  text-align: center;
+  flex-wrap: wrap;
+  font-size: 0.58rem;
+  padding: 0.28rem 0.65rem;
+}
+
+html[data-layout="wide"] .bottom-badges.visible {
+  opacity: 0.75;
+}
+
+/* Tablette paysage / petit viewport en wide */
+@media (max-height: 720px) and (min-width: 601px) {
+  html[data-layout="wide"] .content {
+    padding-top: clamp(2.75rem, 5dvh, 3.25rem);
+    gap: 0.45rem;
+  }
+  html[data-layout="wide"] .pomo-container {
+    max-height: min(30dvh, 220px);
+  }
+  html[data-layout="wide"] .pomo-ring-wrapper {
+    width: clamp(112px, 18dvh, 148px);
+    height: clamp(112px, 18dvh, 148px);
+  }
+  html[data-layout="wide"] .quote-card {
+    max-height: min(28dvh, 200px);
+  }
 }

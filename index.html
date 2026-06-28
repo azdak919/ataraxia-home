@@ -276,6 +276,7 @@
 
   /* Reduced motion */
   @media (prefers-reduced-motion: reduce) {
+    :root { --quote-fade: 60ms; --bg-fade: 180ms; }
     *, *::before, *::after {
       animation-duration: 0.01ms !important;
       transition-duration: 0.01ms !important;
@@ -2108,7 +2109,7 @@
 <div class="top-right-actions">
 
   <a class="action-link coffee-btn" id="solitaire-btn" href="solitaire.html" aria-label="Play Solitaire">
-    <svg viewBox="0 0 24 24"><path d="M12 2L5 12l7 10 7-10z"/></svg>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2zm2 2.5h1.5v1.5H8V6.5zm8 11h1.5v1.5H16v-1.5z"/></svg>
     <span id="solitaire-btn-label">Solitaire</span>
   </a>
 
@@ -2333,7 +2334,7 @@
 /* ═══════════════════════════════════════
    VERSION
    ═══════════════════════════════════════ */
-const VERSION = 'v1.2.34';
+const VERSION = 'v1.2.35';
 
 /* ═══════════════════════════════════════
    QUOTES DATABASE — focus, présent, effort

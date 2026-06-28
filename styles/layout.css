@@ -394,13 +394,6 @@ html[data-layout="wide"] .pomo-widget .pomo-btn--secondary:hover {
   border-color: rgba(255, 255, 255, 0.32);
 }
 
-html[data-layout="wide"] .pomo-widget .pomo-corner-btn,
-html[data-layout="wide"] .pomo-container .pomo-corner-btn {
-  color: var(--text-secondary);
-  border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.05);
-}
-
 html[data-layout="wide"] .quote-card {
   flex: 1 1 auto;
   min-height: min(24dvh, 188px);

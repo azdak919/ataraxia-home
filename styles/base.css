@@ -599,20 +599,22 @@
     box-shadow: 0 14px 44px var(--shadow-medium), 0 2px 8px var(--shadow-soft);
   }
 
-  /* Corner chrome buttons (fullscreen, minimize) */
+  /* Corner chrome buttons (fullscreen, minimize) — même surface que menu/crédits */
   .pomo-corner-btn {
     position: absolute;
     width: var(--pomo-control-size);
     height: var(--pomo-control-size);
     border-radius: 50%;
-    border: 1px solid var(--border-glass);
-    background: transparent;
-    color: var(--text-muted);
+    border: 1px solid var(--chrome-surface-border);
+    background: var(--chrome-surface-bg);
+    backdrop-filter: var(--chrome-surface-blur);
+    -webkit-backdrop-filter: var(--chrome-surface-blur);
+    color: var(--text-secondary);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.25s ease;
+    transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
     z-index: 2;
     padding: 0;
     flex-shrink: 0;
@@ -620,10 +622,14 @@
   }
 
   .pomo-corner-btn:hover {
-    background: var(--bg-glass-hover);
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.22);
     color: var(--text-primary);
   }
-  .pomo-corner-btn:active { background: var(--bg-glass-hover); transform: scale(0.9); }
+  .pomo-corner-btn:active {
+    background: rgba(255, 255, 255, 0.18);
+    transform: scale(0.9);
+  }
 
   .pomo-corner-btn svg {
     width: var(--pomo-control-icon);

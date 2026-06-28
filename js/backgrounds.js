@@ -25,6 +25,20 @@ function _responsiveImgWidth() {
   return 1920;
 }
 
+function showCreditsBar() {
+  const bar = document.querySelector('.bottom-badges');
+  if (!bar || bar.classList.contains('visible')) return;
+  const pageStart = window._ataraxiaPageStart ?? 0;
+  const minAt = parseFloat(
+    getComputedStyle(document.documentElement).getPropertyValue('--ui-delay-credits')
+  ) * 1000 || 540;
+  const wait = Math.max(0, minAt - (performance.now() - pageStart));
+  setTimeout(() => {
+    bar.classList.add('visible');
+    requestAnimationFrame(() => window.AtaraxiaLayout?.updateChromeInsets?.());
+  }, wait);
+}
+
 function loadBackground(index) {
   const bg = BACKGROUNDS[index];
   // Rewrite the width param in Unsplash / Pexels URLs to match the actual viewport,
@@ -95,8 +109,7 @@ function _applyBackground(url, creditText, linkUrl, source, title = '') {
     } else {
       credit.appendChild(document.createTextNode(`${creditText} · ${source}`));
     }
-    document.querySelector('.bottom-badges').classList.add('visible');
-    requestAnimationFrame(() => window.AtaraxiaLayout?.updateChromeInsets?.());
+    showCreditsBar();
 
     function finalizeCrossfade() {
       if (_bgFadeTimer) {

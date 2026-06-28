@@ -838,7 +838,7 @@
       max-width: var(--chrome-width);
       box-sizing: border-box;
       opacity: 0;
-      transition: opacity 0.6s ease, background 0.3s ease;
+      transition: background 0.3s ease, opacity 0.35s ease;
       z-index: 10;
       pointer-events: auto;
       font-family: var(--font-body);
@@ -849,13 +849,20 @@
       text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
       background: var(--chrome-surface-bg);
       padding: var(--credits-pad-y) var(--credits-pad-x);
-      border-radius: 10px;
+      border-radius: 20px;
       border: 1px solid var(--chrome-surface-border);
       backdrop-filter: var(--chrome-surface-blur);
       -webkit-backdrop-filter: var(--chrome-surface-blur);
       letter-spacing: 0.02em;
     }
-    .bottom-badges.visible { opacity: var(--credits-opacity-visible); }
+    @keyframes creditsEnter {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: var(--credits-opacity-visible); transform: none; }
+    }
+    .bottom-badges.visible {
+      opacity: var(--credits-opacity-visible);
+      animation: creditsEnter 0.52s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
     .bottom-badges:hover { opacity: 1; background: rgba(0, 0, 0, 0.36); }
 
     .bottom-badges .credits-divider { margin: 0 0.35rem; opacity: 0.4; }

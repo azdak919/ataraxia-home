@@ -47,6 +47,14 @@
     --credits-opacity-visible: 0.78;
     --chrome-stack-gap: 0.625rem;
 
+    /* Entrée UI — menu → pomo → citation → crédits */
+    --ui-enter-dur: 0.52s;
+    --ui-enter-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --ui-delay-menu: 0.1s;
+    --ui-delay-pomo: 0.26s;
+    --ui-delay-quote: 0.4s;
+    --ui-delay-credits: 0.54s;
+
     /* Pomo controls — taille unique (boutons ronds + coins) */
     --pomo-control-size: 36px;
     --pomo-control-icon: 15px;
@@ -120,7 +128,7 @@
     border: 1px solid var(--chrome-surface-border);
     backdrop-filter: var(--chrome-surface-blur);
     -webkit-backdrop-filter: var(--chrome-surface-blur);
-    animation: uiEnter 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.9s both;
+    animation: uiEnter var(--ui-enter-dur) var(--ui-enter-ease) var(--ui-delay-menu) both;
   }
 
   .app-toolbar-row {
@@ -411,7 +419,7 @@
                 box-shadow 0.4s ease,
                 padding 0.4s cubic-bezier(0.22, 1, 0.36, 1),
                 border-radius 0.4s ease;
-    animation: cardEnter 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.7s both;
+    animation: cardEnter var(--ui-enter-dur) var(--ui-enter-ease) var(--ui-delay-quote) both;
   }
 
   .quote-card .quote-inner {
@@ -447,8 +455,8 @@
   }
 
   @keyframes cardEnter {
-    from { opacity: 0; transform: translateY(36px) scale(0.95); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
+    from { opacity: 0; transform: translateY(22px) scale(0.97); }
+    to   { opacity: 1; transform: none; }
   }
 
   @keyframes uiEnter {
@@ -554,14 +562,14 @@
     flex-direction: column;
     align-items: stretch;
     width: 100%;
-    animation: pomoEnter 1.1s cubic-bezier(0.22, 1, 0.36, 1) 1.0s both;
+    animation: pomoEnter var(--ui-enter-dur) var(--ui-enter-ease) var(--ui-delay-pomo) both;
   }
   .pomo-container.anim-done {
     animation: none;
   }
 
   @keyframes pomoEnter {
-    from { opacity: 0; transform: translateY(30px) scale(0.92); }
+    from { opacity: 0; transform: translateY(20px) scale(0.96); }
     to   { opacity: 1; transform: none; }
   }
 
@@ -1144,7 +1152,7 @@
     box-sizing: border-box;
     text-align: center;
     opacity: 0;
-    transition: opacity 0.6s ease, background 0.3s ease;
+    transition: background 0.3s ease, opacity 0.35s ease;
     z-index: 1;
     pointer-events: auto;
     font-family: var(--font-body);
@@ -1154,14 +1162,20 @@
     text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
     background: var(--chrome-surface-bg);
     padding: var(--credits-pad-y) var(--credits-pad-x);
-    border-radius: 10px;
+    border-radius: 20px;
     border: 1px solid var(--chrome-surface-border);
     backdrop-filter: var(--chrome-surface-blur);
     -webkit-backdrop-filter: var(--chrome-surface-blur);
     letter-spacing: 0.02em;
   }
+  @keyframes creditsEnter {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: var(--credits-opacity-visible); transform: none; }
+  }
+
   .bottom-badges.visible {
     opacity: var(--credits-opacity-visible);
+    animation: creditsEnter var(--ui-enter-dur) var(--ui-enter-ease) both;
   }
   .bottom-badges:hover {
     opacity: 1;

@@ -19,6 +19,7 @@
  *   → initPomoHandlers → backgrounds + quotes → translate
  */
 let _quoteCardObserver = null;
+window._ataraxiaPageStart = performance.now();
 document.addEventListener('DOMContentLoaded', () => {
   if (window.AtaraxiaLayout) window.AtaraxiaLayout.syncLayout();
   migrateLegacyStorage();

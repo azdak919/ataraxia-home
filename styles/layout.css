@@ -107,7 +107,7 @@ html[data-layout="touch"] .pomo-container {
   align-items: center;
   justify-content: center;
   min-height: 0;
-  animation: none;
+  animation: pomoEnter var(--ui-enter-dur) var(--ui-enter-ease) var(--ui-delay-pomo) both;
 }
 html[data-layout="touch"] .pomo-widget {
   width: min(100%, 380px);
@@ -198,7 +198,7 @@ html[data-layout="touch"] .quote-card {
   backdrop-filter: blur(18px) saturate(1.25);
   -webkit-backdrop-filter: blur(18px) saturate(1.25);
   box-shadow: 0 6px 28px rgba(0, 0, 0, 0.1);
-  animation: none;
+  animation: cardEnter var(--ui-enter-dur) var(--ui-enter-ease) var(--ui-delay-quote) both;
   display: flex;
   flex-direction: column;
 }
@@ -325,7 +325,7 @@ html[data-layout="wide"] .pomo-container {
   width: 100%;
   margin-top: 0;
   overflow: visible;
-  animation-delay: 0.65s;
+  animation-delay: var(--ui-delay-pomo);
 }
 
 html[data-layout="wide"] .pomo-settings {
@@ -406,7 +406,7 @@ html[data-layout="wide"] .quote-card {
   min-height: min(24dvh, 188px);
   max-height: min(38dvh, 300px);
   padding: clamp(1.1rem, 2.8dvh, 1.65rem) clamp(1.15rem, 3vw, 2rem);
-  animation-delay: 0.9s;
+  animation-delay: var(--ui-delay-quote);
 }
 
 html[data-layout="wide"] .quote-inner {
@@ -603,6 +603,7 @@ html[data-layout="wide"] .quote-action-row .btn:hover {
     max-height: 100%;
     aspect-ratio: 1;
     margin: 0;
+    overflow: hidden;
   }
 
   html[data-layout="touch"] .pomo-widget .pomo-ring-bg,
@@ -614,19 +615,25 @@ html[data-layout="wide"] .quote-action-row .btn:hover {
 
   html[data-layout="touch"] .pomo-widget .pomo-center,
   html[data-layout="wide"] .pomo-widget .pomo-center {
-    gap: 0.1em;
+    inset: 13%;
+    gap: 0.04em;
+    overflow: hidden;
+    padding: 0 0.08em;
+    box-sizing: border-box;
   }
 
   html[data-layout="touch"] .pomo-widget .pomo-label,
   html[data-layout="wide"] .pomo-widget .pomo-label {
-    font-size: 2em;
-    letter-spacing: 0.14em;
+    font-size: 1.65em;
+    letter-spacing: 0.11em;
+    max-width: 100%;
   }
 
   html[data-layout="touch"] .pomo-widget .pomo-time-inside,
   html[data-layout="wide"] .pomo-widget .pomo-time-inside {
-    font-size: 8.5em;
+    font-size: 6.75em;
     line-height: 1;
+    max-width: 100%;
   }
 
   html[data-layout="touch"] .pomo-widget .pomo-time-unit,
@@ -636,14 +643,15 @@ html[data-layout="wide"] .quote-action-row .btn:hover {
 
   html[data-layout="touch"] .pomo-widget .pomo-dots,
   html[data-layout="wide"] .pomo-widget .pomo-dots {
-    gap: 0.45em;
-    margin-top: 0.35em;
+    gap: 0.38em;
+    margin-top: 0.12em;
+    flex-shrink: 0;
   }
 
   html[data-layout="touch"] .pomo-widget .pomo-dot,
   html[data-layout="wide"] .pomo-widget .pomo-dot {
-    width: 1.15em;
-    height: 1.15em;
+    width: 0.95em;
+    height: 0.95em;
   }
 
   html[data-layout="touch"] .pomo-widget .pomo-controls,
@@ -699,10 +707,6 @@ html[data-layout="wide"] .quote-action-row .btn:hover {
     margin: 0;
     border-radius: 20px;
     padding: 1rem 1rem 0.9rem;
-  }
-
-  html[data-layout="wide"] .pomo-container {
-    animation: none;
   }
 
 }

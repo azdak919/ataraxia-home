@@ -1,0 +1,445 @@
+/* ═══════════════════════════════════════════════════════
+   Ataraxia v1.3 — Layout styles
+   touch: Focus Deck (≤900px tactile) | wide: base index.css
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Touch layout tokens ─────────────────────────────── */
+html[data-layout="touch"] {
+  --ring-max: min(94vw, calc(100dvh - 15rem));
+  --touch-glass: rgba(255, 255, 255, 0.38);
+  --touch-glass-border: rgba(255, 255, 255, 0.18);
+  --content-pad-top: max(3.25rem, calc(env(safe-area-inset-top, 0px) + 2.75rem));
+  --content-pad-bottom: max(6.75rem, calc(env(safe-area-inset-bottom, 0px) + 5.75rem));
+  --scene-bar-offset: 3.6rem;
+}
+
+/* ── Toolbar: icon-only on touch ─────────────────────── */
+html[data-layout="touch"] .action-link,
+html[data-layout="touch"] .coffee-btn {
+  padding: 0.45rem;
+  font-size: 0;
+  gap: 0;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+}
+html[data-layout="touch"] .action-link span,
+html[data-layout="touch"] .coffee-btn span { display: none; }
+html[data-layout="touch"] .action-link svg,
+html[data-layout="touch"] .coffee-btn svg { width: 18px; height: 18px; opacity: 0.85; }
+
+html[data-layout="touch"] .lang-btn {
+  padding: 0.45rem;
+  font-size: 0;
+  gap: 0;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+}
+html[data-layout="touch"] .lang-btn span { display: none; }
+html[data-layout="touch"] .lang-btn svg { width: 18px; height: 18px; opacity: 0.85; }
+
+/* ── Scene bar ───────────────────────────────────────── */
+.focus-scene-bar { display: none; }
+
+html[data-layout="touch"] .focus-scene-bar {
+  display: flex;
+  position: fixed;
+  left: 50%;
+  bottom: max(0.55rem, env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 120;
+  gap: 0.3rem;
+  padding: 0.3rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.38);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(22px) saturate(1.3);
+  -webkit-backdrop-filter: blur(22px) saturate(1.3);
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.22);
+}
+
+.scene-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  padding: var(--scene-btn-pad, 0.45rem 1.1rem);
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.72);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  white-space: nowrap;
+}
+.scene-btn svg {
+  width: 17px;
+  height: 17px;
+  fill: currentColor;
+  opacity: 0.85;
+  flex-shrink: 0;
+}
+.scene-btn.active {
+  background: var(--accent);
+  color: #1a1816;
+  box-shadow: 0 3px 14px var(--accent-glow);
+}
+.scene-btn:not(.active):active { background: rgba(255, 255, 255, 0.1); }
+
+/* ── Page scaffold (touch) ─────────────────────────── */
+html[data-layout="touch"] .page-layout { justify-content: stretch; }
+
+html[data-layout="touch"] .content {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: var(--content-pad-top) 0.65rem var(--content-pad-bottom);
+  gap: 0;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+html[data-layout="touch"][data-scene="timer"] .quote-card { display: none !important; }
+html[data-layout="touch"][data-scene="quote"] .pomo-container { display: none !important; }
+
+/* ── Timer scene ───────────────────────────────────── */
+html[data-layout="touch"] .pomo-container {
+  flex: 1;
+  width: 100%;
+  margin: 0;
+  display: flex;
+  align-items: stretch;
+  animation: none;
+}
+html[data-layout="touch"] .pomo-widget {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  border-radius: 20px;
+  padding: 0.85rem 0.85rem 1rem;
+  gap: 0.35rem;
+  justify-content: space-between;
+  background: var(--touch-glass);
+  border: 1px solid var(--touch-glass-border);
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.1);
+}
+html[data-layout="touch"] .pomo-ring-wrapper {
+  flex: 1 1 auto;
+  aspect-ratio: 1;
+  width: auto;
+  height: auto;
+  max-width: var(--ring-max);
+  max-height: var(--ring-max);
+  margin: 0 auto;
+  align-self: center;
+}
+html[data-layout="touch"] .pomo-time-inside {
+  font-size: var(--pomo-time-size, clamp(3rem, 16vw, 4.8rem));
+}
+html[data-layout="touch"] .pomo-time-unit {
+  font-size: var(--pomo-unit-size, clamp(1rem, 4.5vw, 1.4rem));
+}
+html[data-layout="touch"] .pomo-label {
+  font-size: var(--pomo-label-size, clamp(0.65rem, 2.8vw, 0.82rem));
+}
+html[data-layout="touch"] .pomo-controls {
+  flex-shrink: 0;
+  gap: 0.85rem;
+  margin-top: 0;
+  padding-bottom: 0.15rem;
+}
+html[data-layout="touch"] .pomo-btn { touch-action: manipulation; }
+html[data-layout="touch"] .pomo-btn--primary {
+  width: var(--pomo-primary-size, clamp(58px, 15vw, 72px));
+  height: var(--pomo-primary-size, clamp(58px, 15vw, 72px));
+}
+html[data-layout="touch"] .pomo-btn--secondary {
+  width: var(--pomo-secondary-size, clamp(48px, 12vw, 58px));
+  height: var(--pomo-secondary-size, clamp(48px, 12vw, 58px));
+}
+html[data-layout="touch"] .pomo-btn--primary svg {
+  width: clamp(24px, 6vw, 30px);
+  height: clamp(24px, 6vw, 30px);
+}
+html[data-layout="touch"] .pomo-btn--secondary svg {
+  width: clamp(20px, 5vw, 26px);
+  height: clamp(20px, 5vw, 26px);
+}
+html[data-layout="touch"] .pomo-dot { width: 8px; height: 8px; }
+html[data-layout="touch"] .pomo-dots { gap: 6px; }
+html[data-layout="touch"] .pomo-fullscreen-btn {
+  width: 36px;
+  height: 36px;
+  top: 0.5rem;
+  left: 0.5rem;
+}
+html[data-layout="touch"] .pomo-fullscreen-btn svg { width: 17px; height: 17px; }
+
+html[data-layout="touch"] .pomo-settings {
+  position: fixed;
+  top: max(3.25rem, calc(env(safe-area-inset-top, 0px) + 2.5rem));
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100vw - 1.5rem);
+  max-width: 360px;
+  z-index: 500;
+  max-height: calc(100dvh - 10rem);
+}
+html[data-layout="touch"] .pomo-settings .setting-row input[type="number"] {
+  min-height: 40px;
+  width: 68px;
+  font-size: 1rem;
+}
+html[data-layout="touch"] .pomo-settings .phase-chip { min-height: 40px; }
+
+/* ── Quote scene ─────────────────────────────────────── */
+html[data-layout="touch"] .quote-card {
+  flex: 1;
+  width: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 1.35rem 1.15rem 1.15rem;
+  border-radius: 20px;
+  background: var(--touch-glass);
+  border: 1px solid var(--touch-glass-border);
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.1);
+  animation: none;
+  display: flex;
+  flex-direction: column;
+}
+html[data-layout="touch"] .quote-inner {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: none;
+}
+html[data-layout="touch"] .quote-body {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  justify-content: center;
+}
+html[data-layout="touch"] .quote-text {
+  font-size: var(--quote-text-size, clamp(1.05rem, 4.8vw, 1.35rem));
+  line-height: 1.5;
+}
+html[data-layout="touch"] .quote-author {
+  font-size: clamp(0.68rem, 2.8vw, 0.82rem);
+  margin-top: 0.5rem;
+}
+html[data-layout="touch"] .quote-action-row {
+  flex-shrink: 0;
+  gap: 0.55rem;
+  margin-top: 0.85rem;
+  display: flex;
+}
+html[data-layout="touch"] .quote-action-row .btn {
+  flex: 1;
+  min-height: 44px;
+  font-size: 0.72rem;
+  padding: 0.5rem 0.75rem;
+}
+
+/* ── Credits (touch) ───────────────────────────────── */
+html[data-layout="touch"] .bottom-badges {
+  bottom: calc(max(0.55rem, env(safe-area-inset-bottom, 0px)) + var(--scene-bar-offset));
+  font-size: 0.52rem;
+  opacity: 0.45;
+}
+html[data-layout="touch"] .bottom-badges.visible { opacity: 0.55; }
+
+@media (orientation: portrait) {
+  html[data-layout="touch"] .bottom-badges {
+    left: max(1rem, env(safe-area-inset-left, 0px));
+    right: max(1rem, env(safe-area-inset-right, 0px));
+    width: auto;
+    max-width: none;
+    justify-content: center;
+    text-align: center;
+    flex-wrap: wrap;
+    gap: 0.1rem 0.35rem;
+    box-sizing: border-box;
+  }
+  html[data-layout="touch"] .img-credit {
+    flex-basis: 100%;
+    text-align: center;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    max-width: 100%;
+  }
+  html[data-layout="touch"] .bottom-badges .img-credit + .credits-divider {
+    display: none;
+  }
+}
+
+/* ── Tablet tactile density (601px+) ─────────────────── */
+@media (min-width: 601px) and (hover: none) {
+  html[data-layout="touch"] {
+    --ring-max: min(70vw, calc(100dvh - 12rem));
+    --scene-btn-pad: 0.55rem 1.4rem;
+    --quote-text-size: clamp(1.1rem, 3vw, 1.45rem);
+    --content-pad-top: max(3.75rem, calc(env(safe-area-inset-top, 0px) + 3.25rem));
+    --content-pad-bottom: max(7rem, calc(env(safe-area-inset-bottom, 0px) + 6rem));
+  }
+  html[data-layout="touch"] .quote-card {
+    padding: 1.5rem 1.5rem 1.25rem;
+  }
+  html[data-layout="touch"] .pomo-settings {
+    max-width: 420px;
+  }
+}
+
+/* ── Paysage tactile ─────────────────────────────────── */
+@media (orientation: landscape) and (max-height: 650px) and (hover: none) {
+  html[data-layout="touch"] {
+    --ring-max: min(calc(100dvh - 3.25rem), calc(100vw - 2rem));
+    --content-pad-top: max(2.5rem, calc(env(safe-area-inset-top, 0px) + 2rem));
+    --content-pad-bottom: max(4.25rem, calc(env(safe-area-inset-bottom, 0px) + 3.5rem));
+    --scene-bar-offset: 3.25rem;
+    --pomo-time-size: clamp(2.6rem, 22dvh, 4.5rem);
+    --pomo-unit-size: clamp(0.9rem, 6dvh, 1.35rem);
+    --pomo-label-size: clamp(0.58rem, 3.5dvh, 0.78rem);
+    --pomo-primary-size: clamp(52px, 14dvh, 66px);
+    --pomo-secondary-size: clamp(44px, 11dvh, 56px);
+    --quote-text-size: clamp(0.92rem, 2.6vw, 1.15rem);
+  }
+  html[data-layout="touch"] .content {
+    padding-left: max(0.65rem, env(safe-area-inset-left, 0px));
+    padding-right: max(0.65rem, env(safe-area-inset-right, 0px));
+  }
+  html[data-layout="touch"] .pomo-widget {
+    padding: 0.45rem 0.85rem 0.4rem;
+    border-radius: 16px;
+  }
+  html[data-layout="touch"] .pomo-controls { gap: 0.65rem; }
+  html[data-layout="touch"] .quote-card {
+    padding: 0.75rem 1.1rem 0.7rem;
+    border-radius: 16px;
+  }
+  html[data-layout="touch"] .quote-text { line-height: 1.4; }
+  html[data-layout="touch"] .quote-action-row .btn {
+    min-height: 40px;
+    font-size: 0.68rem;
+  }
+  html[data-layout="touch"] .bottom-badges {
+    font-size: 0.42rem;
+  }
+  html[data-layout="touch"] .bottom-badges .img-credit,
+  html[data-layout="touch"] .bottom-badges .img-credit + .credits-divider {
+    display: none;
+  }
+  html[data-layout="touch"] .pomo-settings {
+    top: max(2.5rem, calc(env(safe-area-inset-top, 0px) + 2rem));
+    max-height: calc(100dvh - 5rem);
+    max-width: min(420px, calc(100vw - 1.5rem));
+  }
+  html[data-layout="touch"] .focus-scene-bar {
+    bottom: max(0.4rem, env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Fullscreen pomo overlay — paysage tactile */
+  .pomo-fullpage-overlay {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    justify-content: center;
+    align-items: center;
+  }
+  .pomo-fullpage-overlay .pomo-ring-wrapper {
+    width: min(calc(100dvh - 3rem), 85vw);
+    height: min(calc(100dvh - 3rem), 85vw);
+  }
+  .pomo-fullpage-overlay .pomo-ring {
+    width: 100%;
+    height: 100%;
+  }
+  .pomo-fullpage-overlay .pomo-time-inside { font-size: clamp(2.4rem, 13vh, 4.2rem); }
+  .pomo-fullpage-overlay .pomo-time-unit { font-size: clamp(0.9rem, 3.5vh, 1.3rem); }
+  .pomo-fullpage-overlay .pomo-label { font-size: clamp(0.6rem, 2.2vh, 0.8rem); }
+  .pomo-fullpage-overlay .pomo-controls { gap: 0.75rem; }
+  .pomo-fullpage-overlay .pomo-btn--primary { width: clamp(50px, 12vh, 60px); height: clamp(50px, 12vh, 60px); }
+  .pomo-fullpage-overlay .pomo-btn--primary svg { width: clamp(22px, 5.5vh, 28px); height: clamp(22px, 5.5vh, 28px); }
+  .pomo-fullpage-overlay .pomo-btn--secondary { width: clamp(42px, 10vh, 52px); height: clamp(42px, 10vh, 52px); }
+  .pomo-fullpage-overlay .pomo-btn--secondary svg { width: clamp(18px, 4.5vh, 24px); height: clamp(18px, 4.5vh, 24px); }
+  .pomo-fullpage-overlay .pomo-phase-ready-label { font-size: 0.6rem; }
+  .pomo-fullpage-overlay .pomo-dots { margin-top: 0.15rem; }
+  .pomo-fullpage-close { top: 0.4rem; right: 0.4rem; width: 30px; height: 30px; }
+  .pomo-fullpage-close svg { width: 14px; height: 14px; }
+  .pomo-fullpage-overlay .pomo-radial-settings.open {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+    gap: 0.6rem;
+    position: absolute;
+    inset: 0;
+    pointer-events: auto;
+    background: var(--bg-glass);
+    backdrop-filter: blur(32px) saturate(1.4);
+    -webkit-backdrop-filter: blur(32px) saturate(1.4);
+    padding: 0.5rem 1.5rem;
+    z-index: 910;
+  }
+  .pomo-fullpage-overlay .pomo-radial-settings .radial-item {
+    position: static !important;
+    transform: none !important;
+    animation: none !important;
+    opacity: 1 !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .pomo-fullpage-overlay .pomo-radial-settings .radial-item label {
+    font-size: 0.6rem;
+    margin-bottom: 0.2rem;
+  }
+  .pomo-fullpage-overlay .pomo-radial-settings .radial-item input[type="number"] {
+    width: 52px;
+    font-size: 0.8rem;
+    padding: 0.3rem;
+  }
+  .pomo-fullpage-overlay .pomo-radial-settings .radial-chip .phase-chip {
+    font-size: 0.65rem;
+    padding: 0.3rem 0.6rem;
+  }
+  .pomo-fp-settings-close {
+    display: flex !important;
+    width: 30px;
+    height: 30px;
+  }
+}
+
+@media (max-width: 360px) {
+  html[data-layout="touch"] .scene-btn span { display: none; }
+  html[data-layout="touch"] .scene-btn { padding: 0.45rem 0.8rem; min-width: 44px; }
+}
+
+@media (prefers-color-scheme: dark) {
+  html[data-layout="touch"] {
+    --touch-glass: rgba(30, 28, 26, 0.55);
+    --touch-glass-border: rgba(255, 255, 255, 0.1);
+  }
+  html[data-layout="touch"] .focus-scene-bar {
+    background: rgba(0, 0, 0, 0.52);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+  html[data-layout="touch"] .scene-btn.active { color: #1a1816; }
+}

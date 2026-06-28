@@ -680,6 +680,14 @@
     animation: none;
   }
 
+  .content:has(.is-minimized) {
+    justify-content: flex-start;
+  }
+
+  .quote-card.is-minimized {
+    margin-top: auto;
+  }
+
   /* Large ring */
   .pomo-ring-wrapper {
     position: relative;
@@ -1155,17 +1163,14 @@
      POMODORO FULL-PAGE VIEW
      ═══════════════════════ */
   .pomo-fullpage-overlay {
-    display: flex;
+    display: grid;
+    place-items: center;
     position: fixed;
     inset: 0;
     z-index: 900;
     background: var(--bg-glass);
     backdrop-filter: blur(32px) saturate(1.4);
     -webkit-backdrop-filter: blur(32px) saturate(1.4);
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
     min-height: 100vh;
     min-height: 100dvh;
     min-height: -webkit-fill-available;
@@ -1190,8 +1195,9 @@
     justify-content: center;
     gap: 0.45rem;
     width: min(100%, 420px);
-    margin: auto;
+    margin: 0;
     flex-shrink: 0;
+    grid-area: 1 / 1;
   }
 
   .pomo-fullpage-overlay .pomo-phase-ready-label {
@@ -1239,11 +1245,6 @@
 
   .pomo-fullpage-overlay .pomo-time-unit {
     font-size: 1.4rem;
-  }
-
-  .pomo-fullpage-overlay {
-    --pomo-control-size: 48px;
-    --pomo-control-icon: 20px;
   }
 
   .pomo-fullpage-overlay .pomo-controls {

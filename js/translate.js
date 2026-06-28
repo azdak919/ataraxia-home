@@ -55,6 +55,7 @@ const UI_STRINGS = {
     readyBreak: 'Ready to break',
     readyFocus: 'Ready to focus',
     quote: 'Quote',
+    pomodoro: 'Pomodoro',
     solitaireBtn: 'Solitaire',
     radarBtn: 'Le Radar',
     coffeeBtn: 'Buy me a coffee',
@@ -81,6 +82,7 @@ const UI_STRINGS = {
     readyBreak: 'Prêt pour la pause',
     readyFocus: 'Prêt à se concentrer',
     quote: 'Citation',
+    pomodoro: 'Pomodoro',
     solitaireBtn: 'Solitaire',
     radarBtn: 'Le Radar',
     coffeeBtn: 'Offrir un café',
@@ -953,7 +955,7 @@ function applyUIStrings(strings) {
   if (pomoRestoreBtn) {
     pomoRestoreBtn.setAttribute('aria-label', strings.restorePomo || fallback.restorePomo);
     const lbl = document.getElementById('pomo-restore-label');
-    if (lbl) lbl.textContent = strings.focus;
+    if (lbl) lbl.textContent = strings.pomodoro || 'Pomodoro';
   }
   if (quoteRestoreBtn) {
     quoteRestoreBtn.setAttribute('aria-label', strings.restoreQuote || fallback.restoreQuote);

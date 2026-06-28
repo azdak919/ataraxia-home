@@ -79,6 +79,10 @@ html[data-layout="touch"] .focus-scene-bar .scene-btn {
 /* ── Page scaffold (touch) ─────────────────────────── */
 html[data-layout="touch"] .page-layout { justify-content: stretch; }
 
+html[data-layout="touch"] .content:has(.is-minimized) {
+  justify-content: flex-start;
+}
+
 html[data-layout="touch"] .content {
   flex: 1;
   min-height: 0;
@@ -146,10 +150,6 @@ html[data-layout="touch"] .pomo-controls {
   gap: 0.75rem;
   margin-top: 0.15rem;
   padding-bottom: 0.1rem;
-}
-html[data-layout="touch"] {
-  --pomo-control-size: clamp(44px, 11vw, 52px);
-  --pomo-control-icon: clamp(18px, 4.5vw, 22px);
 }
 html[data-layout="touch"] .pomo-btn,
 html[data-layout="touch"] .pomo-corner-btn { touch-action: manipulation; }
@@ -268,11 +268,6 @@ html[data-layout="touch"] .pomo-fullpage-overlay.open {
   visibility: visible;
   pointer-events: auto;
 }
-html[data-layout="touch"] .pomo-fullpage-overlay {
-  display: grid;
-  place-items: center;
-}
-
 html[data-layout="touch"] .pomo-fullpage-main {
   width: min(100%, 400px);
   gap: 0.4rem;
@@ -374,6 +369,10 @@ body.is-portrait-locked { overflow: hidden; }
 
 /* ── Wide layout : pomo en haut, citation en bas (compact, sans clipping) ── */
 
+html[data-layout="wide"] .content:has(.is-minimized) {
+  justify-content: flex-start;
+}
+
 html[data-layout="wide"] .content {
   justify-content: center;
   align-items: stretch;
@@ -453,11 +452,6 @@ html[data-layout="wide"] .pomo-controls {
   margin-top: 0.1rem;
 }
 
-html[data-layout="wide"] {
-  --pomo-control-size: 42px;
-  --pomo-control-icon: 17px;
-}
-
 html[data-layout="wide"] .pomo-btn--secondary {
   color: var(--text-primary);
   border-color: rgba(255, 255, 255, 0.22);
@@ -474,11 +468,6 @@ html[data-layout="wide"] .pomo-corner-btn {
   color: var(--text-secondary);
   border-color: rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.05);
-}
-
-html[data-layout="wide"] .pomo-fullpage-overlay {
-  display: grid;
-  place-items: center;
 }
 
 html[data-layout="wide"] .pomo-fullpage-overlay .pomo-ring-wrapper,
@@ -662,9 +651,4 @@ html[data-layout="wide"] .quote-action-row .btn:hover {
     animation: none;
   }
 
-  html[data-layout="touch"] .content:has(.pomo-container.is-minimized):has(.quote-card.is-minimized),
-  html[data-layout="wide"] .content:has(.pomo-container.is-minimized):has(.quote-card.is-minimized) {
-    justify-content: flex-start;
-    gap: 0.35rem;
-  }
 }

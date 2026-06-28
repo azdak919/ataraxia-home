@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Solitaire — Ataraxia</title>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'nonce-ataraxia-sol'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://images.unsplash.com https://images.pexels.com https://upload.wikimedia.org https://commons.wikimedia.org https://deckofcardsapi.com; connect-src 'self' https://api.mymemory.translated.net https://translate.googleapis.com https://libretranslate.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'nonce-ataraxia-sol'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://images.unsplash.com https://images.pexels.com https://upload.wikimedia.org https://commons.wikimedia.org https://deckofcardsapi.com; connect-src 'self' https://api.mymemory.translated.net https://translate.googleapis.com https://libretranslate.com; frame-src https://azdak919.github.io http://127.0.0.1:8888 http://localhost:8888; object-src 'none'; base-uri 'self'; form-action 'none'">
 
   <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
@@ -77,6 +77,7 @@
       --credits-bottom: max(0.65rem, env(safe-area-inset-bottom, 0px));
       --credits-opacity-visible: 0.78;
       --sol-toolbar-offset: calc(max(0.45rem, env(safe-area-inset-top, 0px)) + 5.1rem);
+      --radar-embed-h: 58px;
       --credits-bar-offset: 0px;
     }
 
@@ -194,6 +195,7 @@
       border: 1px solid var(--chrome-surface-border);
       backdrop-filter: var(--chrome-surface-blur);
       -webkit-backdrop-filter: var(--chrome-surface-blur);
+      overflow: visible;
     }
 
     .game-toolbar-main {
@@ -202,6 +204,28 @@
       align-items: center;
       justify-content: center;
       gap: 0.18rem;
+    }
+
+    .game-toolbar-tuner {
+      margin-top: 0.34rem;
+      padding-top: 0.34rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      overflow: visible;
+      position: relative;
+      z-index: 3;
+      flex-shrink: 0;
+    }
+
+    .radar-embed-frame {
+      display: block;
+      width: 100%;
+      height: var(--radar-embed-h);
+      min-height: 58px;
+      max-height: 160px;
+      border: 0;
+      border-radius: 12px;
+      background: transparent;
+      color-scheme: normal;
     }
 
     .game-toolbar-sub {
@@ -213,6 +237,8 @@
       margin-top: 0.34rem;
       padding-top: 0.34rem;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+      z-index: 1;
     }
 
     .toolbar-stats {
@@ -962,6 +988,17 @@
     <div class="lang-dropdown" id="lang-dropdown"></div>
     <div class="lang-translating" id="lang-status"></div>
   </div>
+  </div>
+  <div class="game-toolbar-tuner" id="game-toolbar-tuner">
+    <iframe
+      id="radar-embed"
+      class="radar-embed-frame"
+      src="https://azdak919.github.io/radios-etudiantes-qc/tuner-embed.html"
+      title="Le Radar — syntoniseur radio"
+      loading="lazy"
+      allow="autoplay; encrypted-media"
+      referrerpolicy="no-referrer-when-downgrade"
+    ></iframe>
   </div>
   <div class="game-toolbar-sub">
     <div class="toolbar-stats" id="toolbar-stats">
@@ -2512,6 +2549,25 @@ window.addEventListener('resize', () => {
   const ro = new ResizeObserver(() => updateLayoutInsets());
   if (toolbar) ro.observe(toolbar);
   if (credits) ro.observe(credits);
+})();
+
+(function initRadarEmbed() {
+  const iframe = document.getElementById('radar-embed');
+  if (!iframe) return;
+
+  const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  if (isLocal) {
+    iframe.src = `${location.protocol}//${location.hostname}:8888/tuner-embed.html`;
+  }
+
+  window.addEventListener('message', (e) => {
+    if (e.data?.type !== 'ataraxia-radar-embed') return;
+    if (e.source !== iframe.contentWindow) return;
+    const height = Number(e.data.height);
+    if (!Number.isFinite(height) || height < 58 || height > 160) return;
+    document.documentElement.style.setProperty('--radar-embed-h', `${Math.ceil(height)}px`);
+    updateLayoutInsets();
+  });
 })();
 
 

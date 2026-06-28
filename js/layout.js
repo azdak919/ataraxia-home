@@ -11,11 +11,15 @@
     portrait: '(orientation: portrait)',
   };
 
-  /** Téléphone / tablette tactile — évite le layout « wide » avec menu texte sur mobile. */
+  /** Largeur moyenne téléphone — au-delà → layout wide (desktop/tablette). */
+  const PHONE_LAYOUT_MAX = 430;
+
+  /** Téléphone tactile étroit — layout Focus Deck + pomo/citation empilés. */
   function isTouchViewport() {
+    const w = window.innerWidth;
+    if (w > PHONE_LAYOUT_MAX) return false;
     const coarse = window.matchMedia('(pointer: coarse)').matches;
     const noHover = window.matchMedia('(hover: none)').matches;
-    const w = window.innerWidth;
     const h = window.innerHeight;
     return (coarse && (w <= 1024 || h <= 520)) || (noHover && w <= 900);
   }
@@ -152,6 +156,7 @@
   window.AtaraxiaLayout = {
     LAYOUT_MQS,
     SCENE_KEY,
+    PHONE_LAYOUT_MAX,
     isTouchViewport,
     syncLayout,
     syncScene,

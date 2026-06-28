@@ -289,7 +289,7 @@ html[data-layout="touch"] .bottom-badges {
   html[data-layout="touch"] .scene-btn.active { color: #1a1816; }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 430px) {
   html[data-layout="wide"] .pomo-settings {
     width: calc(100vw - 1.25rem);
     max-width: 400px;
@@ -472,8 +472,8 @@ html[data-layout="wide"] .quote-action-row .btn:hover {
   }
 }
 
-/* ── Téléphone : largeur chrome, pomo + quote 50/50 ─── */
-@media (max-width: 720px) {
+/* ── Téléphone (≤430px) : largeur chrome, pomo + quote 50/50 ─── */
+@media (max-width: 430px) {
   .top-right-actions .lang-btn span {
     display: none;
   }
@@ -527,8 +527,8 @@ html[data-layout="wide"] .quote-action-row .btn:hover {
   html[data-layout="wide"] .pomo-container.is-minimized,
   html[data-layout="touch"] .quote-card.is-minimized,
   html[data-layout="wide"] .quote-card.is-minimized {
-    width: var(--chrome-width) !important;
-    max-width: var(--chrome-width) !important;
+    width: var(--pill-max-width) !important;
+    max-width: var(--pill-max-width) !important;
     align-self: center;
   }
 
@@ -689,12 +689,39 @@ html[data-layout="wide"] .quote-action-row .btn:hover {
     max-width: 100%;
   }
 
-  /* Citation réduite : pomo prend tout l'espace vertical */
+  /* Citation réduite : pomo centré, anneau + contrôles groupés */
   html[data-layout="touch"] .content:has(.quote-card.is-minimized) .pomo-container,
   html[data-layout="wide"] .content:has(.quote-card.is-minimized) .pomo-container {
     flex: 1 1 auto;
     min-height: 0;
     max-height: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  html[data-layout="touch"] .content:has(.quote-card.is-minimized) .pomo-widget,
+  html[data-layout="wide"] .content:has(.quote-card.is-minimized) .pomo-widget {
+    grid-template-rows: auto auto auto;
+    align-content: center;
+    height: auto;
+    max-height: 100%;
+    flex: 0 1 auto;
+    gap: 0.38em;
+    padding-bottom: 0.8em;
+  }
+
+  html[data-layout="touch"] .content:has(.quote-card.is-minimized) .pomo-widget .pomo-ring-wrapper,
+  html[data-layout="wide"] .content:has(.quote-card.is-minimized) .pomo-widget .pomo-ring-wrapper {
+    width: min(28em, 100%);
+    height: auto;
+    aspect-ratio: 1;
+    max-height: min(28em, calc(100dvh - 13rem));
+  }
+
+  html[data-layout="touch"] .content:has(.quote-card.is-minimized) .pomo-widget .pomo-controls,
+  html[data-layout="wide"] .content:has(.quote-card.is-minimized) .pomo-widget .pomo-controls {
+    margin-top: 0;
+    padding-bottom: 0.1em;
   }
 
   html[data-layout="touch"] .quote-card,

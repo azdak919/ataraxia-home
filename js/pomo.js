@@ -5,6 +5,12 @@
 const CIRCUMFERENCE = 2 * Math.PI * 52; // ~326.73  (r=52 in 120×120 viewBox)
 let pomo = loadPomoState();
 
+function phoneLayoutMax() {
+  return window.AtaraxiaLayout?.PHONE_LAYOUT_MAX
+    ?? parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--phone-layout-max'))
+    ?? 430;
+}
+
 function defaultPomoState() {
   return {
     workMin: 25,
@@ -426,10 +432,13 @@ function syncWidgetScale() {
   const container = document.getElementById('pomo-container');
   if (!widget || !container) return;
 
-  if (window.innerWidth > 720 || container.classList.contains('is-minimized')) {
+  const maxW = phoneLayoutMax();
+  if (window.innerWidth > maxW || container.classList.contains('is-minimized')) {
     widget.style.removeProperty('--pw-base');
     return;
   }
+
+  const quoteMinimized = document.getElementById('quote-card')?.classList.contains('is-minimized');
 
   function computeBase() {
     const rect = widget.getBoundingClientRect();
@@ -453,8 +462,13 @@ function syncWidgetScale() {
       : 0;
 
     const availW = rect.width - padLeft - padRight;
-    const availH = rect.height - padTop - padBottom - controlsH - phaseH;
 
+    if (quoteMinimized) {
+      const ringPx = Math.max(96, availW);
+      return ringPx / POMO_RING_EM;
+    }
+
+    const availH = rect.height - padTop - padBottom - controlsH - phaseH;
     const ringPx = Math.max(96, Math.min(availW, availH));
     return ringPx / POMO_RING_EM;
   }
@@ -464,7 +478,7 @@ function syncWidgetScale() {
   widget.style.setProperty('--pw-base', `${basePx}px`);
 
   requestAnimationFrame(() => {
-    if (window.innerWidth > 720 || container.classList.contains('is-minimized')) return;
+    if (window.innerWidth > maxW || container.classList.contains('is-minimized')) return;
     const refined = computeBase();
     if (refined != null) widget.style.setProperty('--pw-base', `${refined}px`);
   });

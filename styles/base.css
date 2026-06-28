@@ -46,6 +46,9 @@
     --credits-opacity: 0.72;
     --credits-opacity-visible: 0.78;
     --chrome-stack-gap: 0.625rem;
+    /* Largeur moyenne téléphone — pilules réduites + seuil layout */
+    --phone-layout-max: 430px;
+    --pill-max-width: min(var(--chrome-width), var(--phone-layout-max));
 
     /* Entrée UI — menu → pomo → citation → crédits */
     --ui-enter-dur: 0.52s;
@@ -714,9 +717,9 @@
     max-height: none;
     animation: none;
     align-self: center;
-    width: var(--chrome-width);
-    max-width: var(--chrome-width);
-    min-width: var(--chrome-width);
+    width: var(--pill-max-width);
+    max-width: var(--pill-max-width);
+    min-width: 0;
     box-sizing: border-box;
   }
 

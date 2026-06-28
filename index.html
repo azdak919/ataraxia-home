@@ -38,7 +38,8 @@
   const noHover = matchMedia('(hover: none)').matches;
   const w = window.innerWidth;
   const h = window.innerHeight;
-  const touch = (coarse && (w <= 1024 || h <= 520)) || (noHover && w <= 900);
+  const phoneMax = 430;
+  const touch = w <= phoneMax && ((coarse && (w <= 1024 || h <= 520)) || (noHover && w <= 900));
   root.dataset.layout = touch ? 'touch' : 'wide';
   if (touch) {
     try {

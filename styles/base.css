@@ -181,6 +181,16 @@
     text-overflow: ellipsis;
   }
 
+  /* Téléphone : icône traduction seule */
+  html[data-layout="touch"] .top-right-actions .lang-btn span {
+    display: none;
+  }
+
+  html[data-layout="touch"] .top-right-actions .lang-btn {
+    padding: 0.42rem;
+    gap: 0;
+  }
+
   @media (max-width: 360px) {
     .top-right-actions {
       padding: 0.34rem 0.45rem 0.28rem;

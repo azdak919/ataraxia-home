@@ -585,3 +585,108 @@ html[data-layout="wide"] .quote-action-row .btn:hover {
     font-size: clamp(0.98rem, 2.4dvh, 1.28rem);
   }
 }
+
+/* ── Téléphone : largeur chrome, pomo + quote 50/50 ─── */
+@media (max-width: 720px) {
+  .top-right-actions .lang-btn span {
+    display: none;
+  }
+
+  .top-right-actions .lang-btn {
+    padding: 0.42rem;
+    gap: 0;
+  }
+
+  html[data-layout="touch"] .focus-scene-bar,
+  html[data-layout="wide"] .focus-scene-bar {
+    display: none !important;
+  }
+
+  html[data-layout="touch"] .bottom-badges,
+  html[data-layout="wide"] .bottom-badges {
+    bottom: var(--credits-bottom);
+  }
+
+  html[data-layout="touch"][data-scene="timer"] .quote-card,
+  html[data-layout="touch"][data-scene="quote"] .pomo-container {
+    display: flex !important;
+  }
+
+  html[data-layout="touch"] .content,
+  html[data-layout="wide"] .content {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: var(--content-pad-top);
+    padding-bottom: var(--content-pad-bottom);
+    gap: 0.35rem;
+    align-items: center;
+    justify-content: stretch;
+    overflow: hidden;
+  }
+
+  html[data-layout="touch"] .pomo-container,
+  html[data-layout="wide"] .pomo-container {
+    flex: 1 1 0;
+    min-height: 0;
+    width: var(--chrome-width);
+    max-width: var(--chrome-width);
+    max-height: none;
+    margin: 0;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+  }
+
+  html[data-layout="touch"] .pomo-widget,
+  html[data-layout="wide"] .pomo-widget {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    min-height: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 20px;
+  }
+
+  html[data-layout="touch"] .pomo-ring-wrapper,
+  html[data-layout="wide"] .pomo-ring-wrapper {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: auto;
+    max-width: min(100%, 220px);
+    height: auto;
+    max-height: min(100%, 36vw);
+    aspect-ratio: 1;
+    margin: 0 auto;
+    align-self: center;
+  }
+
+  html[data-layout="touch"] .pomo-time-inside,
+  html[data-layout="wide"] .pomo-time-inside {
+    font-size: clamp(2rem, 10vw, 3.2rem);
+  }
+
+  html[data-layout="touch"] .quote-card,
+  html[data-layout="wide"] .quote-card {
+    flex: 1 1 0;
+    min-height: 0;
+    width: var(--chrome-width);
+    max-width: var(--chrome-width);
+    max-height: none;
+    margin: 0;
+    border-radius: 20px;
+    padding: 1rem 1rem 0.9rem;
+  }
+
+  html[data-layout="wide"] .pomo-container {
+    animation: none;
+  }
+}

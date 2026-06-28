@@ -1015,7 +1015,10 @@ async function switchLanguage(langCode) {
   localStorage.setItem(LANG_PREF_KEY, langCode);
 
   const langData = SUPPORTED_LANGS.find(l => l.code === langCode);
-  document.getElementById('lang-label').textContent = langData ? langData.native : langCode;
+  const langLabel = langData ? langData.native : langCode;
+  document.getElementById('lang-label').textContent = langLabel;
+  const langBtn = document.getElementById('lang-btn');
+  if (langBtn) langBtn.setAttribute('aria-label', `Language: ${langLabel}`);
   document.documentElement.lang = langCode;
 
   // Update active state in dropdown

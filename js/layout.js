@@ -77,26 +77,36 @@
     }
   }
 
-  function updateToolbarOffset() {
+  function updateChromeInsets() {
     const root = document.documentElement;
     const bar = document.querySelector('.top-right-actions');
-    if (!bar) return;
-    const gap = 12;
-    const bottom = bar.getBoundingClientRect().bottom + gap;
-    root.style.setProperty('--toolbar-offset', `${bottom}px`);
-    root.style.setProperty('--content-pad-top', `${bottom}px`);
+    const credits = document.querySelector('.bottom-badges');
+    const gap = 10;
+
+    if (bar) {
+      const topPad = bar.getBoundingClientRect().bottom + gap;
+      root.style.setProperty('--toolbar-offset', `${topPad}px`);
+      root.style.setProperty('--content-pad-top', `${topPad}px`);
+    }
+
+    if (credits) {
+      const rect = credits.getBoundingClientRect();
+      const bottomPad = Math.max(0, window.innerHeight - rect.top + gap);
+      root.style.setProperty('--content-pad-bottom', `${bottomPad}px`);
+    }
   }
 
-  let toolbarResizeObserver = null;
+  let chromeInsetsObserver = null;
 
-  function watchToolbarOffset() {
+  function watchChromeInsets() {
     const bar = document.querySelector('.top-right-actions');
-    if (!bar) return;
-    updateToolbarOffset();
+    const credits = document.querySelector('.bottom-badges');
+    updateChromeInsets();
     if (typeof ResizeObserver === 'undefined') return;
-    if (toolbarResizeObserver) toolbarResizeObserver.disconnect();
-    toolbarResizeObserver = new ResizeObserver(() => updateToolbarOffset());
-    toolbarResizeObserver.observe(bar);
+    if (chromeInsetsObserver) chromeInsetsObserver.disconnect();
+    chromeInsetsObserver = new ResizeObserver(() => updateChromeInsets());
+    if (bar) chromeInsetsObserver.observe(bar);
+    if (credits) chromeInsetsObserver.observe(credits);
   }
 
   function syncLayout() {
@@ -110,7 +120,7 @@
       delete root.dataset.scene;
     }
     syncPortraitLock();
-    requestAnimationFrame(watchToolbarOffset);
+    requestAnimationFrame(watchChromeInsets);
   }
 
   function syncPortraitLock() {
@@ -136,7 +146,7 @@
   function initLayoutListeners() {
     const onLayoutChange = () => {
       syncLayout();
-      updateToolbarOffset();
+      updateChromeInsets();
       if (typeof window.scheduleQuoteLayout === 'function') {
         window.scheduleQuoteLayout();
       }
@@ -157,7 +167,7 @@
     migrateSceneStorage();
     syncLayout();
     syncPortraitLock();
-    watchToolbarOffset();
+    watchChromeInsets();
     initLayoutListeners();
   }
 
@@ -170,6 +180,7 @@
     syncPortraitLock,
     setScene,
     isTouchLayout,
+    updateChromeInsets,
     init,
   };
 

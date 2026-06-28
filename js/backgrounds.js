@@ -96,6 +96,7 @@ function _applyBackground(url, creditText, linkUrl, source, title = '') {
       credit.appendChild(document.createTextNode(`${creditText} · ${source}`));
     }
     document.querySelector('.bottom-badges').classList.add('visible');
+    requestAnimationFrame(() => window.AtaraxiaLayout?.updateChromeInsets?.());
 
     function finalizeCrossfade() {
       if (_bgFadeTimer) {

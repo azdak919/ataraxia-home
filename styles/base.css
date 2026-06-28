@@ -768,20 +768,6 @@
 
   .pomo-settings.open { display: block; }
 
-  body.pomo-settings-open::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: 510;
-    background: rgba(0, 0, 0, 0.52);
-    pointer-events: none;
-  }
-
-  body.pomo-settings-open .focus-scene-bar {
-    opacity: 0;
-    pointer-events: none;
-  }
-
   @keyframes settingsIn {
     from { opacity: 0; transform: translateX(-50%) translateY(-6px); }
     to   { opacity: 1; transform: translateX(-50%) translateY(0); }

@@ -144,6 +144,7 @@ html[data-layout="touch"] .pomo-ring-wrapper {
   max-height: var(--ring-max);
   margin: 0 auto;
   align-self: center;
+  cursor: pointer;
 }
 html[data-layout="touch"] .pomo-time-inside {
   font-size: var(--pomo-time-size, clamp(3rem, 16vw, 4.8rem));
@@ -155,6 +156,8 @@ html[data-layout="touch"] .pomo-label {
   font-size: var(--pomo-label-size, clamp(0.65rem, 2.8vw, 0.82rem));
 }
 html[data-layout="touch"] .pomo-controls {
+  position: relative;
+  z-index: 3;
   flex-shrink: 0;
   gap: 0.85rem;
   margin-top: 0;
@@ -196,6 +199,11 @@ html[data-layout="touch"] .pomo-settings {
   max-width: 360px;
   z-index: 500;
   max-height: calc(100dvh - 10rem);
+  animation: settingsInTouch 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes settingsInTouch {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 html[data-layout="touch"] .pomo-settings .setting-row input[type="number"] {
   min-height: 40px;
@@ -305,6 +313,22 @@ html[data-layout="touch"] .bottom-badges.visible { opacity: 0.55; }
   html[data-layout="touch"] .pomo-settings {
     max-width: 420px;
   }
+}
+
+/* ── Fullscreen pomo overlay — all touch layouts ───── */
+html[data-layout="touch"] .pomo-fullpage-overlay.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+html[data-layout="touch"] .pomo-fullpage-overlay .pomo-ring-wrapper {
+  width: min(var(--ring-max, 85vw), calc(100dvh - 8rem));
+  height: min(var(--ring-max, 85vw), calc(100dvh - 8rem));
+  cursor: default;
+}
+html[data-layout="touch"] .pomo-fullpage-overlay .pomo-ring {
+  width: 100%;
+  height: 100%;
 }
 
 /* ── Paysage tactile ─────────────────────────────────── */

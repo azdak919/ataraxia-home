@@ -36,8 +36,20 @@
 <script src="layout.js"></script>
 <script>
 (function () {
-  document.documentElement.dataset.layout =
-    matchMedia('(hover: none) and (max-width: 900px)').matches ? 'touch' : 'wide';
+  const root = document.documentElement;
+  const touch = matchMedia('(hover: none) and (max-width: 900px)').matches;
+  root.dataset.layout = touch ? 'touch' : 'wide';
+  if (touch) {
+    try {
+      const saved = localStorage.getItem('ataraxia_scene')
+        || (localStorage.getItem('ataraxia_quote_minimized') === 'true' ? 'quote' : null)
+        || (localStorage.getItem('ataraxia_pomo_minimized') === 'true' ? 'timer' : null)
+        || 'timer';
+      root.dataset.scene = saved === 'quote' ? 'quote' : 'timer';
+    } catch (e) {
+      root.dataset.scene = 'timer';
+    }
+  }
 })();
 </script>
 
@@ -1578,7 +1590,7 @@
 /* ═══════════════════════════════════════
    VERSION
    ═══════════════════════════════════════ */
-const VERSION = 'v1.3.0';
+const VERSION = 'v1.3.1';
 
 /* ═══════════════════════════════════════
    OPEN-SOURCE BACKGROUND IMAGES
@@ -3159,8 +3171,10 @@ function PomoUI() {
   // ── 2. Progress ring — always update for smooth 60 fps animation
   const fraction = 1 - (remaining / pomo.totalSeconds);
   const progress = document.getElementById('pomo-progress');
-  progress.style.strokeDasharray = CIRCUMFERENCE;
-  progress.style.strokeDashoffset = CIRCUMFERENCE * (1 - fraction);
+  if (progress) {
+    progress.style.strokeDasharray = CIRCUMFERENCE;
+    progress.style.strokeDashoffset = CIRCUMFERENCE * (1 - fraction);
+  }
 
   const fpProgress = document.getElementById('pomo-fp-progress');
   if (fpProgress) {
@@ -3395,8 +3409,10 @@ function jumpToPhase(phase) {
   pomo.pausedRemaining = pomo.totalSeconds;
   savePomoState();
   // Close settings panels
-  document.getElementById('pomo-settings-panel').classList.remove('open');
-  document.getElementById('pomo-fp-settings-panel').classList.remove('open');
+  document.getElementById('pomo-settings-panel')?.classList.remove('open');
+  document.getElementById('pomo-fp-settings-panel')?.classList.remove('open');
+  _lastPomoRenderKey = null;
+  PomoUI();
 }
 
 /* Settings */
@@ -3424,6 +3440,8 @@ function applySettings() {
     pomo.pausedRemaining = pomo.totalSeconds;
   }
   savePomoState();
+  _lastPomoRenderKey = null;
+  PomoUI();
 }
 
 /* Fullpage settings */
@@ -3451,6 +3469,151 @@ function applyFpSettings() {
     pomo.pausedRemaining = pomo.totalSeconds;
   }
   savePomoState();
+  _lastPomoRenderKey = null;
+  PomoUI();
+}
+
+function openPomoFullscreen() {
+  document.getElementById('pomo-fullpage')?.classList.add('open');
+}
+
+function initPomoHandlers() {
+  const pomoContainer = document.querySelector('.pomo-container');
+  if (pomoContainer) {
+    pomoContainer.addEventListener('animationend', () => {
+      pomoContainer.classList.add('anim-done');
+    }, { once: true });
+  }
+
+  document.getElementById('pomo-play')?.addEventListener('click', () => { initAudioCtx(); startPomo(); });
+  document.getElementById('pomo-pause')?.addEventListener('click', stopPomo);
+  document.getElementById('pomo-reset')?.addEventListener('click', resetPomo);
+
+  const settingsPanel = document.getElementById('pomo-settings-panel');
+  document.getElementById('pomo-settings-btn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (!settingsPanel) return;
+    settingsPanel.classList.toggle('open');
+    if (settingsPanel.classList.contains('open')) loadSettingsUI();
+  });
+  settingsPanel?.addEventListener('click', (e) => e.stopPropagation());
+
+  document.addEventListener('click', (e) => {
+    if (!settingsPanel?.classList.contains('open')) return;
+    if (settingsPanel.contains(e.target) || e.target.closest('#pomo-settings-btn')) return;
+    settingsPanel.classList.remove('open');
+  });
+
+  ['setting-work', 'setting-break', 'setting-long', 'setting-sessions'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('change', applySettings);
+    el.addEventListener('input', applySettings);
+  });
+
+  document.getElementById('chip-focus')?.addEventListener('click', (e) => { e.stopPropagation(); jumpToPhase('focus'); });
+  document.getElementById('chip-break')?.addEventListener('click', (e) => { e.stopPropagation(); jumpToPhase('break'); });
+  document.getElementById('chip-long')?.addEventListener('click', (e) => { e.stopPropagation(); jumpToPhase('long'); });
+
+  function tick() {
+    try { PomoUI(); } catch(e) {}
+    requestAnimationFrame(tick);
+  }
+  tick();
+
+  setInterval(() => {
+    if (pomo.isRunning) {
+      _updateMediaSession();
+      if (getRemaining() <= 0) {
+        const doComplete = () => onSegmentComplete();
+        if (_audioCtx && _audioCtx.state === 'suspended') {
+          _audioCtx.resume().then(doComplete).catch(doComplete);
+        } else {
+          doComplete();
+        }
+      }
+    }
+  }, 1000);
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
+      PomoUI();
+      if (pomo.isRunning) requestWakeLock();
+    }
+  });
+
+  const fpOverlay = document.getElementById('pomo-fullpage');
+  const pomoRingWrapper = document.querySelector('.pomo-widget .pomo-ring-wrapper');
+
+  pomoRingWrapper?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openPomoFullscreen();
+  });
+
+  document.getElementById('pomo-fullscreen-btn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openPomoFullscreen();
+  });
+
+  document.getElementById('pomo-fullpage-close')?.addEventListener('click', () => {
+    fpOverlay?.classList.remove('open');
+    document.getElementById('pomo-fp-settings-panel')?.classList.remove('open');
+  });
+
+  fpOverlay?.addEventListener('click', (e) => {
+    if (e.target === fpOverlay) {
+      fpOverlay.classList.remove('open');
+      document.getElementById('pomo-fp-settings-panel')?.classList.remove('open');
+    }
+  });
+
+  document.getElementById('pomo-fp-play')?.addEventListener('click', () => { initAudioCtx(); startPomo(); });
+  document.getElementById('pomo-fp-pause')?.addEventListener('click', stopPomo);
+  document.getElementById('pomo-fp-reset')?.addEventListener('click', resetPomo);
+
+  const fpSettingsPanel = document.getElementById('pomo-fp-settings-panel');
+  document.getElementById('pomo-fp-settings-btn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (!fpSettingsPanel) return;
+    fpSettingsPanel.classList.toggle('open');
+    if (fpSettingsPanel.classList.contains('open')) loadFpSettingsUI();
+  });
+
+  ['fp-setting-work', 'fp-setting-break', 'fp-setting-long', 'fp-setting-sessions'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('change', applyFpSettings);
+    el.addEventListener('input', applyFpSettings);
+  });
+
+  document.getElementById('fp-chip-focus')?.addEventListener('click', () => jumpToPhase('focus'));
+  document.getElementById('fp-chip-break')?.addEventListener('click', () => jumpToPhase('break'));
+  document.getElementById('fp-chip-long')?.addEventListener('click', () => jumpToPhase('long'));
+
+  document.getElementById('pomo-fp-settings-close')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    fpSettingsPanel?.classList.remove('open');
+  });
+
+  fpOverlay?.addEventListener('click', (e) => {
+    if (fpSettingsPanel && !fpSettingsPanel.contains(e.target) && e.target.id !== 'pomo-fp-settings-btn') {
+      fpSettingsPanel.classList.remove('open');
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && fpOverlay?.classList.contains('open')) {
+      if (fpSettingsPanel?.classList.contains('open')) {
+        fpSettingsPanel.classList.remove('open');
+      } else {
+        fpOverlay.classList.remove('open');
+      }
+    }
+  });
+
+  _lastPomoRenderKey = null;
+  PomoUI();
 }
 
 /* ═══════════════════════════════════════
@@ -3469,10 +3632,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Persist version so solitaire.html (and any other sub-pages) can read it
   try { localStorage.setItem('ataraxia_version', VERSION); } catch(e) {}
 
+  // Pomo first — must not depend on quote init (quotes.js may load late or fail)
+  initPomoHandlers();
+
   // Restore recent history for smart random selection (anti-repetition across sessions)
   try {
+    const quoteCount = (typeof QUOTES !== 'undefined' && QUOTES.length) || 0;
     recentQuotes = JSON.parse(localStorage.getItem(RECENT_QUOTES_KEY) || '[]')
-      .filter(i => Number.isInteger(i) && i >= 0 && i < QUOTES.length);
+      .filter(i => Number.isInteger(i) && i >= 0 && i < quoteCount);
     recentBgs = JSON.parse(localStorage.getItem(RECENT_BGS_KEY) || '[]')
       .filter(i => Number.isInteger(i) && i >= 0 && i < BACKGROUNDS.length);
   } catch(e) {
@@ -3490,31 +3657,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   } catch(e) {}
 
-  // Random start
-  // Use smart random for initial load too (respects recent history from localStorage)
-  currentBgIdx = getRandomBgIndex(null);
-  recordBgSeen(currentBgIdx);
-  loadBackground(currentBgIdx);
+  // Random start — isolated so a missing quotes.js cannot break the pomo timer
+  try {
+    currentBgIdx = getRandomBgIndex(null);
+    recordBgSeen(currentBgIdx);
+    loadBackground(currentBgIdx);
 
-  currentQuoteIdx = getRandomQuoteIndex();
-  recordQuoteSeen(currentQuoteIdx);
-  const _initQuote = QUOTES[currentQuoteIdx];
-  document.getElementById('quote-text').textContent = _initQuote.text;
-  // Use English author name on first paint if a non-English language is saved,
-  // so the native-script name never flashes before translation kicks in.
-  const _initLangSaved = localStorage.getItem(LANG_PREF_KEY)
-    || localStorage.getItem(LANG_PREF_KEY_LEGACY);
-  const _initLangNonEn = _initLangSaved && _initLangSaved !== 'en';
-  const initAuthor = _initQuote.authorEn || _initQuote.author;
-  document.getElementById('quote-author').textContent = cleanTranslation(initAuthor);
-
-  // Remove pomo-container animation after it ends so it doesn't create a
-  // containing block that breaks position:fixed descendants.
-  const pomoContainer = document.querySelector('.pomo-container');
-  if (pomoContainer) {
-    pomoContainer.addEventListener('animationend', () => {
-      pomoContainer.classList.add('anim-done');
-    }, { once: true });
+    currentQuoteIdx = getRandomQuoteIndex();
+    recordQuoteSeen(currentQuoteIdx);
+    const _initQuote = QUOTES[currentQuoteIdx];
+    document.getElementById('quote-text').textContent = _initQuote.text;
+    const _initLangSaved = localStorage.getItem(LANG_PREF_KEY)
+      || localStorage.getItem(LANG_PREF_KEY_LEGACY);
+    const initAuthor = _initQuote.authorEn || _initQuote.author;
+    document.getElementById('quote-author').textContent = cleanTranslation(initAuthor);
+  } catch (e) {
+    console.warn('Quote init failed:', e);
   }
 
   // Quote buttons
@@ -3534,76 +3692,6 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('resize', () => scheduleQuoteLayout(), { passive: true });
   scheduleQuoteLayout();
 
-  // Pomodoro buttons
-  document.getElementById('pomo-play').addEventListener('click', () => { initAudioCtx(); startPomo(); });
-  document.getElementById('pomo-pause').addEventListener('click', stopPomo);
-  document.getElementById('pomo-reset').addEventListener('click', resetPomo);
-
-  // Settings toggle
-  const settingsPanel = document.getElementById('pomo-settings-panel');
-  document.getElementById('pomo-settings-btn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    settingsPanel.classList.toggle('open');
-    if (settingsPanel.classList.contains('open')) loadSettingsUI();
-  });
-  settingsPanel.addEventListener('click', (e) => e.stopPropagation());
-
-  // Close settings on outside click
-  document.addEventListener('click', (e) => {
-    if (!settingsPanel.classList.contains('open')) return;
-    if (settingsPanel.contains(e.target) || e.target.closest('#pomo-settings-btn')) return;
-    settingsPanel.classList.remove('open');
-  });
-
-  // Settings inputs — apply on change and while typing (mobile-friendly)
-  ['setting-work', 'setting-break', 'setting-long', 'setting-sessions'].forEach(id => {
-    const el = document.getElementById(id);
-    el.addEventListener('change', applySettings);
-    el.addEventListener('input', applySettings);
-  });
-
-  // Phase jump chips
-  document.getElementById('chip-focus').addEventListener('click', (e) => { e.stopPropagation(); jumpToPhase('focus'); });
-  document.getElementById('chip-break').addEventListener('click', (e) => { e.stopPropagation(); jumpToPhase('break'); });
-  document.getElementById('chip-long').addEventListener('click', (e) => { e.stopPropagation(); jumpToPhase('long'); });
-
-  // Pomo tick — uses requestAnimationFrame for smooth updates,
-  // but the actual timing is timestamp-based (persistent)
-  function tick() {
-    try { PomoUI(); } catch(e) {}
-    requestAnimationFrame(tick);
-  }
-  tick();
-
-  // Background timer check — ensures completion fires on iOS/iPad when tab is throttled
-  setInterval(() => {
-    if (pomo.isRunning) {
-      // Update lock-screen / control center metadata
-      _updateMediaSession();
-      if (getRemaining() <= 0) {
-        // Resume AudioContext and wait for it before firing completion so
-        // playCompletionChime() finds the context already running on Android
-        const doComplete = () => onSegmentComplete();
-        if (_audioCtx && _audioCtx.state === 'suspended') {
-          _audioCtx.resume().then(doComplete).catch(doComplete);
-        } else {
-          doComplete();
-        }
-      }
-    }
-  }, 1000);
-
-  // Also update on visibility change (when user returns to tab)
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) {
-      // Resume AudioContext — iOS suspends it when tab is hidden
-      if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
-      PomoUI();
-      // Re-request wake lock — it's auto-released when the page is hidden
-      if (pomo.isRunning) requestWakeLock();
-    }
-  });
-
   // Keyboard shortcuts
   document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT') return;
@@ -3612,82 +3700,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === ' ') {
       e.preventDefault();
       pomo.isRunning ? stopPomo() : startPomo();
-    }
-  });
-
-  // ═══════════════════════════════════════
-  // FULL-PAGE POMODORO
-  // ═══════════════════════════════════════
-  const fpOverlay = document.getElementById('pomo-fullpage');
-  const pomoRingWrapper = document.querySelector('.pomo-widget .pomo-ring-wrapper');
-
-  // Open full-page on ring click
-  pomoRingWrapper.addEventListener('click', (e) => {
-    e.stopPropagation();
-    fpOverlay.classList.add('open');
-  });
-
-  document.getElementById('pomo-fullscreen-btn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    fpOverlay.classList.add('open');
-  });
-
-  // Close full-page
-  document.getElementById('pomo-fullpage-close').addEventListener('click', () => {
-    fpOverlay.classList.remove('open');
-    document.getElementById('pomo-fp-settings-panel').classList.remove('open');
-  });
-
-  // Also close on click outside the ring area in full-page
-  fpOverlay.addEventListener('click', (e) => {
-    if (e.target === fpOverlay) {
-      fpOverlay.classList.remove('open');
-      document.getElementById('pomo-fp-settings-panel').classList.remove('open');
-    }
-  });
-
-  // Full-page controls
-  document.getElementById('pomo-fp-play').addEventListener('click', () => { initAudioCtx(); startPomo(); });
-  document.getElementById('pomo-fp-pause').addEventListener('click', stopPomo);
-  document.getElementById('pomo-fp-reset').addEventListener('click', resetPomo);
-  const fpSettingsPanel = document.getElementById('pomo-fp-settings-panel');
-  document.getElementById('pomo-fp-settings-btn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    fpSettingsPanel.classList.toggle('open');
-    if (fpSettingsPanel.classList.contains('open')) loadFpSettingsUI();
-  });
-
-  // Fullpage settings inputs — apply on change
-  ['fp-setting-work', 'fp-setting-break', 'fp-setting-long', 'fp-setting-sessions'].forEach(id => {
-    document.getElementById(id).addEventListener('change', applyFpSettings);
-  });
-
-  // Fullpage phase jump chips
-  document.getElementById('fp-chip-focus').addEventListener('click', () => jumpToPhase('focus'));
-  document.getElementById('fp-chip-break').addEventListener('click', () => jumpToPhase('break'));
-  document.getElementById('fp-chip-long').addEventListener('click', () => jumpToPhase('long'));
-
-  // Close fp settings via close button (phone layout)
-  document.getElementById('pomo-fp-settings-close').addEventListener('click', (e) => {
-    e.stopPropagation();
-    fpSettingsPanel.classList.remove('open');
-  });
-
-  // Close fp settings on outside click within overlay
-  fpOverlay.addEventListener('click', (e) => {
-    if (!fpSettingsPanel.contains(e.target) && e.target.id !== 'pomo-fp-settings-btn') {
-      fpSettingsPanel.classList.remove('open');
-    }
-  });
-
-  // Escape key closes full-page or fp settings
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && fpOverlay.classList.contains('open')) {
-      if (fpSettingsPanel.classList.contains('open')) {
-        fpSettingsPanel.classList.remove('open');
-      } else {
-        fpOverlay.classList.remove('open');
-      }
     }
   });
 

@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════
-   Ataraxia v1.3 — Layout module
+   Ataraxia — Layout module (js/layout.js)
    MODES: touch (tactile ≤900px) | wide (desktop >900px)
    Touch: Focus Deck — one scene at a time (timer | quote)
    ═══════════════════════════════════════════════════════ */

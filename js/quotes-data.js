@@ -1,4 +1,7 @@
-/* Ataraxia — Quotes database (focus, présent, effort) */
+/* Ataraxia — quotes-data.js
+ * Citation database (data only). Logic lives in quotes.js.
+ * Exports: QUOTES (global array)
+ */
 const QUOTES = [
   { id: "ma-01-the-happiness-of-your-life-depends-upon", text: "The happiness of your life depends upon the quality of your thoughts.", author: "Μάρκος Αὐρήλιος · Meditations", authorEn: "Marcus Aurelius · Meditations" },
   { id: "ma-02-you-have-power-over-your-mind-not-outsid", text: "You have power over your mind — not outside events. Realize this, and you will find strength.", author: "Μάρκος Αὐρήλιος · Meditations", authorEn: "Marcus Aurelius · Meditations" },

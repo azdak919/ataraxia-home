@@ -7,7 +7,7 @@
      • Anything else same-origin          → stale-while-revalidate
    ═══════════════════════════════════════════════════════ */
 
-const SHELL_CACHE   = 'ataraxia-shell-v19';
+const SHELL_CACHE   = 'ataraxia-shell-v20';
 const FONT_CACHE    = 'ataraxia-fonts-v1';
 const KNOWN_CACHES  = [SHELL_CACHE, FONT_CACHE];
 
@@ -43,10 +43,21 @@ const SHELL_ASSETS = [
   './safari-pinned-tab.svg',
   './browserconfig.xml',
   './sw.js',
-  './layout.css',
-  './layout.js',
-  './quotes.js',
-  './quotes-i18n.js',
+  './styles/base.css',
+  './styles/layout.css',
+  './js/version.js',
+  './js/storage.js',
+  './js/backgrounds-data.js',
+  './js/backgrounds.js',
+  './js/quotes-data.js',
+  './js/quotes-i18n.js',
+  './js/quotes.js',
+  './js/toast.js',
+  './js/pomo-audio.js',
+  './js/pomo.js',
+  './js/translate.js',
+  './js/layout.js',
+  './js/app.js',
 ];
 
 // ── Install ──────────────────────────────────────────────

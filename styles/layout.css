@@ -413,7 +413,7 @@ html[data-layout="wide"] .pomo-label {
   font-size: 0.58rem;
 }
 
-html[data-layout="wide"] .pomo-controls {
+html[data-layout="wide"] .pomo-widget .pomo-controls {
   gap: 0.45rem;
   margin-top: 0.1rem;
 }

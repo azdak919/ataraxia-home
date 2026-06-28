@@ -1207,14 +1207,23 @@
     --fp-safe-l: max(0.5rem, env(safe-area-inset-left, 0px));
     --fp-short: min(100vw, 100dvh);
     --fp-long: max(100vw, 100dvh);
-    --fp-stack-gap: 0.35rem;
-    /* Plafond largeur = mode portrait vertical (côté court) */
+    --fp-stack-gap: calc(var(--fp-short) * 0.012);
+    /* Plafond largeur = portrait vertical ; hauteur tient compte des contrôles */
     --fp-ring-phone-cap: calc(var(--fp-short) - var(--fp-safe-l) - var(--fp-safe-r));
-    --fp-ring-size: var(--fp-ring-phone-cap);
-    --pomo-control-size: clamp(40px, calc(var(--fp-ring-size) * 0.1), 56px);
-    --pomo-control-icon: clamp(16px, calc(var(--fp-ring-size) * 0.04), 22px);
-    --fp-controls-block: calc(var(--pomo-control-size) + var(--fp-stack-gap));
-    --fp-phase-block: 0.35rem;
+    --fp-btn-estimate: calc(var(--fp-short) * 0.13);
+    --fp-ring-size: min(
+      var(--fp-ring-phone-cap),
+      calc(var(--fp-long) - var(--fp-safe-t) - var(--fp-safe-b) - var(--fp-btn-estimate) - calc(var(--fp-short) * 0.04))
+    );
+    --fp-btn-size: calc(var(--fp-ring-size) * 0.14);
+    --fp-icon-size: calc(var(--fp-ring-size) * 0.056);
+    --fp-time-size: calc(var(--fp-ring-size) * 0.30);
+    --fp-label-size: calc(var(--fp-ring-size) * 0.062);
+    --fp-unit-size: calc(var(--fp-ring-size) * 0.10);
+    --fp-dot-size: calc(var(--fp-ring-size) * 0.038);
+    --fp-stroke: calc(var(--fp-ring-size) * 0.016);
+    --pomo-control-size: var(--fp-btn-size);
+    --pomo-control-icon: var(--fp-icon-size);
 
     display: flex;
     flex-direction: column;
@@ -1292,36 +1301,59 @@
     height: 100%;
   }
 
+  .pomo-fullpage-overlay .pomo-ring-bg,
+  .pomo-fullpage-overlay .pomo-ring-progress {
+    stroke-width: var(--fp-stroke);
+  }
+
   .pomo-fullpage-overlay .pomo-time-inside {
-    font-size: calc(var(--fp-ring-size) * 0.24) !important;
+    font-size: var(--fp-time-size) !important;
+    line-height: 1;
   }
 
   .pomo-fullpage-overlay .pomo-label {
-    font-size: calc(var(--fp-ring-size) * 0.052) !important;
+    font-size: var(--fp-label-size) !important;
+    letter-spacing: 0.14em;
   }
 
   .pomo-fullpage-overlay .pomo-dots {
-    margin-top: 0.35rem;
+    margin-top: calc(var(--fp-ring-size) * 0.02);
+    gap: calc(var(--fp-ring-size) * 0.014) !important;
   }
 
   .pomo-fullpage-overlay .pomo-dot {
-    width: clamp(5px, calc(var(--fp-ring-size) * 0.028), 9px);
-    height: clamp(5px, calc(var(--fp-ring-size) * 0.028), 9px);
+    width: var(--fp-dot-size) !important;
+    height: var(--fp-dot-size) !important;
   }
 
   .pomo-fullpage-overlay .pomo-time-unit {
-    font-size: calc(var(--fp-ring-size) * 0.09) !important;
+    font-size: var(--fp-unit-size) !important;
+  }
+
+  .pomo-fullpage-overlay .pomo-btn--primary,
+  .pomo-fullpage-overlay .pomo-btn--secondary {
+    width: var(--fp-btn-size) !important;
+    height: var(--fp-btn-size) !important;
+    min-width: var(--fp-btn-size) !important;
+    min-height: var(--fp-btn-size) !important;
+    flex-shrink: 0 !important;
+  }
+
+  .pomo-fullpage-overlay .pomo-btn svg {
+    width: var(--fp-icon-size) !important;
+    height: var(--fp-icon-size) !important;
   }
 
   .pomo-fullpage-overlay .pomo-controls {
-    gap: calc(var(--fp-ring-size) * 0.04);
+    gap: calc(var(--fp-ring-size) * 0.045) !important;
     margin: 0;
+    flex-shrink: 0;
   }
 
   .pomo-fullpage-overlay .pomo-phase-ready-label {
     margin: 0;
     width: min(100%, var(--fp-ring-size));
-    font-size: clamp(0.58rem, calc(var(--fp-ring-size) * 0.042), 0.78rem);
+    font-size: calc(var(--fp-ring-size) * 0.048) !important;
   }
 
   .pomo-fullpage-overlay .pomo-phase-ready-label:not(.visible) {
@@ -1336,37 +1368,62 @@
 
   @media (orientation: landscape) {
     .pomo-fullpage-overlay {
-      --fp-side-controls: calc(var(--pomo-control-size) + var(--fp-stack-gap));
+      --fp-side-controls: calc(var(--fp-btn-size) + var(--fp-stack-gap));
       --fp-ring-size: min(
         var(--fp-ring-phone-cap),
-        calc(var(--fp-long) - var(--fp-safe-t) - var(--fp-safe-b) - 0.5rem),
+        calc(var(--fp-long) - var(--fp-safe-t) - var(--fp-safe-b) - 0.25rem),
         calc(var(--fp-short) - var(--fp-safe-l) - var(--fp-safe-r) - var(--fp-side-controls))
       );
-    }
-
-    .pomo-fullpage-main {
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-      gap: var(--fp-stack-gap);
+      --fp-btn-size: calc(var(--fp-ring-size) * 0.14);
+      --fp-icon-size: calc(var(--fp-ring-size) * 0.056);
+      --fp-time-size: calc(var(--fp-ring-size) * 0.30);
+      --fp-label-size: calc(var(--fp-ring-size) * 0.062);
+      --fp-unit-size: calc(var(--fp-ring-size) * 0.10);
+      --fp-dot-size: calc(var(--fp-ring-size) * 0.038);
+      --fp-stroke: calc(var(--fp-ring-size) * 0.016);
+      --pomo-control-size: var(--fp-btn-size);
+      --pomo-control-icon: var(--fp-icon-size);
     }
 
     .pomo-fullpage-timer {
-      flex: 0 0 auto;
+      display: grid;
+      grid-template-columns: auto auto;
+      grid-template-rows: auto auto;
+      align-items: center;
+      justify-items: center;
+      column-gap: var(--fp-stack-gap);
+      row-gap: calc(var(--fp-stack-gap) * 0.75);
+    }
+
+    .pomo-fullpage-overlay .pomo-ring-wrapper {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .pomo-fullpage-overlay .pomo-phase-ready-label {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    .pomo-fullpage-actions {
+      grid-column: 2;
+      grid-row: 1 / -1;
+      align-self: center;
+      width: auto;
     }
 
     .pomo-fullpage-overlay .pomo-controls {
       flex-direction: column;
-      gap: 0.6rem;
+      gap: calc(var(--fp-ring-size) * 0.035);
     }
   }
 
   /* Desktop : cercle plus grand, sans plafond téléphone */
   html[data-layout="wide"] .pomo-fullpage-overlay {
     --fp-ring-size: min(
-      calc(100vw - var(--fp-safe-l) - var(--fp-safe-r) - 2rem),
-      calc(100dvh - var(--fp-safe-t) - var(--fp-safe-b) - var(--fp-controls-block) - var(--fp-phase-block) - var(--fp-stack-gap) - 1rem),
-      min(520px, calc(var(--fp-long) * 0.62))
+      calc(100vw - var(--fp-safe-l) - var(--fp-safe-r) - 1.5rem),
+      calc(100dvh - var(--fp-safe-t) - var(--fp-safe-b) - var(--fp-controls-block) - var(--fp-phase-block) - 0.5rem),
+      min(560px, calc(var(--fp-long) * 0.68))
     );
   }
 
@@ -1374,9 +1431,9 @@
     html[data-layout="wide"] .pomo-fullpage-overlay {
       --fp-side-controls: calc(var(--pomo-control-size) * 3 + var(--fp-stack-gap) * 2);
       --fp-ring-size: min(
-        calc(100dvh - var(--fp-safe-t) - var(--fp-safe-b) - 1rem),
-        calc(100vw - var(--fp-safe-l) - var(--fp-safe-r) - var(--fp-side-controls) - 1.5rem),
-        min(520px, calc(var(--fp-long) * 0.72))
+        calc(100dvh - var(--fp-safe-t) - var(--fp-safe-b) - 0.5rem),
+        calc(100vw - var(--fp-safe-l) - var(--fp-safe-r) - var(--fp-side-controls) - 1rem),
+        min(560px, calc(var(--fp-long) * 0.78))
       );
     }
   }

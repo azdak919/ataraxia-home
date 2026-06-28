@@ -408,8 +408,18 @@ function applyFpSettings() {
   PomoUI();
 }
 
+function setPomoFullscreenOpen(open) {
+  const overlay = document.getElementById('pomo-fullpage');
+  if (!overlay) return;
+  overlay.classList.toggle('open', open);
+  document.body.classList.toggle('pomo-fullpage-open', open);
+  if (!open) {
+    document.getElementById('pomo-fp-settings-panel')?.classList.remove('open');
+  }
+}
+
 function openPomoFullscreen() {
-  document.getElementById('pomo-fullpage')?.classList.add('open');
+  setPomoFullscreenOpen(true);
 }
 
 function initPomoHandlers() {
@@ -492,14 +502,12 @@ function initPomoHandlers() {
   });
 
   document.getElementById('pomo-fullpage-close')?.addEventListener('click', () => {
-    fpOverlay?.classList.remove('open');
-    document.getElementById('pomo-fp-settings-panel')?.classList.remove('open');
+    setPomoFullscreenOpen(false);
   });
 
   fpOverlay?.addEventListener('click', (e) => {
     if (e.target === fpOverlay) {
-      fpOverlay.classList.remove('open');
-      document.getElementById('pomo-fp-settings-panel')?.classList.remove('open');
+      setPomoFullscreenOpen(false);
     }
   });
 

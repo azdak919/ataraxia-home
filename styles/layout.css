@@ -124,7 +124,7 @@ html[data-layout="touch"] .pomo-widget {
   -webkit-backdrop-filter: blur(18px) saturate(1.25);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
 }
-html[data-layout="touch"] .pomo-ring-wrapper {
+html[data-layout="touch"] .pomo-widget .pomo-ring-wrapper {
   flex: 0 0 auto;
   aspect-ratio: 1;
   width: min(var(--ring-max), 72vw, 300px);
@@ -134,16 +134,16 @@ html[data-layout="touch"] .pomo-ring-wrapper {
   align-self: center;
   cursor: pointer;
 }
-html[data-layout="touch"] .pomo-time-inside {
+html[data-layout="touch"] .pomo-widget .pomo-time-inside {
   font-size: var(--pomo-time-size, clamp(3rem, 16vw, 4.8rem));
 }
-html[data-layout="touch"] .pomo-time-unit {
+html[data-layout="touch"] .pomo-widget .pomo-time-unit {
   font-size: var(--pomo-unit-size, clamp(1rem, 4.5vw, 1.4rem));
 }
-html[data-layout="touch"] .pomo-label {
+html[data-layout="touch"] .pomo-widget .pomo-label {
   font-size: var(--pomo-label-size, clamp(0.65rem, 2.8vw, 0.82rem));
 }
-html[data-layout="touch"] .pomo-controls {
+html[data-layout="touch"] .pomo-widget .pomo-controls {
   position: relative;
   z-index: 3;
   flex-shrink: 0;
@@ -153,8 +153,8 @@ html[data-layout="touch"] .pomo-controls {
 }
 html[data-layout="touch"] .pomo-btn,
 html[data-layout="touch"] .pomo-corner-btn { touch-action: manipulation; }
-html[data-layout="touch"] .pomo-dot { width: 8px; height: 8px; }
-html[data-layout="touch"] .pomo-dots { gap: 6px; }
+html[data-layout="touch"] .pomo-widget .pomo-dot { width: 8px; height: 8px; }
+html[data-layout="touch"] .pomo-widget .pomo-dots { gap: 6px; }
 html[data-layout="touch"] .pomo-fullscreen-btn,
 html[data-layout="touch"] .panel-minimize-btn {
   top: 0.5rem;
@@ -618,8 +618,8 @@ html[data-layout="wide"] .quote-action-row .btn:hover {
     border-radius: 20px;
   }
 
-  html[data-layout="touch"] .pomo-ring-wrapper,
-  html[data-layout="wide"] .pomo-ring-wrapper {
+  html[data-layout="touch"] .pomo-widget .pomo-ring-wrapper,
+  html[data-layout="wide"] .pomo-widget .pomo-ring-wrapper {
     flex: 1 1 auto;
     min-height: 0;
     width: auto;
@@ -631,8 +631,8 @@ html[data-layout="wide"] .quote-action-row .btn:hover {
     align-self: center;
   }
 
-  html[data-layout="touch"] .pomo-time-inside,
-  html[data-layout="wide"] .pomo-time-inside {
+  html[data-layout="touch"] .pomo-widget .pomo-time-inside,
+  html[data-layout="wide"] .pomo-widget .pomo-time-inside {
     font-size: clamp(2rem, 10vw, 3.2rem);
   }
 

@@ -1201,21 +1201,20 @@
      POMODORO FULL-PAGE VIEW
      ═══════════════════════ */
   .pomo-fullpage-overlay {
-    --fp-safe-t: max(0.75rem, env(safe-area-inset-top, 0px));
-    --fp-safe-r: max(0.75rem, env(safe-area-inset-right, 0px));
-    --fp-safe-b: max(0.75rem, env(safe-area-inset-bottom, 0px));
-    --fp-safe-l: max(0.75rem, env(safe-area-inset-left, 0px));
+    --fp-safe-t: max(0.5rem, env(safe-area-inset-top, 0px));
+    --fp-safe-r: max(0.5rem, env(safe-area-inset-right, 0px));
+    --fp-safe-b: max(0.5rem, env(safe-area-inset-bottom, 0px));
+    --fp-safe-l: max(0.5rem, env(safe-area-inset-left, 0px));
     --fp-short: min(100vw, 100dvh);
     --fp-long: max(100vw, 100dvh);
-    --fp-controls-block: calc(var(--pomo-control-size) + 0.5rem);
-    --fp-phase-block: 0.45rem;
-    --fp-stack-gap: 0.6rem;
-    /* Téléphone : ne dépasse jamais la largeur max du mode portrait vertical */
+    --fp-stack-gap: 0.35rem;
+    /* Plafond largeur = mode portrait vertical (côté court) */
     --fp-ring-phone-cap: calc(var(--fp-short) - var(--fp-safe-l) - var(--fp-safe-r));
-    --fp-ring-size: min(
-      var(--fp-ring-phone-cap),
-      calc(var(--fp-long) - var(--fp-safe-t) - var(--fp-safe-b) - var(--fp-controls-block) - var(--fp-phase-block) - var(--fp-stack-gap))
-    );
+    --fp-ring-size: var(--fp-ring-phone-cap);
+    --pomo-control-size: clamp(40px, calc(var(--fp-ring-size) * 0.1), 56px);
+    --pomo-control-icon: clamp(16px, calc(var(--fp-ring-size) * 0.04), 22px);
+    --fp-controls-block: calc(var(--pomo-control-size) + var(--fp-stack-gap));
+    --fp-phase-block: 0.35rem;
 
     display: flex;
     flex-direction: column;
@@ -1248,7 +1247,6 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: var(--fp-stack-gap);
     padding:
       var(--fp-safe-t)
       var(--fp-safe-r)
@@ -1265,7 +1263,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.3rem;
+    gap: var(--fp-stack-gap);
   }
 
   .pomo-fullpage-actions {
@@ -1273,17 +1271,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: auto;
+    width: 100%;
+    margin-top: 0;
   }
 
   .pomo-fullpage-overlay .pomo-ring-wrapper {
-    width: var(--fp-ring-size);
-    height: var(--fp-ring-size);
-    max-width: 100%;
-    max-height: 100%;
+    width: var(--fp-ring-size) !important;
+    height: var(--fp-ring-size) !important;
+    min-width: var(--fp-ring-size);
+    min-height: var(--fp-ring-size);
+    max-width: var(--fp-ring-size) !important;
+    max-height: var(--fp-ring-size) !important;
     aspect-ratio: 1;
-    flex-shrink: 1;
-    min-height: 0;
+    flex: 0 0 auto !important;
     cursor: default;
   }
 
@@ -1293,11 +1293,11 @@
   }
 
   .pomo-fullpage-overlay .pomo-time-inside {
-    font-size: clamp(2.4rem, calc(var(--fp-ring-size) * 0.22), 5.5rem);
+    font-size: calc(var(--fp-ring-size) * 0.24) !important;
   }
 
   .pomo-fullpage-overlay .pomo-label {
-    font-size: clamp(0.62rem, calc(var(--fp-ring-size) * 0.048), 0.9rem);
+    font-size: calc(var(--fp-ring-size) * 0.052) !important;
   }
 
   .pomo-fullpage-overlay .pomo-dots {
@@ -1310,11 +1310,11 @@
   }
 
   .pomo-fullpage-overlay .pomo-time-unit {
-    font-size: clamp(0.9rem, calc(var(--fp-ring-size) * 0.085), 1.45rem);
+    font-size: calc(var(--fp-ring-size) * 0.09) !important;
   }
 
   .pomo-fullpage-overlay .pomo-controls {
-    gap: 0.65rem;
+    gap: calc(var(--fp-ring-size) * 0.04);
     margin: 0;
   }
 

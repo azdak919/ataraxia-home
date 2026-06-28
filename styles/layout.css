@@ -528,14 +528,7 @@ html[data-layout="wide"] .quote-action-row .btn:hover {
     box-sizing: border-box;
   }
 
-  /* Citation réduite : même écart que menu ↔ pomo (≈10px au-dessus des crédits) */
-  html[data-layout="touch"] .content:has(.quote-card.is-minimized),
-  html[data-layout="wide"] .content:has(.quote-card.is-minimized) {
-    --pad-bottom-compact: calc(
-      var(--credits-pad-y) * 2 + 1.35em + var(--credits-bottom) + var(--chrome-stack-gap)
-    );
-    padding-bottom: var(--pad-bottom-compact) !important;
-  }
+  /* Citation réduite : --content-pad-bottom (JS) = crédits + même gap 10px que menu↔pomo */
 
   html[data-layout="touch"] .pomo-container,
   html[data-layout="wide"] .pomo-container {

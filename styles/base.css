@@ -46,6 +46,7 @@
     --credits-opacity: 0.72;
     --credits-opacity-visible: 0.78;
     --chrome-stack-gap: 0.625rem;
+    --chrome-inset-gap: 10px;
     /* Largeur moyenne téléphone — pilules réduites + seuil layout */
     --phone-layout-max: 430px;
     --pill-max-width: min(var(--chrome-width), var(--phone-layout-max));

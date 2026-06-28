@@ -82,6 +82,7 @@
     const bar = document.querySelector('.top-right-actions');
     const credits = document.querySelector('.bottom-badges');
     const gap = 10;
+    root.style.setProperty('--chrome-inset-gap', `${gap}px`);
 
     if (bar) {
       const topPad = bar.getBoundingClientRect().bottom + gap;

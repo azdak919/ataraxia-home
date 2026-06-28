@@ -156,36 +156,6 @@
       </button>
     </div>
 
-    <div class="pomo-settings" id="pomo-settings-panel" role="dialog" aria-label="Timer settings" aria-hidden="true">
-      <button class="pomo-settings-close pomo-btn pomo-btn--secondary" id="pomo-settings-close" type="button" aria-label="Close settings">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-      </button>
-      <h4>Timer Settings</h4>
-      <div class="setting-row">
-        <label>Focus (min)</label>
-        <input type="number" id="setting-work" min="1" max="90" value="25">
-      </div>
-      <div class="setting-row">
-        <label>Break (min)</label>
-        <input type="number" id="setting-break" min="1" max="30" value="5">
-      </div>
-      <div class="setting-row">
-        <label>Long break</label>
-        <input type="number" id="setting-long" min="1" max="60" value="15">
-      </div>
-      <div class="setting-row">
-        <label>Sessions</label>
-        <input type="number" id="setting-sessions" min="1" max="12" value="4">
-      </div>
-      <div class="setting-divider"></div>
-      <h4>Jump to phase</h4>
-      <div class="setting-phase-chips">
-        <button class="phase-chip" id="chip-focus">Focus</button>
-        <button class="phase-chip" id="chip-break">Break</button>
-        <button class="phase-chip" id="chip-long">Long Break</button>
-      </div>
-    </div>
-
   </div><!-- /.pomo-widget -->
 </div><!-- /.pomo-container -->
 
@@ -229,6 +199,39 @@
 </div>
 
 </div><!-- /.page-layout -->
+
+<!-- Timer settings — hors du widget (évite le piège backdrop-filter sur position:fixed) -->
+<div class="pomo-settings" id="pomo-settings-panel" role="dialog" aria-label="Timer settings" aria-hidden="true">
+  <div class="pomo-settings-header">
+    <h4>Timer Settings</h4>
+    <button class="pomo-settings-close pomo-btn pomo-btn--secondary" id="pomo-settings-close" type="button" aria-label="Close settings">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </button>
+  </div>
+  <div class="setting-row">
+    <label>Focus (min)</label>
+    <input type="number" id="setting-work" min="1" max="90" value="25">
+  </div>
+  <div class="setting-row">
+    <label>Break (min)</label>
+    <input type="number" id="setting-break" min="1" max="30" value="5">
+  </div>
+  <div class="setting-row">
+    <label>Long break</label>
+    <input type="number" id="setting-long" min="1" max="60" value="15">
+  </div>
+  <div class="setting-row">
+    <label>Sessions</label>
+    <input type="number" id="setting-sessions" min="1" max="12" value="4">
+  </div>
+  <div class="setting-divider"></div>
+  <h4>Jump to phase</h4>
+  <div class="setting-phase-chips">
+    <button class="phase-chip" id="chip-focus">Focus</button>
+    <button class="phase-chip" id="chip-break">Break</button>
+    <button class="phase-chip" id="chip-long">Long Break</button>
+  </div>
+</div>
 
 <!-- Pomodoro Full-Page Overlay -->
 <div class="pomo-fullpage-overlay" id="pomo-fullpage">

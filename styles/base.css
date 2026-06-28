@@ -23,7 +23,10 @@
     --pomo-ring-bg: rgba(139, 111, 78, 0.12);
     --toast-bg: rgba(255,255,255,0.85);
     --settings-bg: rgba(252, 249, 246, 0.96);
+    --settings-bg-solid: #fcf9f6;
     --settings-border: rgba(160, 148, 132, 0.45);
+    --toolbar-offset: 3.35rem;
+    --content-pad-top: max(5.25rem, calc(env(safe-area-inset-top, 0px) + var(--toolbar-offset)));
     --quote-fade: 220ms;
     --bg-fade: 900ms;
 
@@ -58,6 +61,7 @@
       --pomo-ring-bg: rgba(201, 168, 124, 0.1);
       --toast-bg: rgba(40,36,32,0.9);
       --settings-bg: rgba(30, 27, 24, 0.97);
+      --settings-bg-solid: #1e1b18;
       --settings-border: rgba(100, 88, 72, 0.55);
     }
   }
@@ -778,16 +782,28 @@
 
   .pomo-settings.open { display: block; }
 
+  .pomo-settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .pomo-settings-header h4 {
+    margin-bottom: 0;
+    flex: 1;
+    min-width: 0;
+  }
+
   .pomo-settings-close {
-    position: absolute;
-    top: 0.55rem;
-    right: 0.55rem;
-    width: 28px;
-    height: 28px;
-    min-width: 28px;
+    position: static;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
     padding: 0;
     border-radius: 50%;
-    z-index: 1;
   }
 
   .pomo-settings-close svg {
@@ -795,8 +811,20 @@
     height: 14px;
   }
 
-  .pomo-settings > h4:first-of-type {
-    padding-right: 1.75rem;
+  body.pomo-settings-open::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 510;
+    background: rgba(0, 0, 0, 0.42);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    pointer-events: auto;
+  }
+
+  body.pomo-settings-open .pomo-settings.open {
+    z-index: 530;
+    background: var(--settings-bg-solid);
   }
 
   @keyframes settingsIn {

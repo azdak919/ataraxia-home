@@ -77,6 +77,28 @@
     }
   }
 
+  function updateToolbarOffset() {
+    const root = document.documentElement;
+    const bar = document.querySelector('.top-right-actions');
+    if (!bar) return;
+    const gap = 12;
+    const bottom = bar.getBoundingClientRect().bottom + gap;
+    root.style.setProperty('--toolbar-offset', `${bottom}px`);
+    root.style.setProperty('--content-pad-top', `${bottom}px`);
+  }
+
+  let toolbarResizeObserver = null;
+
+  function watchToolbarOffset() {
+    const bar = document.querySelector('.top-right-actions');
+    if (!bar) return;
+    updateToolbarOffset();
+    if (typeof ResizeObserver === 'undefined') return;
+    if (toolbarResizeObserver) toolbarResizeObserver.disconnect();
+    toolbarResizeObserver = new ResizeObserver(() => updateToolbarOffset());
+    toolbarResizeObserver.observe(bar);
+  }
+
   function syncLayout() {
     const root = document.documentElement;
     const mode = isTouchViewport() ? 'touch' : 'wide';
@@ -88,6 +110,7 @@
       delete root.dataset.scene;
     }
     syncPortraitLock();
+    requestAnimationFrame(watchToolbarOffset);
   }
 
   function syncPortraitLock() {
@@ -113,6 +136,7 @@
   function initLayoutListeners() {
     const onLayoutChange = () => {
       syncLayout();
+      updateToolbarOffset();
       if (typeof window.scheduleQuoteLayout === 'function') {
         window.scheduleQuoteLayout();
       }
@@ -133,6 +157,7 @@
     migrateSceneStorage();
     syncLayout();
     syncPortraitLock();
+    watchToolbarOffset();
     initLayoutListeners();
   }
 

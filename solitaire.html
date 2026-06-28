@@ -205,6 +205,8 @@
       align-items: center;
       justify-content: center;
       gap: 0.18rem;
+      position: relative;
+      z-index: 1;
     }
 
     .game-toolbar-tuner {
@@ -223,8 +225,8 @@
 
     .radar-embed-frame {
       position: absolute;
-      top: 0;
       left: 0;
+      bottom: 0;
       width: 100%;
       height: var(--radar-embed-h);
       min-height: var(--radar-embed-slot-h);
@@ -234,7 +236,8 @@
       background: transparent;
       color-scheme: normal;
       overflow: hidden;
-      z-index: 2;
+      z-index: 4;
+      pointer-events: auto;
     }
 
     .game-toolbar-sub {

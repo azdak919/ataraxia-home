@@ -824,9 +824,10 @@
        ════════════════════════════════════════ */
     .bottom-badges {
       position: fixed;
-      left: 50%;
-      right: auto;
-      transform: translateX(-50%);
+      left: 0;
+      right: 0;
+      margin-inline: auto;
+      transform: none;
       bottom: var(--credits-bottom);
       display: flex;
       flex-direction: row;
@@ -856,8 +857,8 @@
       letter-spacing: 0.02em;
     }
     @keyframes creditsEnter {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: var(--credits-opacity-visible); transform: none; }
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: var(--credits-opacity-visible); transform: translateY(0); }
     }
     .bottom-badges.visible {
       opacity: var(--credits-opacity-visible);

@@ -470,23 +470,33 @@ function syncWidgetScale() {
   });
 }
 
-/** Calcule --fp-base en px : anneau max largeur portrait, tout proportionnel en em */
+/** Calcule --fp-base en px : anneau + contrôles proportionnels en em */
 function syncFullscreenScale() {
   const overlay = document.getElementById('pomo-fullpage');
   if (!overlay?.classList.contains('open')) return;
 
-  const pad = 14;
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  const shortSide = Math.min(vw, vh);
-  const longSide = Math.max(vw, vh);
   const isWide = document.documentElement.dataset.layout === 'wide';
   const ringEm = isWide ? 32 : 28;
-  const btnBlockEm = 4.2 + 0.55 + 1.1;
+  const pad = 16;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
 
-  const widthMax = shortSide - pad * 2;
-  const heightMax = longSide - pad * 2 - btnBlockEm * (shortSide / ringEm);
-  const ringPx = Math.max(180, Math.min(widthMax, heightMax));
+  const cs = getComputedStyle(overlay);
+  const safeT = parseFloat(cs.getPropertyValue('--fp-safe-t')) || pad;
+  const safeB = parseFloat(cs.getPropertyValue('--fp-safe-b')) || pad;
+
+  const actions = overlay.querySelector('.pomo-fullpage-actions');
+  const phaseEl = document.getElementById('pomo-fp-phase-ready');
+  const phaseH = (phaseEl && phaseEl.classList.contains('visible'))
+    ? phaseEl.getBoundingClientRect().height + 8
+    : 0;
+  const actionsH = actions?.getBoundingClientRect().height ?? 0;
+  const rowGap = 12;
+
+  const availW = vw - pad * 2;
+  const availH = vh - safeT - safeB - actionsH - phaseH - rowGap - 40;
+
+  const ringPx = Math.max(160, Math.min(availW, availH));
   const basePx = ringPx / ringEm;
 
   overlay.style.setProperty('--fp-base', `${basePx}px`);
@@ -502,7 +512,10 @@ function setPomoFullscreenOpen(open) {
     _fpOpenedForLandscape = false;
     overlay.style.removeProperty('--fp-base');
   } else {
-    requestAnimationFrame(syncFullscreenScale);
+    requestAnimationFrame(() => {
+      syncFullscreenScale();
+      requestAnimationFrame(syncFullscreenScale);
+    });
   }
 }
 
@@ -627,9 +640,19 @@ function initPomoHandlers() {
     setPomoFullscreenOpen(false);
   });
 
-  document.getElementById('pomo-fp-play')?.addEventListener('click', () => { initAudioCtx(); startPomo(); });
-  document.getElementById('pomo-fp-pause')?.addEventListener('click', stopPomo);
-  document.getElementById('pomo-fp-reset')?.addEventListener('click', resetPomo);
+  document.getElementById('pomo-fp-play')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    initAudioCtx();
+    startPomo();
+  });
+  document.getElementById('pomo-fp-pause')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    stopPomo();
+  });
+  document.getElementById('pomo-fp-reset')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    resetPomo();
+  });
 
   document.getElementById('pomo-fp-settings-btn')?.addEventListener('click', (e) => {
     e.stopPropagation();

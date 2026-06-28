@@ -1137,9 +1137,10 @@
      ═══════════════════════ */
   .bottom-badges {
     position: fixed;
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
+    left: 0;
+    right: 0;
+    margin-inline: auto;
+    transform: none;
     bottom: var(--credits-bottom);
     display: flex;
     flex-direction: row;
@@ -1169,8 +1170,8 @@
     letter-spacing: 0.02em;
   }
   @keyframes creditsEnter {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: var(--credits-opacity-visible); transform: none; }
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: var(--credits-opacity-visible); transform: translateY(0); }
   }
 
   .bottom-badges.visible {
@@ -1296,17 +1297,34 @@
 
   .pomo-fullpage-actions {
     flex-shrink: 0;
+    position: relative;
+    z-index: 3;
+    pointer-events: auto;
   }
 
   .pomo-fullpage-overlay .pomo-ring-wrapper {
     width: 28em !important;
     height: 28em !important;
-    min-width: 28em;
-    min-height: 28em;
+    min-width: 0 !important;
+    min-height: 0 !important;
     max-width: min(28em, calc(100vw - 2em)) !important;
-    max-height: min(28em, calc(100dvh - 11em)) !important;
+    max-height: min(28em, calc(100dvh - 10em)) !important;
     flex: 0 0 auto !important;
     cursor: default;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .pomo-fullpage-overlay .pomo-center {
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.1em;
+    padding: 0.9em;
+    box-sizing: border-box;
+    overflow: hidden;
   }
 
   .pomo-fullpage-overlay .pomo-ring {
@@ -1320,13 +1338,24 @@
   }
 
   .pomo-fullpage-overlay .pomo-label {
-    font-size: 2em !important;
-    letter-spacing: 0.14em;
+    font-family: var(--font-body);
+    font-size: 1.85em !important;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    max-width: 88%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .pomo-fullpage-overlay .pomo-time-inside {
-    font-size: 8.5em !important;
+    font-family: 'Raleway', var(--font-body), system-ui, sans-serif;
+    font-size: 7.5em !important;
+    font-weight: 300;
     line-height: 1;
+    flex-shrink: 0;
   }
 
   .pomo-fullpage-overlay .pomo-time-unit {
@@ -1334,8 +1363,9 @@
   }
 
   .pomo-fullpage-overlay .pomo-dots {
-    margin-top: 0.35em;
-    gap: 0.45em !important;
+    margin-top: 0.2em;
+    gap: 0.4em !important;
+    flex-shrink: 0;
   }
 
   .pomo-fullpage-overlay .pomo-dot {
@@ -1343,13 +1373,37 @@
     height: 1.15em !important;
   }
 
-  .pomo-fullpage-overlay .pomo-btn--primary,
+  .pomo-fullpage-overlay .pomo-btn--primary {
+    width: 4.2em !important;
+    height: 4.2em !important;
+    min-width: 4.2em !important;
+    min-height: 4.2em !important;
+    flex-shrink: 0 !important;
+    background: var(--pomo-work) !important;
+    border-color: transparent !important;
+    color: #fff !important;
+    box-shadow: 0 4px 14px var(--accent-glow);
+    touch-action: manipulation;
+    pointer-events: auto;
+    position: relative;
+    z-index: 2;
+  }
+
+  .pomo-fullpage-overlay .pomo-btn--primary.on-break {
+    background: var(--pomo-break) !important;
+    box-shadow: 0 4px 14px rgba(90, 127, 106, 0.25);
+  }
+
   .pomo-fullpage-overlay .pomo-btn--secondary {
     width: 4.2em !important;
     height: 4.2em !important;
     min-width: 4.2em !important;
     min-height: 4.2em !important;
     flex-shrink: 0 !important;
+    touch-action: manipulation;
+    pointer-events: auto;
+    position: relative;
+    z-index: 2;
   }
 
   .pomo-fullpage-overlay .pomo-btn svg {
@@ -1374,6 +1428,15 @@
     display: none;
   }
 
+  @media (orientation: portrait) {
+    .pomo-fullpage-timer {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55em;
+    }
+  }
+
   @media (orientation: landscape) {
     .pomo-fullpage-timer {
       flex-direction: row;
@@ -1392,15 +1455,11 @@
     }
   }
 
-  html[data-layout="wide"] .pomo-fullpage-overlay {
-    --fp-base: min(3.6vmin, 22px);
-  }
-
   html[data-layout="wide"] .pomo-fullpage-overlay .pomo-ring-wrapper {
     width: 32em !important;
     height: 32em !important;
-    min-width: 32em;
-    min-height: 32em;
+    min-width: 0 !important;
+    min-height: 0 !important;
     max-width: min(32em, calc(100vw - 4em)) !important;
     max-height: min(32em, calc(100dvh - 12em)) !important;
   }
@@ -1418,6 +1477,9 @@
     position: absolute;
     top: max(1rem, env(safe-area-inset-top, 0px));
     right: max(1rem, env(safe-area-inset-right, 0px));
+    z-index: 10;
+    pointer-events: auto;
+    touch-action: manipulation;
     width: 3.5em;
     height: 3.5em;
     border-radius: 50%;

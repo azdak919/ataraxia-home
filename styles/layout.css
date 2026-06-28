@@ -699,30 +699,33 @@ html[data-layout="wide"] .quote-action-row .btn:hover {
     max-width: 100%;
   }
 
-  /* Citation réduite : pomo centré, anneau + contrôles groupés */
+  /* Citation réduite : pomo remplit l'espace restant (miroir citation si pomo réduit) */
   html:not([data-pomo-scale="wide"]) .content:has(.quote-card.is-minimized) .pomo-container {
     flex: 1 1 auto;
     min-height: 0;
     max-height: none;
-    align-items: center;
-    justify-content: center;
+    align-items: stretch;
+    justify-content: stretch;
   }
 
   html:not([data-pomo-scale="wide"]) .content:has(.quote-card.is-minimized) .pomo-widget {
-    grid-template-rows: auto auto auto;
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    max-height: none;
+    grid-template-rows: minmax(0, 1fr) auto auto;
     align-content: center;
-    height: auto;
-    max-height: 100%;
-    flex: 0 1 auto;
     gap: 0.38em;
     padding-bottom: 0.8em;
   }
 
   html:not([data-pomo-scale="wide"]) .content:has(.quote-card.is-minimized) .pomo-widget .pomo-ring-wrapper {
-    width: min(28em, 100%);
-    height: auto;
+    width: auto;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
     aspect-ratio: 1;
-    max-height: min(28em, calc(100dvh - 13rem));
   }
 
   html:not([data-pomo-scale="wide"]) .content:has(.quote-card.is-minimized) .pomo-widget .pomo-controls {

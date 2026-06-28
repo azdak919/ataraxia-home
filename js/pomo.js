@@ -443,6 +443,7 @@ let _fpOpenedForLandscape = false;
 
 const POMO_RING_EM = 28;
 const POMO_OVERFLOW_EPS = 2;
+let _pomoWideLatched = false;
 
 /** phone = anneau em plein carré ; wide = compact ordinateur/tablette */
 function setPomoScaleMode(mode) {
@@ -495,8 +496,14 @@ function syncWidgetScale() {
     return;
   }
 
-  /* Évite oscillation phone↔wide une fois le mode tablette engagé */
-  if (document.documentElement.dataset.pomoScale === 'wide') {
+  const quoteMinimized = document.getElementById('quote-card')?.classList.contains('is-minimized');
+
+  /* Citation réduite → réessayer le remplissage (plus d'espace vertical) */
+  if (quoteMinimized) _pomoWideLatched = false;
+
+  /* Latch wide seulement si les deux panneaux sont visibles */
+  if (_pomoWideLatched && !quoteMinimized) {
+    setPomoScaleMode('wide');
     widget.style.removeProperty('--pw-base');
     return;
   }
@@ -538,8 +545,18 @@ function syncWidgetScale() {
   function finalizeScale() {
     if (window.innerWidth > maxW || container.classList.contains('is-minimized')) return;
     if (detectPomoOverflow(widget)) {
-      setPomoScaleMode('wide');
+      if (quoteMinimized) {
+        const base = parseFloat(getComputedStyle(widget).getPropertyValue('--pw-base')) || 12;
+        widget.style.setProperty('--pw-base', `${Math.max(8, base * 0.94)}px`);
+        if (detectPomoOverflow(widget)) setPomoScaleMode('wide');
+        else setPomoScaleMode('phone');
+      } else {
+        _pomoWideLatched = true;
+        setPomoScaleMode('wide');
+      }
     } else {
+      _pomoWideLatched = false;
+      setPomoScaleMode('phone');
       const refined = computeBase();
       if (refined != null) widget.style.setProperty('--pw-base', `${refined}px`);
     }

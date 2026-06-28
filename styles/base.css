@@ -30,8 +30,11 @@
     --quote-fade: 220ms;
     --bg-fade: 900ms;
 
-    /* Credits bar — shared across index + solitaire */
-    --credits-max-width: calc(100vw - 1.25rem);
+    /* Barres fixes (menu, crédits, scène) — même largeur que Solitaire */
+    --chrome-gutter: 0.75rem;
+    --chrome-cap: 760px;
+    --chrome-width: min(calc(100vw - var(--chrome-gutter)), var(--chrome-cap));
+    --credits-max-width: var(--chrome-width);
     --credits-pad-y: 0.38rem;
     --credits-pad-x: 0.85rem;
     --credits-font-size: 0.6rem;
@@ -933,7 +936,8 @@
     justify-content: center;
     flex-wrap: wrap;
     gap: var(--credits-gap);
-    max-width: var(--credits-max-width);
+    width: var(--chrome-width);
+    max-width: var(--chrome-width);
     box-sizing: border-box;
     text-align: center;
     opacity: 0;

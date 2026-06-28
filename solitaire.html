@@ -62,8 +62,11 @@
       /* inset for .card-svg to prevent border-radius clipping corner labels */
       --card-svg-inset: 6px;
 
-      /* Credits bar — aligné sur Ataraxia (base.css) */
-      --credits-max-width: calc(100vw - 1.25rem);
+      /* Barres fixes — même largeur que game-toolbar */
+      --chrome-gutter: 0.75rem;
+      --chrome-cap: 760px;
+      --chrome-width: min(calc(100vw - var(--chrome-gutter)), var(--chrome-cap));
+      --credits-max-width: var(--chrome-width);
       --credits-pad-y: 0.38rem;
       --credits-pad-x: 0.85rem;
       --credits-font-size: 0.6rem;
@@ -181,8 +184,8 @@
       align-items: stretch;
       gap: 0;
       padding: 0.42rem 0.62rem 0.34rem;
-      width: min(calc(100vw - 0.75rem), 760px);
-      max-width: min(calc(100vw - 0.75rem), 760px);
+      width: var(--chrome-width);
+      max-width: var(--chrome-width);
       border-radius: 20px;
       background: rgba(0, 0, 0, 0.38);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -829,7 +832,8 @@
       justify-content: center;
       flex-wrap: wrap;
       gap: var(--credits-gap);
-      max-width: var(--credits-max-width);
+      width: var(--chrome-width);
+      max-width: var(--chrome-width);
       box-sizing: border-box;
       opacity: 0;
       transition: opacity 0.6s ease, background 0.3s ease;

@@ -699,23 +699,27 @@
     justify-content: flex-start;
   }
 
-  /* Espaceur flex : pousse la citation réduite vers le bas */
+  /* Citation réduite : le pomo occupe l'espace restant, chip en bas */
   .content:has(.quote-card.is-minimized) .pomo-container {
     order: 0;
+    flex: 1 1 auto;
+    min-height: 0;
   }
 
   .content:has(.quote-card.is-minimized) .quote-card {
-    order: 2;
-    margin-top: 0;
+    order: 1;
+    flex: 0 0 auto;
+    margin-top: auto;
   }
 
-  .content:has(.quote-card.is-minimized)::after {
-    content: '';
-    order: 1;
+  /* Pomo réduit : la citation occupe l'espace restant */
+  .content:has(.pomo-container.is-minimized) .pomo-container {
+    flex: 0 0 auto;
+  }
+
+  .content:has(.pomo-container.is-minimized) .quote-card {
     flex: 1 1 auto;
     min-height: 0;
-    width: 100%;
-    pointer-events: none;
   }
 
   /* Widget timer — isolé du plein écran (.pomo-fullpage-overlay) */

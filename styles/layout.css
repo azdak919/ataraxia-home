@@ -571,34 +571,122 @@ html[data-layout="wide"] .quote-action-row .btn:hover {
 
   html[data-layout="touch"] .pomo-widget,
   html[data-layout="wide"] .pomo-widget {
+    container-type: size;
+    container-name: pomo-widget;
     width: 100%;
     max-width: 100%;
     height: 100%;
-    max-height: 100%;
+    max-height: none;
     min-height: 0;
     flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto auto;
+    align-items: center;
+    justify-items: center;
+    gap: 0.35rem;
+    padding: 0.65rem 0.75rem 0.55rem;
+    font-size: clamp(11px, 2.75cqmin, 17px);
     border-radius: 20px;
   }
 
+  /* Carré max dans la zone disponible (anneau + contrôles en dessous) */
   html[data-layout="touch"] .pomo-widget .pomo-ring-wrapper,
   html[data-layout="wide"] .pomo-widget .pomo-ring-wrapper {
-    flex: 1 1 auto;
+    grid-row: 1;
+    place-self: center;
+    flex: unset;
     min-height: 0;
+    min-width: 0;
+    height: 100%;
     width: auto;
-    max-width: min(100%, 220px);
-    height: auto;
-    max-height: min(100%, 36vw);
+    max-width: 100%;
+    max-height: 100%;
     aspect-ratio: 1;
-    margin: 0 auto;
-    align-self: center;
+    margin: 0;
+    container-type: size;
+    font-size: 2.85cqmin;
+  }
+
+  html[data-layout="touch"] .pomo-widget .pomo-ring-bg,
+  html[data-layout="wide"] .pomo-widget .pomo-ring-bg,
+  html[data-layout="touch"] .pomo-widget .pomo-ring-progress,
+  html[data-layout="wide"] .pomo-widget .pomo-ring-progress {
+    stroke-width: 0.55em;
+  }
+
+  html[data-layout="touch"] .pomo-widget .pomo-center,
+  html[data-layout="wide"] .pomo-widget .pomo-center {
+    gap: 0.08em;
+  }
+
+  html[data-layout="touch"] .pomo-widget .pomo-label,
+  html[data-layout="wide"] .pomo-widget .pomo-label {
+    font-size: 0.58em;
+    letter-spacing: 0.14em;
   }
 
   html[data-layout="touch"] .pomo-widget .pomo-time-inside,
   html[data-layout="wide"] .pomo-widget .pomo-time-inside {
-    font-size: clamp(2rem, 10vw, 3.2rem);
+    font-size: 2.45em;
+    line-height: 1;
+  }
+
+  html[data-layout="touch"] .pomo-widget .pomo-time-unit,
+  html[data-layout="wide"] .pomo-widget .pomo-time-unit {
+    font-size: 0.34em;
+  }
+
+  html[data-layout="touch"] .pomo-widget .pomo-dots,
+  html[data-layout="wide"] .pomo-widget .pomo-dots {
+    gap: 0.35em;
+    margin-top: 0.2em;
+  }
+
+  html[data-layout="touch"] .pomo-widget .pomo-dot,
+  html[data-layout="wide"] .pomo-widget .pomo-dot {
+    width: 0.28em;
+    height: 0.28em;
+  }
+
+  html[data-layout="touch"] .pomo-widget .pomo-controls,
+  html[data-layout="wide"] .pomo-widget .pomo-controls {
+    grid-row: 3;
+    flex-shrink: 0;
+    gap: 0.65em;
+    margin-top: 0;
+    padding-bottom: 0;
+  }
+
+  html[data-layout="touch"] .pomo-widget .pomo-btn--primary,
+  html[data-layout="wide"] .pomo-widget .pomo-btn--primary,
+  html[data-layout="touch"] .pomo-widget .pomo-btn--secondary,
+  html[data-layout="wide"] .pomo-widget .pomo-btn--secondary {
+    width: 2.75em;
+    height: 2.75em;
+  }
+
+  html[data-layout="touch"] .pomo-widget .pomo-btn--primary svg,
+  html[data-layout="wide"] .pomo-widget .pomo-btn--primary svg,
+  html[data-layout="touch"] .pomo-widget .pomo-btn--secondary svg,
+  html[data-layout="wide"] .pomo-widget .pomo-btn--secondary svg {
+    width: 1.2em;
+    height: 1.2em;
+  }
+
+  html[data-layout="touch"] .pomo-widget .pomo-phase-ready-label,
+  html[data-layout="wide"] .pomo-widget .pomo-phase-ready-label {
+    grid-row: 2;
+    font-size: 0.95em;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Citation réduite : pomo prend tout l'espace vertical */
+  html[data-layout="touch"] .content:has(.quote-card.is-minimized) .pomo-container,
+  html[data-layout="wide"] .content:has(.quote-card.is-minimized) .pomo-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
   }
 
   html[data-layout="touch"] .quote-card,

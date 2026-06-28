@@ -446,6 +446,7 @@
     gap: clamp(0.4rem, 1.2dvh, 0.75rem);
     overflow-y: auto;
     overflow-x: hidden;
+    scrollbar-gutter: stable;
     padding: 0 clamp(0.15rem, 1vw, 0.35rem);
     scrollbar-width: thin;
   }
@@ -560,7 +561,7 @@
     max-width: 100%;
     font-style: italic;
     text-wrap: pretty;
-    transition: opacity 0.35s ease, font-size 0.2s ease;
+    transition: opacity 0.35s ease;
   }
 
   .quote-author {
@@ -574,7 +575,7 @@
     max-width: 100%;
     line-height: 1.35;
     text-wrap: balance;
-    transition: opacity 0.35s ease, font-size 0.2s ease;
+    transition: opacity 0.35s ease;
   }
 
   .quote-author::before {
@@ -2335,7 +2336,7 @@
 /* ═══════════════════════════════════════
    VERSION
    ═══════════════════════════════════════ */
-const VERSION = 'v1.2.32';
+const VERSION = 'v1.2.33';
 
 /* ═══════════════════════════════════════
    QUOTES DATABASE — focus, présent, effort
@@ -3178,6 +3179,8 @@ let recentBgs = [];
    ═══════════════════════════════════════ */
 const QUOTE_LAYOUT_MIN_PX = 14;
 let _quoteLayoutScheduled = false;
+let _quoteLayoutBusy = false;
+let _quoteLayoutCacheKey = '';
 
 function resetQuoteTypography() {
   const card = document.getElementById('quote-card');
@@ -3190,6 +3193,12 @@ function resetQuoteTypography() {
   card.style.removeProperty('--quote-author-size');
 }
 
+function invalidateQuoteLayout() {
+  _quoteLayoutCacheKey = '';
+  resetQuoteTypography();
+  scheduleQuoteLayout();
+}
+
 function syncQuoteLayout() {
   const card = document.getElementById('quote-card');
   const inner = card?.querySelector('.quote-inner');
@@ -3200,28 +3209,58 @@ function syncQuoteLayout() {
   if (!card || !inner || !body || !textEl || !authorEl) return;
   if (card.classList.contains('minimized')) return;
 
-  resetQuoteTypography();
-
   const landscapeDock = window.matchMedia('(max-height: 520px) and (orientation: landscape)').matches;
   if (landscapeDock) return;
+
+  const cacheKey = `${currentQuoteIdx}|${Math.round(inner.clientWidth)}|${Math.round(inner.clientHeight)}|${currentLang}`;
+  if (_quoteLayoutCacheKey === cacheKey) return;
+
+  _quoteLayoutBusy = true;
 
   requestAnimationFrame(() => {
     const innerH = inner.clientHeight;
     const actionsH = actions?.offsetHeight || 0;
     const gap = parseFloat(getComputedStyle(inner).rowGap || getComputedStyle(inner).gap) || 12;
     const available = innerH - actionsH - gap;
-    if (available <= 0) return;
+    if (available <= 0) {
+      _quoteLayoutBusy = false;
+      return;
+    }
 
     body.style.maxHeight = `${available}px`;
 
-    let size = parseFloat(getComputedStyle(textEl).fontSize);
-    let guard = 0;
-    while (body.scrollHeight > available + 2 && size > QUOTE_LAYOUT_MIN_PX && guard < 28) {
-      size -= 1;
+    textEl.style.transition = 'none';
+    authorEl.style.transition = 'none';
+
+    let lo = QUOTE_LAYOUT_MIN_PX;
+    let hi = Math.round(parseFloat(getComputedStyle(textEl).fontSize)) || 26;
+    let best = lo;
+
+    const fits = (size) => {
       textEl.style.fontSize = `${size}px`;
       authorEl.style.fontSize = `${Math.max(10, Math.round(size * 0.52))}px`;
-      guard += 1;
+      return body.scrollHeight <= available + 1;
+    };
+
+    if (fits(hi)) {
+      best = hi;
+    } else {
+      while (lo <= hi) {
+        const mid = (lo + hi) >> 1;
+        if (fits(mid)) {
+          best = mid;
+          lo = mid + 1;
+        } else {
+          hi = mid - 1;
+        }
+      }
+      fits(best);
     }
+
+    textEl.style.transition = '';
+    authorEl.style.transition = '';
+    _quoteLayoutCacheKey = cacheKey;
+    _quoteLayoutBusy = false;
   });
 }
 
@@ -3262,10 +3301,10 @@ function showRandomQuote() {
       requestAnimationFrame(() => requestAnimationFrame(() => {
         textEl.style.opacity = '1';
         authorEl.style.opacity = '1';
-        scheduleQuoteLayout();
+        invalidateQuoteLayout();
       }));
     } else {
-      scheduleQuoteLayout();
+      invalidateQuoteLayout();
     }
   }, 420);
 }
@@ -4443,7 +4482,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const quoteInner = quoteCard.querySelector('.quote-inner');
     _quoteCardObserver = new ResizeObserver(() => {
       updateQuoteOffset();
-      scheduleQuoteLayout();
+      if (!_quoteLayoutBusy) scheduleQuoteLayout();
     });
     _quoteCardObserver.observe(quoteCard);
     if (quoteInner) _quoteCardObserver.observe(quoteInner);
@@ -5569,7 +5608,7 @@ async function translateCurrentQuote() {
     requestAnimationFrame(() => requestAnimationFrame(() => {
       textEl.style.opacity = '1';
       authorEl.style.opacity = '1';
-      scheduleQuoteLayout();
+      invalidateQuoteLayout();
     }));
   }
 }

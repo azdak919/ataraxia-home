@@ -7,8 +7,18 @@
   'use strict';
 
   const LAYOUT_MQS = {
-    touch: '(hover: none) and (max-width: 900px)',
+    touch: '(pointer: coarse) and (max-width: 1024px), (pointer: coarse) and (max-height: 520px), (hover: none) and (max-width: 900px)',
+    portrait: '(orientation: portrait)',
   };
+
+  /** Téléphone / tablette tactile — évite le layout « wide » avec menu texte sur mobile. */
+  function isTouchViewport() {
+    const coarse = window.matchMedia('(pointer: coarse)').matches;
+    const noHover = window.matchMedia('(hover: none)').matches;
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    return (coarse && (w <= 1024 || h <= 520)) || (noHover && w <= 900);
+  }
 
   const SCENE_KEY = 'ataraxia_scene';
   const LEGACY_SCENE_KEY = 'ataraxia_focus_scene';
@@ -69,10 +79,31 @@
 
   function syncLayout() {
     const root = document.documentElement;
-    const mode = window.matchMedia(LAYOUT_MQS.touch).matches ? 'touch' : 'wide';
+    const mode = isTouchViewport() ? 'touch' : 'wide';
     root.dataset.layout = mode;
-    if (mode === 'touch') syncScene();
-    else delete root.dataset.scene;
+    if (mode === 'touch') {
+      syncScene();
+      tryLockPortrait();
+    } else {
+      delete root.dataset.scene;
+    }
+    syncPortraitLock();
+  }
+
+  function syncPortraitLock() {
+    const overlay = document.getElementById('portrait-lock');
+    if (!overlay) return;
+    const locked = document.documentElement.dataset.layout === 'touch'
+      && !window.matchMedia(LAYOUT_MQS.portrait).matches;
+    overlay.classList.toggle('is-active', locked);
+    overlay.setAttribute('aria-hidden', locked ? 'false' : 'true');
+    document.body.classList.toggle('is-portrait-locked', locked);
+  }
+
+  function tryLockPortrait() {
+    const o = screen.orientation;
+    if (!o?.lock) return;
+    o.lock('portrait').catch(() => {});
   }
 
   function isTouchLayout() {
@@ -87,8 +118,12 @@
       }
     };
     window.addEventListener('resize', onLayoutChange, { passive: true });
-    window.addEventListener('orientationchange', onLayoutChange, { passive: true });
+    window.addEventListener('orientationchange', () => {
+      onLayoutChange();
+      syncPortraitLock();
+    }, { passive: true });
     window.matchMedia(LAYOUT_MQS.touch).addEventListener('change', onLayoutChange);
+    window.matchMedia(LAYOUT_MQS.portrait).addEventListener('change', syncPortraitLock);
 
     document.getElementById('scene-btn-timer')?.addEventListener('click', () => setScene('timer'));
     document.getElementById('scene-btn-quote')?.addEventListener('click', () => setScene('quote'));
@@ -97,14 +132,17 @@
   function init() {
     migrateSceneStorage();
     syncLayout();
+    syncPortraitLock();
     initLayoutListeners();
   }
 
   window.AtaraxiaLayout = {
     LAYOUT_MQS,
     SCENE_KEY,
+    isTouchViewport,
     syncLayout,
     syncScene,
+    syncPortraitLock,
     setScene,
     isTouchLayout,
     init,

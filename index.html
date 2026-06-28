@@ -34,7 +34,11 @@
 <script>
 (function () {
   const root = document.documentElement;
-  const touch = matchMedia('(hover: none) and (max-width: 900px)').matches;
+  const coarse = matchMedia('(pointer: coarse)').matches;
+  const noHover = matchMedia('(hover: none)').matches;
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  const touch = (coarse && (w <= 1024 || h <= 520)) || (noHover && w <= 900);
   root.dataset.layout = touch ? 'touch' : 'wide';
   if (touch) {
     try {
@@ -52,6 +56,18 @@
 </head>
 
 <body>
+
+<div id="portrait-lock" class="portrait-lock" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="portrait-lock-title">
+  <div class="portrait-lock__inner">
+    <svg class="portrait-lock__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="7" y="2" width="10" height="20" rx="2"/>
+      <path d="M12 18h.01"/>
+      <path d="M9 5h6" opacity="0.45"/>
+    </svg>
+    <p id="portrait-lock-title" class="portrait-lock__title">Mode vertical requis</p>
+    <p class="portrait-lock__text">Tournez votre appareil en portrait pour utiliser Ataraxia.</p>
+  </div>
+</div>
 
 <!-- Background -->
 

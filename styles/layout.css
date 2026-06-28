@@ -20,9 +20,11 @@ html[data-layout="touch"] .top-right-actions {
   left: 50%;
   right: auto;
   transform: translateX(-50%);
-  padding: 0.28rem 0.35rem;
-  gap: 0.15rem;
-  max-width: calc(100vw - 1.25rem);
+  flex-wrap: nowrap;
+  justify-content: center;
+  padding: 0.24rem 0.3rem;
+  gap: 0.12rem;
+  max-width: calc(100vw - 1rem);
   border-radius: 999px;
   background: rgba(0, 0, 0, 0.38);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -33,15 +35,18 @@ html[data-layout="touch"] .top-right-actions {
 
 html[data-layout="touch"] .action-link,
 html[data-layout="touch"] .coffee-btn {
-  padding: 0.4rem;
+  padding: 0;
   font-size: 0;
   gap: 0;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
   border-radius: 50%;
   border-color: transparent;
   background: transparent;
+  -webkit-tap-highlight-color: transparent;
 }
 html[data-layout="touch"] .action-link span,
 html[data-layout="touch"] .coffee-btn span { display: none; }
@@ -49,15 +54,18 @@ html[data-layout="touch"] .action-link svg,
 html[data-layout="touch"] .coffee-btn svg { width: 17px; height: 17px; opacity: 0.88; }
 
 html[data-layout="touch"] .lang-btn {
-  padding: 0.4rem;
+  padding: 0;
   font-size: 0;
   gap: 0;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
   border-radius: 50%;
   border-color: transparent;
   background: transparent;
+  -webkit-tap-highlight-color: transparent;
 }
 html[data-layout="touch"] .lang-btn span { display: none; }
 html[data-layout="touch"] .lang-btn svg { width: 17px; height: 17px; opacity: 0.88; }
@@ -395,123 +403,41 @@ html[data-layout="touch"] .pomo-fullpage-overlay .pomo-controls {
   margin-top: 0;
 }
 
-/* ── Paysage tactile ─────────────────────────────────── */
-@media (orientation: landscape) and (max-height: 650px) and (hover: none) {
-  html[data-layout="touch"] {
-    --ring-max: min(calc(100dvh - 3.25rem), calc(100vw - 2rem));
-    --content-pad-top: max(2.5rem, calc(env(safe-area-inset-top, 0px) + 2rem));
-    --content-pad-bottom: max(4.25rem, calc(env(safe-area-inset-bottom, 0px) + 3.5rem));
-    --scene-bar-offset: 3.25rem;
-    --pomo-time-size: clamp(2.6rem, 22dvh, 4.5rem);
-    --pomo-unit-size: clamp(0.9rem, 6dvh, 1.35rem);
-    --pomo-label-size: clamp(0.58rem, 3.5dvh, 0.78rem);
-    --pomo-primary-size: clamp(52px, 14dvh, 66px);
-    --pomo-secondary-size: clamp(44px, 11dvh, 56px);
-    --quote-text-size: clamp(0.92rem, 2.6vw, 1.15rem);
-  }
-  html[data-layout="touch"] .content {
-    padding-left: max(0.65rem, env(safe-area-inset-left, 0px));
-    padding-right: max(0.65rem, env(safe-area-inset-right, 0px));
-  }
-  html[data-layout="touch"] .pomo-widget {
-    padding: 0.45rem 0.85rem 0.4rem;
-    border-radius: 16px;
-  }
-  html[data-layout="touch"] .pomo-controls { gap: 0.65rem; }
-  html[data-layout="touch"] .quote-card {
-    padding: 0.75rem 1.1rem 0.7rem;
-    border-radius: 16px;
-  }
-  html[data-layout="touch"] .quote-text { line-height: 1.4; }
-  html[data-layout="touch"] .quote-action-row .btn {
-    min-height: 40px;
-    font-size: 0.68rem;
-  }
-  html[data-layout="touch"] .bottom-badges {
-    font-size: 0.42rem;
-  }
-  html[data-layout="touch"] .bottom-badges .img-credit,
-  html[data-layout="touch"] .bottom-badges .img-credit + .credits-divider {
-    display: none;
-  }
-  html[data-layout="touch"] .pomo-settings {
-    max-height: min(68dvh, 360px);
-    max-width: min(420px, calc(100vw - 1.5rem));
-  }
-  html[data-layout="touch"] .focus-scene-bar {
-    bottom: max(0.4rem, env(safe-area-inset-bottom, 0px));
-  }
-
-  /* Fullscreen pomo overlay — paysage tactile */
-  .pomo-fullpage-overlay {
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    justify-content: center;
-    align-items: center;
-  }
-  .pomo-fullpage-overlay .pomo-ring-wrapper {
-    width: min(68vw, 36dvh, calc(100dvh - 8rem));
-    height: min(68vw, 36dvh, calc(100dvh - 8rem));
-  }
-  .pomo-fullpage-overlay .pomo-ring {
-    width: 100%;
-    height: 100%;
-  }
-  .pomo-fullpage-overlay .pomo-time-inside { font-size: clamp(2.4rem, 13vh, 4.2rem); }
-  .pomo-fullpage-overlay .pomo-time-unit { font-size: clamp(0.9rem, 3.5vh, 1.3rem); }
-  .pomo-fullpage-overlay .pomo-label { font-size: clamp(0.6rem, 2.2vh, 0.8rem); }
-  .pomo-fullpage-overlay .pomo-controls { gap: 0.75rem; }
-  .pomo-fullpage-overlay .pomo-btn--primary { width: clamp(50px, 12vh, 60px); height: clamp(50px, 12vh, 60px); }
-  .pomo-fullpage-overlay .pomo-btn--primary svg { width: clamp(22px, 5.5vh, 28px); height: clamp(22px, 5.5vh, 28px); }
-  .pomo-fullpage-overlay .pomo-btn--secondary { width: clamp(42px, 10vh, 52px); height: clamp(42px, 10vh, 52px); }
-  .pomo-fullpage-overlay .pomo-btn--secondary svg { width: clamp(18px, 4.5vh, 24px); height: clamp(18px, 4.5vh, 24px); }
-  .pomo-fullpage-overlay .pomo-phase-ready-label { font-size: 0.6rem; }
-  .pomo-fullpage-overlay .pomo-dots { margin-top: 0.15rem; }
-  .pomo-fullpage-close { top: 0.4rem; right: 0.4rem; width: 30px; height: 30px; }
-  .pomo-fullpage-close svg { width: 14px; height: 14px; }
-  .pomo-fullpage-overlay .pomo-radial-settings.open {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-content: center;
-    gap: 0.6rem;
-    position: absolute;
-    inset: 0;
-    pointer-events: auto;
-    background: var(--bg-glass);
-    backdrop-filter: blur(32px) saturate(1.4);
-    -webkit-backdrop-filter: blur(32px) saturate(1.4);
-    padding: 0.5rem 1.5rem;
-    z-index: 910;
-  }
-  .pomo-fullpage-overlay .pomo-radial-settings .radial-item {
-    position: static !important;
-    transform: none !important;
-    animation: none !important;
-    opacity: 1 !important;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .pomo-fullpage-overlay .pomo-radial-settings .radial-item label {
-    font-size: 0.6rem;
-    margin-bottom: 0.2rem;
-  }
-  .pomo-fullpage-overlay .pomo-radial-settings .radial-item input[type="number"] {
-    width: 52px;
-    font-size: 0.8rem;
-    padding: 0.3rem;
-  }
-  .pomo-fullpage-overlay .pomo-radial-settings .radial-chip .phase-chip {
-    font-size: 0.65rem;
-    padding: 0.3rem 0.6rem;
-  }
-  .pomo-fp-settings-close {
-    display: flex !important;
-    width: 30px;
-    height: 30px;
-  }
+/* ── Portrait forcé (mobile tactile) ─────────────────── */
+.portrait-lock {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: none;
+  place-items: center;
+  padding: max(1.5rem, env(safe-area-inset-top, 0px)) 1.5rem max(1.5rem, env(safe-area-inset-bottom, 0px));
+  background: rgba(12, 11, 10, 0.94);
+  color: #f1ece4;
+  text-align: center;
+}
+.portrait-lock.is-active { display: grid; }
+body.is-portrait-locked { overflow: hidden; }
+.portrait-lock__inner { max-width: 18rem; }
+.portrait-lock__icon {
+  width: 3rem;
+  height: 3rem;
+  margin: 0 auto 1rem;
+  color: var(--accent, #c9a87c);
+  opacity: 0.9;
+}
+.portrait-lock__title {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+.portrait-lock__text {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: rgba(241, 236, 228, 0.72);
 }
 
 @media (max-width: 400px) {
@@ -533,8 +459,14 @@ html[data-layout="touch"] .pomo-fullpage-overlay .pomo-controls {
   html[data-layout="touch"] .action-link,
   html[data-layout="touch"] .coffee-btn,
   html[data-layout="touch"] .lang-btn {
-    width: 34px;
-    height: 34px;
+    flex-basis: 36px;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+  }
+  html[data-layout="touch"] .top-right-actions {
+    gap: 0.08rem;
+    padding: 0.2rem 0.24rem;
   }
 }
 

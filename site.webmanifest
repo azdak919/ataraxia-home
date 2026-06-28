@@ -4,6 +4,7 @@
   "description": "Daily Quotes & Focus Timer",
   "start_url": "/ataraxia-home/",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#1a1816",
   "theme_color": "#8b6f4e",
   "icons": [

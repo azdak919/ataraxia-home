@@ -210,27 +210,27 @@
 
     .game-toolbar-tuner {
       margin-top: 0.34rem;
-      padding-top: 0.34rem;
+      padding: 0;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
-      overflow: visible;
+      overflow: hidden;
+      line-height: 0;
       position: relative;
       z-index: 3;
       flex-shrink: 0;
-      height: var(--radar-embed-slot-h);
-      min-height: var(--radar-embed-slot-h);
-      max-height: var(--radar-embed-slot-h);
     }
 
     .radar-embed-frame {
       display: block;
       width: 100%;
       height: var(--radar-embed-slot-h);
+      margin: 0;
+      padding: 0;
       border: 0;
       border-radius: 12px;
       background: transparent;
       color-scheme: normal;
       overflow: hidden;
-      pointer-events: auto;
+      vertical-align: top;
     }
 
     .game-toolbar-sub {

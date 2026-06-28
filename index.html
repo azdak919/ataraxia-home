@@ -342,14 +342,18 @@
     position: relative;
     flex-shrink: 1;
     min-height: 0;
+    width: 100%;
+    max-height: min(58dvh, 520px);
     display: flex;
     flex-direction: column;
+    container-type: inline-size;
+    container-name: quote-card;
     background: var(--bg-glass);
     backdrop-filter: blur(24px) saturate(1.4);
     -webkit-backdrop-filter: blur(24px) saturate(1.4);
     border: 1px solid var(--border-glass);
     border-radius: 20px;
-    padding: clamp(1.75rem, 5dvh, 3rem) clamp(1.25rem, 3.5vw, 2.75rem);
+    padding: clamp(1.25rem, 3.5dvh, 2.5rem) clamp(1.25rem, 3.5vw, 2.75rem);
     text-align: center;
     box-shadow:
       0 8px 32px var(--shadow-soft),
@@ -383,10 +387,27 @@
   }
 
   .quote-card .quote-inner {
-    transition: opacity 0.35s ease, max-height 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-    overflow-y: auto;
-    flex-shrink: 1;
+    flex: 1 1 auto;
     min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.65rem, 1.8dvh, 1.1rem);
+    overflow: hidden;
+    transition: opacity 0.35s ease, max-height 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .quote-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(0.4rem, 1.2dvh, 0.75rem);
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 clamp(0.15rem, 1vw, 0.35rem);
+    scrollbar-width: thin;
   }
 
   .quote-card.minimized .quote-inner {
@@ -480,33 +501,40 @@
 
   .quote-mark {
     font-family: var(--font-display);
-    font-size: 4rem;
+    font-size: clamp(1.5rem, 5cqw, 2.75rem);
     line-height: 1;
     color: var(--accent);
     opacity: 0.35;
-    margin-bottom: -1rem;
+    margin: 0;
+    flex-shrink: 0;
     user-select: none;
   }
 
   .quote-text {
     font-family: var(--font-display);
-    font-size: clamp(1.1rem, 3vw, 1.65rem);
+    font-size: var(--quote-text-size, clamp(1rem, 4.2cqw, 1.65rem));
     font-weight: 400;
-    line-height: 1.55;
+    line-height: 1.5;
     color: var(--text-primary);
-    margin-bottom: 1.5rem;
+    margin: 0;
+    max-width: 100%;
     font-style: italic;
-    transition: opacity 0.35s ease;
+    text-wrap: pretty;
+    transition: opacity 0.35s ease, font-size 0.2s ease;
   }
 
   .quote-author {
     font-family: var(--font-body);
-    font-size: 0.85rem;
+    font-size: var(--quote-author-size, clamp(0.65rem, 2.4cqw, 0.85rem));
     font-weight: 400;
-    letter-spacing: 0.18em;
+    letter-spacing: clamp(0.06em, 0.35cqw, 0.16em);
     text-transform: uppercase;
     color: var(--text-muted);
-    transition: opacity 0.35s ease;
+    margin: 0;
+    max-width: 100%;
+    line-height: 1.35;
+    text-wrap: balance;
+    transition: opacity 0.35s ease, font-size 0.2s ease;
   }
 
   .quote-author::before {
@@ -516,9 +544,13 @@
 
   .quote-action-row {
     display: flex;
+    flex-shrink: 0;
+    flex-wrap: wrap;
     justify-content: center;
-    gap: 0.75rem;
-    margin-top: 1.75rem;
+    align-items: center;
+    gap: clamp(0.4rem, 1.5vw, 0.75rem);
+    margin: 0;
+    padding-top: clamp(0.15rem, 0.6dvh, 0.35rem);
   }
 
   .btn {
@@ -1516,7 +1548,9 @@
     .quote-author { font-size: 0.72rem; letter-spacing: 0.14em; }
     .quote-action-row { gap: 0.5rem; margin-top: 1rem; }
     .quote-action-row .btn { font-size: 0.68rem; padding: 0.45rem 1rem; }
-    .quote-inner { max-height: 42dvh; overflow-y: auto; }
+    .quote-card { max-height: min(52dvh, 460px); }
+    .quote-inner { max-height: none; }
+    .quote-body { max-height: min(38dvh, 320px); }
 
     /* Pomo container & widget — match quote card glass style */
     .pomo-container { width: 100%; margin-top: 0; }
@@ -1735,19 +1769,25 @@
     .quote-inner {
       flex: 1;
       min-height: 0;
-      overflow-y: auto;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
+      gap: 0.25rem;
+    }
+    .quote-body {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
       justify-content: center;
+      gap: 0.2rem;
     }
     .quote-text {
       font-size: clamp(0.62rem, 1.5vw, 0.82rem);
       line-height: 1.35;
-      margin-bottom: 0.2rem;
     }
-    .quote-mark { font-size: 0.9rem; margin-bottom: 0; }
-    .quote-author { font-size: 0.48rem; margin-top: 0.1rem; }
-    .quote-action-row { flex-shrink: 0; gap: 0.2rem; margin-top: 0.15rem; }
+    .quote-mark { font-size: 0.9rem; }
+    .quote-author { font-size: 0.48rem; }
+    .quote-action-row { flex-shrink: 0; gap: 0.2rem; padding-top: 0.1rem; }
     .quote-action-row .btn { font-size: 0.46rem; padding: 0.18rem 0.4rem; border-radius: 6px; }
 
     /* ── Credits → bottom-right of content area (background) ── */
@@ -1972,8 +2012,8 @@
       min-height: 0;
       padding: 1.5rem 2rem;
     }
-    .quote-inner {
-      max-height: min(40dvh, 320px);
+    .quote-body {
+      max-height: min(36dvh, 300px);
       overflow-y: auto;
     }
 
@@ -2025,10 +2065,8 @@
       padding: clamp(1.5rem, 3dvh, 2.25rem) clamp(1.25rem, 3vw, 2rem);
     }
 
-    .quote-inner {
-      max-height: min(50dvh, 340px);
-      overflow-y: auto;
-    }
+    .quote-card { max-height: min(54dvh, 480px); }
+    .quote-body { max-height: min(42dvh, 360px); }
 
     .quote-text {
       font-size: clamp(1.15rem, 2.5vw, 1.55rem);
@@ -2096,9 +2134,11 @@
       <span class="quote-mini-label" id="quote-mini-label">Quote</span>
     </div>
     <div class="quote-inner">
-      <div class="quote-mark">"</div>
-      <p class="quote-text" id="quote-text">We suffer more often in imagination than in reality.</p>
-      <p class="quote-author" id="quote-author">Seneca</p>
+      <div class="quote-body">
+        <div class="quote-mark" aria-hidden="true">"</div>
+        <p class="quote-text" id="quote-text">We suffer more often in imagination than in reality.</p>
+        <p class="quote-author" id="quote-author">Seneca</p>
+      </div>
       <div class="quote-action-row">
         <button class="btn" id="btn-new" aria-label="New quote">New Quote</button>
         <button class="btn" id="btn-bg" aria-label="Change background">New Scene</button>
@@ -2270,7 +2310,7 @@
 /* ═══════════════════════════════════════
    VERSION
    ═══════════════════════════════════════ */
-const VERSION = 'v1.2.28';
+const VERSION = 'v1.2.29';
 
 /* ═══════════════════════════════════════
    STOIC QUOTES DATABASE
@@ -3217,6 +3257,64 @@ function pickCulturalBackground(culture) {
   loadBackground(chosen);
 }
 
+const QUOTE_LAYOUT_MIN_PX = 14;
+let _quoteLayoutScheduled = false;
+
+function resetQuoteTypography() {
+  const card = document.getElementById('quote-card');
+  const textEl = document.getElementById('quote-text');
+  const authorEl = document.getElementById('quote-author');
+  if (!card || !textEl || !authorEl) return;
+  textEl.style.fontSize = '';
+  authorEl.style.fontSize = '';
+  card.style.removeProperty('--quote-text-size');
+  card.style.removeProperty('--quote-author-size');
+}
+
+function syncQuoteLayout() {
+  const card = document.getElementById('quote-card');
+  const inner = card?.querySelector('.quote-inner');
+  const body = card?.querySelector('.quote-body');
+  const actions = card?.querySelector('.quote-action-row');
+  const textEl = document.getElementById('quote-text');
+  const authorEl = document.getElementById('quote-author');
+  if (!card || !inner || !body || !textEl || !authorEl) return;
+  if (card.classList.contains('minimized')) return;
+
+  resetQuoteTypography();
+
+  const landscapeDock = window.matchMedia('(max-height: 520px) and (orientation: landscape)').matches;
+  if (landscapeDock) return;
+
+  requestAnimationFrame(() => {
+    const innerH = inner.clientHeight;
+    const actionsH = actions?.offsetHeight || 0;
+    const gap = parseFloat(getComputedStyle(inner).rowGap || getComputedStyle(inner).gap) || 12;
+    const available = innerH - actionsH - gap;
+    if (available <= 0) return;
+
+    body.style.maxHeight = `${available}px`;
+
+    let size = parseFloat(getComputedStyle(textEl).fontSize);
+    let guard = 0;
+    while (body.scrollHeight > available + 2 && size > QUOTE_LAYOUT_MIN_PX && guard < 28) {
+      size -= 1;
+      textEl.style.fontSize = `${size}px`;
+      authorEl.style.fontSize = `${Math.max(10, Math.round(size * 0.52))}px`;
+      guard += 1;
+    }
+  });
+}
+
+function scheduleQuoteLayout() {
+  if (_quoteLayoutScheduled) return;
+  _quoteLayoutScheduled = true;
+  requestAnimationFrame(() => {
+    _quoteLayoutScheduled = false;
+    syncQuoteLayout();
+  });
+}
+
 function showRandomQuote() {
   const textEl = document.getElementById('quote-text');
   const authorEl = document.getElementById('quote-author');
@@ -3250,7 +3348,10 @@ function showRandomQuote() {
       requestAnimationFrame(() => requestAnimationFrame(() => {
         textEl.style.opacity = '1';
         authorEl.style.opacity = '1';
+        scheduleQuoteLayout();
       }));
+    } else {
+      scheduleQuoteLayout();
     }
   }, 420);
 }
@@ -4390,6 +4491,7 @@ document.addEventListener('DOMContentLoaded', () => {
     quoteMinBtn.setAttribute('aria-label', isMin ? 'Expand quote' : 'Minimize quote');
     localStorage.setItem('ataraxia_quote_minimized', isMin);
     updateQuoteOffset();
+    scheduleQuoteLayout();
     syncDockToggleState();
   });
   quoteCard.addEventListener('click', (e) => {
@@ -4398,6 +4500,7 @@ document.addEventListener('DOMContentLoaded', () => {
       quoteMinBtn.setAttribute('aria-label', 'Minimize quote');
       localStorage.setItem('ataraxia_quote_minimized', 'false');
       updateQuoteOffset();
+      scheduleQuoteLayout();
       syncDockToggleState();
     }
   });
@@ -4405,9 +4508,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // Keep --quote-offset in sync whenever the quote pill resizes (font load, language change, etc.)
   // Stored at module scope so the observer can be disconnected or replaced if needed.
   if (typeof ResizeObserver !== 'undefined') {
-    _quoteCardObserver = new ResizeObserver(() => updateQuoteOffset());
+    const quoteInner = quoteCard.querySelector('.quote-inner');
+    _quoteCardObserver = new ResizeObserver(() => {
+      updateQuoteOffset();
+      scheduleQuoteLayout();
+    });
     _quoteCardObserver.observe(quoteCard);
+    if (quoteInner) _quoteCardObserver.observe(quoteInner);
   }
+  window.addEventListener('resize', scheduleQuoteLayout, { passive: true });
+  landscapeMQ.addEventListener('change', scheduleQuoteLayout);
+  scheduleQuoteLayout();
 
   // Minimizable pomodoro widget
   const pomoWidget = document.getElementById('pomo-widget');
@@ -5521,6 +5632,7 @@ async function translateCurrentQuote() {
     requestAnimationFrame(() => requestAnimationFrame(() => {
       textEl.style.opacity = '1';
       authorEl.style.opacity = '1';
+      scheduleQuoteLayout();
     }));
   }
 }
@@ -5722,6 +5834,7 @@ async function switchLanguage(langCode) {
     document.getElementById('quote-author').textContent = cleanTranslation(a);
     applyUIStrings(UI_STRINGS.en);
     setLanguageStatus('');
+    scheduleQuoteLayout();
     return;
   }
 

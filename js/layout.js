@@ -115,7 +115,6 @@
     root.dataset.layout = mode;
     if (mode === 'touch') {
       syncScene();
-      tryLockPortrait();
     } else {
       delete root.dataset.scene;
     }
@@ -126,17 +125,9 @@
   function syncPortraitLock() {
     const overlay = document.getElementById('portrait-lock');
     if (!overlay) return;
-    const locked = document.documentElement.dataset.layout === 'touch'
-      && !window.matchMedia(LAYOUT_MQS.portrait).matches;
-    overlay.classList.toggle('is-active', locked);
-    overlay.setAttribute('aria-hidden', locked ? 'false' : 'true');
-    document.body.classList.toggle('is-portrait-locked', locked);
-  }
-
-  function tryLockPortrait() {
-    const o = screen.orientation;
-    if (!o?.lock) return;
-    o.lock('portrait').catch(() => {});
+    overlay.classList.remove('is-active');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('is-portrait-locked');
   }
 
   function isTouchLayout() {
@@ -150,6 +141,9 @@
       if (typeof window.scheduleQuoteLayout === 'function') {
         window.scheduleQuoteLayout();
       }
+      if (typeof window.syncLandscapeFullscreen === 'function') {
+        window.syncLandscapeFullscreen();
+      }
     };
     window.addEventListener('resize', onLayoutChange, { passive: true });
     window.addEventListener('orientationchange', () => {
@@ -157,7 +151,7 @@
       syncPortraitLock();
     }, { passive: true });
     window.matchMedia(LAYOUT_MQS.touch).addEventListener('change', onLayoutChange);
-    window.matchMedia(LAYOUT_MQS.portrait).addEventListener('change', syncPortraitLock);
+    window.matchMedia(LAYOUT_MQS.portrait).addEventListener('change', onLayoutChange);
 
     document.getElementById('scene-btn-timer')?.addEventListener('click', () => setScene('timer'));
     document.getElementById('scene-btn-quote')?.addEventListener('click', () => setScene('quote'));

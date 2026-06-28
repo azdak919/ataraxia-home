@@ -416,12 +416,33 @@ function setPomoSettingsOpen(open) {
   document.body.classList.toggle('pomo-settings-open', open);
 }
 
+let _fpOpenedForLandscape = false;
+
 function setPomoFullscreenOpen(open) {
   const overlay = document.getElementById('pomo-fullpage');
   if (!overlay) return;
   overlay.classList.toggle('open', open);
   document.body.classList.toggle('pomo-fullpage-open', open);
   setPomoSettingsOpen(false);
+  if (!open) _fpOpenedForLandscape = false;
+}
+
+/** Tactile : ouvre le plein écran en paysage, referme au retour portrait si auto-ouvert. */
+function syncLandscapeFullscreen() {
+  if (!window.AtaraxiaLayout?.isTouchLayout?.()) return;
+  const landscape = window.matchMedia('(orientation: landscape)').matches;
+  const overlay = document.getElementById('pomo-fullpage');
+  if (!overlay) return;
+  const isOpen = overlay.classList.contains('open');
+
+  if (landscape) {
+    if (!isOpen) {
+      setPomoFullscreenOpen(true);
+      _fpOpenedForLandscape = true;
+    }
+  } else if (_fpOpenedForLandscape && isOpen) {
+    setPomoFullscreenOpen(false);
+  }
 }
 
 function openPomoFullscreen() {
@@ -547,6 +568,9 @@ function initPomoHandlers() {
       setPomoFullscreenOpen(false);
     }
   });
+
+  window.syncLandscapeFullscreen = syncLandscapeFullscreen;
+  syncLandscapeFullscreen();
 
   _lastPomoRenderKey = null;
   PomoUI();

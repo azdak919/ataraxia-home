@@ -1163,23 +1163,32 @@
      POMODORO FULL-PAGE VIEW
      ═══════════════════════ */
   .pomo-fullpage-overlay {
-    display: grid;
-    place-items: center;
+    --fp-safe-t: max(0.75rem, env(safe-area-inset-top, 0px));
+    --fp-safe-r: max(0.75rem, env(safe-area-inset-right, 0px));
+    --fp-safe-b: max(0.75rem, env(safe-area-inset-bottom, 0px));
+    --fp-safe-l: max(0.75rem, env(safe-area-inset-left, 0px));
+    --fp-actions-portrait: calc(var(--pomo-control-size) + 2.25rem);
+    --fp-actions-landscape: calc(var(--pomo-control-size) * 3 + 2.5rem);
+    --fp-ring-size: min(
+      calc(100vw - var(--fp-safe-l) - var(--fp-safe-r) - 0.5rem),
+      calc(100dvh - var(--fp-safe-t) - var(--fp-safe-b) - var(--fp-actions-portrait) - 1.5rem)
+    );
+
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: stretch;
     position: fixed;
     inset: 0;
     z-index: 900;
     background: var(--bg-glass);
     backdrop-filter: blur(32px) saturate(1.4);
     -webkit-backdrop-filter: blur(32px) saturate(1.4);
-    min-height: 100vh;
-    min-height: 100dvh;
-    min-height: -webkit-fill-available;
+    width: 100%;
     height: 100dvh;
-    padding:
-      max(1rem, env(safe-area-inset-top, 0px))
-      max(1rem, env(safe-area-inset-right, 0px))
-      max(1rem, env(safe-area-inset-bottom, 0px))
-      max(1rem, env(safe-area-inset-left, 0px));
+    height: 100vh;
+    padding: 0;
+    box-sizing: border-box;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -1189,20 +1198,87 @@
   }
 
   .pomo-fullpage-main {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.45rem;
-    width: min(100%, 420px);
+    gap: clamp(0.65rem, 2dvh, 1.25rem);
+    padding:
+      var(--fp-safe-t)
+      var(--fp-safe-r)
+      var(--fp-safe-b)
+      var(--fp-safe-l);
+    box-sizing: border-box;
+  }
+
+  .pomo-fullpage-timer {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+  }
+
+  .pomo-fullpage-actions {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .pomo-fullpage-overlay .pomo-ring-wrapper {
+    width: var(--fp-ring-size);
+    height: var(--fp-ring-size);
+    max-width: 100%;
+    max-height: 100%;
+    aspect-ratio: 1;
+    flex-shrink: 1;
+    min-height: 0;
+    cursor: default;
+  }
+
+  .pomo-fullpage-overlay .pomo-ring {
+    width: 100%;
+    height: 100%;
+  }
+
+  .pomo-fullpage-overlay .pomo-time-inside {
+    font-size: clamp(2.4rem, calc(var(--fp-ring-size) * 0.22), 5.5rem);
+  }
+
+  .pomo-fullpage-overlay .pomo-label {
+    font-size: clamp(0.62rem, calc(var(--fp-ring-size) * 0.048), 0.9rem);
+  }
+
+  .pomo-fullpage-overlay .pomo-dots {
+    margin-top: 0.35rem;
+  }
+
+  .pomo-fullpage-overlay .pomo-dot {
+    width: clamp(5px, calc(var(--fp-ring-size) * 0.028), 9px);
+    height: clamp(5px, calc(var(--fp-ring-size) * 0.028), 9px);
+  }
+
+  .pomo-fullpage-overlay .pomo-time-unit {
+    font-size: clamp(0.9rem, calc(var(--fp-ring-size) * 0.085), 1.45rem);
+  }
+
+  .pomo-fullpage-overlay .pomo-controls {
+    gap: 0.65rem;
     margin: 0;
-    flex-shrink: 0;
-    grid-area: 1 / 1;
   }
 
   .pomo-fullpage-overlay .pomo-phase-ready-label {
     margin: 0;
-    width: 100%;
+    width: min(100%, var(--fp-ring-size));
+    font-size: clamp(0.58rem, calc(var(--fp-ring-size) * 0.042), 0.78rem);
   }
 
   .pomo-fullpage-overlay .pomo-phase-ready-label:not(.visible) {
@@ -1213,47 +1289,38 @@
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    position: fixed;
   }
 
-  .pomo-fullpage-overlay .pomo-ring-wrapper {
-    width: 280px;
-    height: 280px;
-  }
+  @media (orientation: landscape) {
+    .pomo-fullpage-overlay {
+      --fp-ring-size: min(
+        calc(100dvh - var(--fp-safe-t) - var(--fp-safe-b) - 1rem),
+        calc(100vw - var(--fp-safe-l) - var(--fp-safe-r) - var(--fp-actions-landscape) - 1.5rem)
+      );
+    }
 
-  .pomo-fullpage-overlay .pomo-ring {
-    width: 280px;
-    height: 280px;
-  }
+    .pomo-fullpage-main {
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(1rem, 4vw, 2.5rem);
+      padding-top: var(--fp-safe-t);
+    }
 
-  .pomo-fullpage-overlay .pomo-time-inside {
-    font-size: 5.5rem;
-  }
+    .pomo-fullpage-timer {
+      flex: 1 1 0;
+      min-width: 0;
+    }
 
-  .pomo-fullpage-overlay .pomo-label {
-    font-size: 0.85rem;
-  }
+    .pomo-fullpage-actions {
+      flex: 0 0 auto;
+      width: auto;
+    }
 
-  .pomo-fullpage-overlay .pomo-dots {
-    margin-top: 0.5rem;
-  }
-
-  .pomo-fullpage-overlay .pomo-dot {
-    width: 8px;
-    height: 8px;
-  }
-
-  .pomo-fullpage-overlay .pomo-time-unit {
-    font-size: 1.4rem;
-  }
-
-  .pomo-fullpage-overlay .pomo-controls {
-    gap: 0.65rem;
-    margin-top: 0.1rem;
-  }
-
-  .pomo-fullpage-overlay .pomo-phase-ready-label {
-    font-size: 0.75rem;
+    .pomo-fullpage-overlay .pomo-controls {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
   }
 
   body.pomo-fullpage-open {
@@ -1297,13 +1364,6 @@
 
   .pomo-ring-wrapper {
     cursor: pointer;
-  }
-
-  @media (max-width: 600px) {
-    .pomo-fullpage-overlay .pomo-ring-wrapper { width: 220px; height: 220px; }
-    .pomo-fullpage-overlay .pomo-ring { width: 220px; height: 220px; }
-    .pomo-fullpage-overlay .pomo-time-inside { font-size: 4.2rem; }
-    .pomo-fullpage-overlay .pomo-time-unit { font-size: 1.1rem; }
   }
 
   /* ═══════════════════════

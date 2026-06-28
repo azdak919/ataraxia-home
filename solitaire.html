@@ -221,11 +221,12 @@
       width: 100%;
       height: var(--radar-embed-h);
       min-height: 58px;
-      max-height: 160px;
+      max-height: 180px;
       border: 0;
       border-radius: 12px;
       background: transparent;
       color-scheme: normal;
+      overflow: hidden;
     }
 
     .game-toolbar-sub {
@@ -2564,7 +2565,7 @@ window.addEventListener('resize', () => {
     if (e.data?.type !== 'ataraxia-radar-embed') return;
     if (e.source !== iframe.contentWindow) return;
     const height = Number(e.data.height);
-    if (!Number.isFinite(height) || height < 58 || height > 160) return;
+    if (!Number.isFinite(height) || height < 58 || height > 180) return;
     document.documentElement.style.setProperty('--radar-embed-h', `${Math.ceil(height)}px`);
     updateLayoutInsets();
   });

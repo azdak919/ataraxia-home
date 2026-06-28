@@ -2310,14 +2310,13 @@
 /* ═══════════════════════════════════════
    VERSION
    ═══════════════════════════════════════ */
-const VERSION = 'v1.2.30';
+const VERSION = 'v1.2.31';
 
 /* ═══════════════════════════════════════
-   STOIC QUOTES DATABASE
+   QUOTES DATABASE — focus, présent, effort
    ═══════════════════════════════════════ */
 const QUOTES = [
   // ── Marcus Aurelius ────────────────────────────────────────────
-  { text: "We suffer more often in imagination than in reality.", author: "Seneca", authorEn: "Seneca", culture: "greco-roman" },
   { text: "The happiness of your life depends upon the quality of your thoughts.", author: "Μάρκος Αὐρήλιος · Meditations", authorEn: "Marcus Aurelius · Meditations", culture: "greco-roman" },
   { text: "You have power over your mind — not outside events. Realize this, and you will find strength.", author: "Μάρκος Αὐρήλιος · Meditations", authorEn: "Marcus Aurelius · Meditations", culture: "greco-roman" },
   { text: "The soul becomes dyed with the color of its thoughts.", author: "Μάρκος Αὐρήλιος · Meditations", authorEn: "Marcus Aurelius · Meditations", culture: "greco-roman" },
@@ -2339,8 +2338,9 @@ const QUOTES = [
   { text: "Receive without pride; relinquish without struggle.", author: "Μάρκος Αὐρήλιος · Meditations", authorEn: "Marcus Aurelius · Meditations", culture: "greco-roman" },
   { text: "Give yourself a gift: the present moment.", author: "Μάρκος Αὐρήλιος · Meditations", authorEn: "Marcus Aurelius · Meditations", culture: "greco-roman" },
   { text: "Perfection of character is this: to live each day as if it were your last, without frenzy, laziness, or any pretending.", author: "Μάρκος Αὐρήλιος · Meditations", authorEn: "Marcus Aurelius · Meditations", culture: "greco-roman" },
-  { text: "Look back over the past, with its changing empires that rose and fell, and you can foresee the future, too.", author: "Μάρκος Αὐρήλιος · Meditations", authorEn: "Marcus Aurelius · Meditations", culture: "greco-roman" },
   { text: "Do not indulge in dreams of what you do not have, but count the blessings actually present and think how much you would desire them if they were not yours.", author: "Μάρκος Αὐρήλιος · Meditations", authorEn: "Marcus Aurelius · Meditations", culture: "greco-roman" },
+  { text: "Each day provides its own gifts.", author: "Μάρκος Αὐρήλιος · Meditations", authorEn: "Marcus Aurelius · Meditations", culture: "greco-roman" },
+  { text: "Never esteem anything as of advantage to you that will make you break your word or lose your self-respect.", author: "Μάρκος Αὐρήλιος · Meditations", authorEn: "Marcus Aurelius · Meditations", culture: "greco-roman" },
   // ── Epictetus ──────────────────────────────────────────────────
   { text: "No man is free who is not master of himself.", author: "Ἐπίκτητος · Discourses", authorEn: "Epictetus · Discourses", culture: "greco-roman" },
   { text: "It is not things that disturb us, but our judgments about things.", author: "Ἐπίκτητος · Enchiridion", authorEn: "Epictetus · Enchiridion", culture: "greco-roman" },
@@ -2362,7 +2362,8 @@ const QUOTES = [
   { text: "Begin at once to live, and count each separate day as a separate life.", author: "Seneca · Epistulae Morales", authorEn: "Seneca · Epistulae Morales", culture: "greco-roman" },
   { text: "The whole future lies in uncertainty: live immediately.", author: "Seneca · Epistulae Morales", authorEn: "Seneca · Epistulae Morales", culture: "greco-roman" },
   { text: "A gem cannot be polished without friction, nor a man perfected without trials.", author: "Seneca", authorEn: "Seneca", culture: "greco-roman" },
-  { text: "We suffer more in imagination than in reality.", author: "Seneca · Epistulae Morales", authorEn: "Seneca · Epistulae Morales", culture: "greco-roman" },
+  { text: "We are more often frightened than hurt; and we suffer more in imagination than in reality.", author: "Seneca · Epistulae ad Lucilium", authorEn: "Seneca · Epistulae ad Lucilium", culture: "greco-roman" },
+  { text: "It is not that we have a short time to live, but that we waste a great deal of it.", author: "Seneca · De Brevitate Vitae", authorEn: "Seneca · De Brevitate Vitae", culture: "greco-roman" },
   // ── Musonius Rufus (Stoic teacher, contemporary of Epictetus) ──
   { text: "It is not possible to live well today unless you treat it as your last day.", author: "Gaius Musonius Rufus", authorEn: "Gaius Musonius Rufus", culture: "greco-roman" },
   { text: "If you accomplish something good with hard work, the labor passes quickly, but the good endures; if you do something shameful in pursuit of pleasure, the pleasure passes quickly, but the shame endures.", author: "Gaius Musonius Rufus", authorEn: "Gaius Musonius Rufus", culture: "greco-roman" },
@@ -2390,49 +2391,29 @@ const QUOTES = [
   { text: "Drop by drop the water pot is filled. Likewise, the wise one, gathering little by little, fills herself with good.", author: "ධම්මපදය (Dhammapada)", authorEn: "Dhammapada", culture: "buddhist" },
 
   // ── Lao Tzu / Tao Te Ching ─────────────────────────────
-  { text: "The Tao that can be told is not the eternal Tao. The name that can be named is not the eternal name.", author: "老子 · 道德經", authorEn: "Lao Tzu · Tao Te Ching", culture: "chinese" },
   { text: "When I let go of what I am, I become what I might be.", author: "老子 (Lao Tzu)", authorEn: "Lao Tzu", culture: "chinese" },
   { text: "Nature does not hurry, yet everything is accomplished.", author: "老子 (Lao Tzu)", authorEn: "Lao Tzu", culture: "chinese" },
   { text: "A journey of a thousand miles begins with a single step.", author: "老子 · 道德經", authorEn: "Lao Tzu · Tao Te Ching", culture: "chinese" },
   { text: "He who knows others is wise; he who knows himself is enlightened.", author: "老子 · 道德經", authorEn: "Lao Tzu · Tao Te Ching", culture: "chinese" },
   { text: "The softest things in the world overcome the hardest things in the world.", author: "老子 · 道德經", authorEn: "Lao Tzu · Tao Te Ching", culture: "chinese" },
-  { text: "Be content with what you have; rejoice in the way things are. When you realize there is nothing lacking, the whole world belongs to you.", author: "老子 · 道德經", authorEn: "Lao Tzu · Tao Te Ching", culture: "chinese" },
   { text: "Silence is a source of great strength.", author: "老子 (Lao Tzu)", authorEn: "Lao Tzu", culture: "chinese" },
 
   // ── Rumi ────────────────────────────────────────────────
-  { text: "The wound is the place where the Light enters you.", author: "جلال‌الدین رومی (Rumi)", authorEn: "Rumi", culture: "persian" },
   { text: "Yesterday I was clever, so I wanted to change the world. Today I am wise, so I am changing myself.", author: "جلال‌الدین رومی (Rumi)", authorEn: "Rumi", culture: "persian" },
-  { text: "Don't grieve. Anything you lose comes round in another form.", author: "جلال‌الدین رومی (Rumi)", authorEn: "Rumi", culture: "persian" },
-  { text: "Let yourself be silently drawn by the strange pull of what you really love. It will not lead you astray.", author: "جلال‌الدین رومی (Rumi)", authorEn: "Rumi", culture: "persian" },
-  { text: "You are not a drop in the ocean. You are the entire ocean in a drop.", author: "جلال‌الدین رومی (Rumi)", authorEn: "Rumi", culture: "persian" },
   { text: "Raise your words, not your voice. It is rain that grows flowers, not thunder.", author: "جلال‌الدین رومی (Rumi)", authorEn: "Rumi", culture: "persian" },
 
   // ── Thich Nhat Hanh ────────────────────────────────────
   { text: "The present moment is filled with joy and happiness. If you are attentive, you will see it.", author: "Thích Nhất Hạnh", authorEn: "Thich Nhat Hanh", culture: "east-asian" },
   { text: "Feelings come and go like clouds in a windy sky. Conscious breathing is my anchor.", author: "Thích Nhất Hạnh", authorEn: "Thich Nhat Hanh", culture: "east-asian" },
   { text: "Smile, breathe, and go slowly.", author: "Thích Nhất Hạnh", authorEn: "Thich Nhat Hanh", culture: "east-asian" },
-  { text: "When another person makes you suffer, it is because he suffers deeply within himself, and his suffering is spilling over.", author: "Thích Nhất Hạnh", authorEn: "Thich Nhat Hanh", culture: "east-asian" },
-  { text: "The seed of suffering in you may be strong, but don't wait until you have no more suffering before allowing yourself to be happy.", author: "Thích Nhất Hạnh", authorEn: "Thich Nhat Hanh", culture: "east-asian" },
 
   // ── Alan Watts ─────────────────────────────────────────
-  { text: "The only way to make sense out of change is to plunge into it, move with it, and join the dance.", author: "Alan Watts", authorEn: "Alan Watts", culture: "modern" },
   { text: "Muddy water is best cleared by leaving it alone.", author: "Alan Watts", authorEn: "Alan Watts", culture: "modern" },
-  { text: "You are a function of what the whole universe is doing in the same way that a wave is a function of what the whole ocean is doing.", author: "Alan Watts", authorEn: "Alan Watts", culture: "modern" },
   { text: "This is the real secret of life — to be completely engaged with what you are doing in the here and now. And instead of calling it work, realize it is play.", author: "Alan Watts", authorEn: "Alan Watts", culture: "modern" },
-  { text: "We seldom realize, for example, that our most private thoughts and emotions are not actually our own. For we think in terms of languages and images which we did not invent.", author: "Alan Watts", authorEn: "Alan Watts", culture: "modern" },
 
-  // ── Heraclitus ─────────────────────────────────────────
-  { text: "No man ever steps in the same river twice, for it is not the same river and he is not the same man.", author: "Ἡράκλειτος (Heraclitus)", authorEn: "Heraclitus", culture: "greco-roman" },
-  { text: "The soul is dyed the color of its thoughts.", author: "Ἡράκλειτος (Heraclitus)", authorEn: "Heraclitus", culture: "greco-roman" },
-  { text: "Character is destiny.", author: "Ἡράκλειτος (Heraclitus)", authorEn: "Heraclitus", culture: "greco-roman" },
-  { text: "Everything flows and nothing abides; everything gives way and nothing stays fixed.", author: "Ἡράκλειτος (Heraclitus)", authorEn: "Heraclitus", culture: "greco-roman" },
-  { text: "The eyes are more exact witnesses than the ears.", author: "Ἡράκλειτος (Heraclitus)", authorEn: "Heraclitus", culture: "greco-roman" },
-
-  // ── Aristotle (on virtue & eudaimonia) ─────────────────
+  // ── Aristotle (on virtue & habit) ──────────────────────
   { text: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", author: "Ἀριστοτέλης (Aristotle)", authorEn: "Aristotle", culture: "greco-roman" },
   { text: "Happiness depends upon ourselves.", author: "Ἀριστοτέλης (Aristotle)", authorEn: "Aristotle", culture: "greco-roman" },
-  { text: "It is during our darkest moments that we must focus to see the light.", author: "Ἀριστοτέλης (Aristotle)", authorEn: "Aristotle", culture: "greco-roman" },
-  { text: "The soul never thinks without a mental image.", author: "Ἀριστοτέλης (Aristotle)", authorEn: "Aristotle", culture: "greco-roman" },
 
   // ── Japanese / Zen Proverbs ────────────────────────────
   { text: "Fall seven times, stand up eight.", author: "日本のことわざ", authorEn: "Japanese Proverb", culture: "japanese" },
@@ -2441,121 +2422,25 @@ const QUOTES = [
   { text: "When you reach the top of the mountain, keep climbing.", author: "禅のことわざ", authorEn: "Zen Proverb", culture: "japanese" },
   { text: "Before enlightenment, chop wood, carry water. After enlightenment, chop wood, carry water.", author: "禅のことわざ", authorEn: "Zen Proverb", culture: "japanese" },
 
-  // ── More Marcus Aurelius (deeper cuts) ─────────────────
-  { text: "How much more grievous are the consequences of anger than the causes of it.", author: "Μάρκος Αὐρήλιος · Meditations", authorEn: "Marcus Aurelius · Meditations", culture: "greco-roman" },
-  { text: "If it is not right, do not do it. If it is not true, do not say it.", author: "Μάρκος Αὐρήλιος · Meditations", authorEn: "Marcus Aurelius · Meditations", culture: "greco-roman" },
-  { text: "Each day provides its own gifts.", author: "Μάρκος Αὐρήλιος · Meditations", authorEn: "Marcus Aurelius · Meditations", culture: "greco-roman" },
-  { text: "Never esteem anything as of advantage to you that will make you break your word or lose your self-respect.", author: "Μάρκος Αὐρήλιος · Meditations", authorEn: "Marcus Aurelius · Meditations", culture: "greco-roman" },
-
-  // ── More Seneca (deeper cuts) ──────────────────────────
-  { text: "We are more often frightened than hurt; and we suffer more in imagination than in reality.", author: "Seneca · Epistulae ad Lucilium", authorEn: "Seneca · Epistulae ad Lucilium", culture: "greco-roman" },
-  { text: "Luck is what happens when preparation meets opportunity.", author: "Seneca", authorEn: "Seneca", culture: "greco-roman" },
-  { text: "A gem cannot be polished without friction, nor a man perfected without trials.", author: "Seneca", authorEn: "Seneca", culture: "greco-roman" },
-  { text: "It is not that we have a short time to live, but that we waste a great deal of it.", author: "Seneca · De Brevitate Vitae", authorEn: "Seneca · De Brevitate Vitae", culture: "greco-roman" },
-
-  // ── Cato / Cleanthes / Chrysippus ─────────────────────
+  // ── Cato the Elder ─────────────────────────────────────
   { text: "Bitter are the roots of study, but how sweet their fruit.", author: "M. Porcius Cato (Cato the Elder)", authorEn: "Cato the Elder", culture: "greco-roman" },
-  { text: "Lead me, O Zeus, and thou, O Destiny, to wherever your decrees have assigned me. I follow willingly, and if I did not, wretched though I am, I must follow still.", author: "Κλεάνθης · Ὕμνος εἰς Δία", authorEn: "Cleanthes · Hymn to Zeus", culture: "greco-roman" },
-  { text: "The universe itself is God and the universal outpouring of its soul.", author: "Χρύσιππος (Chrysippus)", authorEn: "Chrysippus", culture: "greco-roman" },
-  { text: "Living virtuously is equal to living in accordance with one's experience of the actual course of nature.", author: "Χρύσιππος (Chrysippus)", authorEn: "Chrysippus", culture: "greco-roman" },
 
-  // ── Indigenous Nations of Quebec & Canada ─────────────────
-  { text: "All things are connected. Whatever befalls the earth befalls the children of the earth.", author: "Chief Seattle, Duwamish", culture: "indigenous" },
-  { text: "We do not inherit the earth from our ancestors; we borrow it from our children.", author: "Anishinaabe Proverb", culture: "indigenous" },
-  { text: "When you were born, you cried and the world rejoiced. Live your life so that when you die, the world cries and you rejoice.", author: "Cherokee Proverb", culture: "indigenous" },
-  { text: "The ground on which we stand is sacred ground. It is the blood of our ancestors.", author: "Chief Plenty Coups, Crow Nation", culture: "indigenous" },
-  { text: "What is life? It is the flash of a firefly in the night. It is the breath of a buffalo in the wintertime. It is the little shadow which runs across the grass and loses itself in the sunset.", author: "Crowfoot, Blackfoot Confederacy", culture: "indigenous" },
-  { text: "With all things and in all things, we are relatives.", author: "Lakota Proverb", culture: "indigenous" },
+  // ── Indigenous proverbs — courts, universels ───────────
   { text: "Listen to the wind, it talks. Listen to the silence, it speaks. Listen to your heart, it knows.", author: "Indigenous Proverb", culture: "indigenous" },
-  { text: "The Great Spirit is in all things. He is in the air we breathe. The Great Spirit is our father, but the earth is our mother.", author: "Big Thunder, Wabanaki Nation", culture: "indigenous" },
-  { text: "We are made from Mother Earth and we go back to Mother Earth.", author: "Shenandoah, Onondaga Nation", culture: "indigenous" },
   { text: "Take only what you need and leave the land as you found it.", author: "Arapaho Proverb", culture: "indigenous" },
-  { text: "One thing to remember is to talk to the animals. If you do, they will talk back to you. But if you don't talk to them, they won't talk back to you, then you won't understand. And when you don't understand, you will fear, and when you fear, you will destroy.", author: "Chief Dan George, Tsleil-Waututh Nation", culture: "indigenous" },
-  { text: "Every part of the earth is sacred to my people. Every shining pine needle, every sandy shore, every mist in the dark woods.", author: "Chief Seattle, Duwamish", culture: "indigenous" },
-  { text: "Treat the earth well: it was not given to you by your parents, it was loaned to you by your children.", author: "Haudenosaunee Proverb", culture: "indigenous" },
   { text: "The frog does not drink up the pond in which he lives.", author: "Sioux Proverb", culture: "indigenous" },
-  { text: "When we show our respect for other living things, they respond with respect for us.", author: "Arapaho Proverb", culture: "indigenous" },
   { text: "Walk lightly in the spring; Mother Earth is pregnant.", author: "Kiowa Proverb", culture: "indigenous" },
-  { text: "A brave man dies but once, a coward many times.", author: "Mohawk Proverb", culture: "indigenous" },
   { text: "Don't let yesterday use up too much of today.", author: "Cherokee Proverb", culture: "indigenous" },
-  { text: "There is no death, only a change of worlds.", author: "Chief Seattle, Duwamish", culture: "indigenous" },
-
-  // ── Inuit Wisdom ─────────────────────────────────────────
   { text: "Yesterday is ashes; tomorrow is wood. Only today does the fire burn brightly.", author: "Inuit Proverb", culture: "indigenous" },
-  { text: "You never really know the true value of a moment until it becomes a memory.", author: "Inuit Proverb", culture: "indigenous" },
   { text: "If you want to go fast, go alone. If you want to go far, go together.", author: "Cree Proverb", culture: "indigenous" },
-  { text: "A people without knowledge of their past history, origin and culture is like a tree without roots.", author: "Wendat Proverb", culture: "indigenous" },
-
-  // ── Haudenosaunee / Six Nations ──────────────────────────
-  { text: "Let us put our minds together as one and give thanks for all that sustains us.", author: "Haudenosaunee Thanksgiving Address", culture: "indigenous" },
-  { text: "The measure of a great civilization is not found in the mirror of its power, but in the welfare of its citizens.", author: "Haudenosaunee Teaching", culture: "indigenous" },
-  { text: "Women and men should move together side by side. The male and female are to work together as partners.", author: "Haudenosaunee Code of Handsome Lake", culture: "indigenous" },
-  { text: "Give thanks for the gifts of the earth and all living things. Gratitude keeps us connected to the earth and to each other.", author: "Haudenosaunee Teaching", culture: "indigenous" },
-
-  // ── Mi'kmaq (Maritime Peoples) ─────────────────────────
-  { text: "We are here to help the Earth, not to harm her. What we do to the Earth, we do to ourselves.", author: "Mi'kmaq Principle", culture: "indigenous" },
-  { text: "The Mi'kmaq have always believed in living in harmony with the land and respecting all life. This is our way.", author: "Mi'kmaq Teaching", culture: "indigenous" },
-  { text: "Everything has a spirit and an intention. We must treat all things with respect.", author: "Mi'kmaq Wisdom", culture: "indigenous" },
-  { text: "We are all related through Mother Earth. We share responsibility for her care.", author: "Mi'kmaq Proverb", culture: "indigenous" },
-
-  // ── Métis (Peoples of Mixed Heritage) ────────────────
-  { text: "We are the descendants of the great fur traders and the First Nations. We carry both legacies with pride.", author: "Métis Teaching", culture: "indigenous" },
-  { text: "Self-determination and respect for our unique culture is what defines the Métis nation.", author: "Métis Principle", culture: "indigenous" },
-  { text: "The land remembers everything. It teaches us if we listen with our hearts.", author: "Métis Wisdom", culture: "indigenous" },
-
-  // ── Anishinaabe (Great Lakes Peoples) ────────────────
-  { text: "Seven sacred teachings guide the Anishinaabe: Truth, Humility, Respect, Courage, Wisdom, Honesty, and Love.", author: "Anishinaabe Teaching", culture: "indigenous" },
-  { text: "We are all connected through the circle of life. Our choices affect all my relations.", author: "Anishinaabe Principle", culture: "indigenous" },
-  { text: "Listen to the elders. In their words is the knowledge passed down through generations.", author: "Anishinaabe Wisdom", culture: "indigenous" },
-
-  // ── Indigenous Cosmologies — Quebec & Canada ────────────────
-  // Creation narratives and origin stories from the nations of this land
-
-  // Wendat (Huron-Wendat) — Wendake, Quebec
-  { text: "Aataentsic fell from the Sky World through a hole left when the great celestial tree was uprooted. The water animals dove deep to bring up earth, and the turtle offered its back. Upon Turtle's shell, the earth was spread, and so our world began.", author: "Wendat Creation — Aataentsic and Turtle Island", culture: "indigenous" },
-  { text: "Iouskeha, grandson of Aataentsic, shaped the rivers so they would flow in both directions, making travel easy. But his twin Tawiscaron made the waters rush one way and scattered rocks to create rapids. From their rivalry, the world gained its balance of ease and challenge.", author: "Wendat Creation — The Twin Grandsons", culture: "indigenous" },
-
-  // Anishinaabe — Great Lakes, Quebec, Ontario
-  { text: "When the great flood covered the earth, Nanabozho clung to a log with the animals. He asked each to dive for soil. The muskrat finally surfaced with a pawful of mud, and from that small gift, Nanabozho rebuilt the entire world on the turtle's back.", author: "Anishinaabe Creation — Nanabozho and the Flood", culture: "indigenous" },
   { text: "Nanabozho was given a sacred task: to walk the earth and name every plant, every stone, every creature. In the naming, he learned that to truly know something, you must first be still enough to hear what it calls itself.", author: "Anishinaabe Teaching — The Naming of the World", culture: "indigenous" },
 
-  // Innu (Montagnais-Naskapi) — Northern Quebec, Labrador
-  { text: "Tshakapesh was raised by his elder sister after their parents were devoured by a great bear. Though small, he grew to outwit every danger the forest sent. He climbed to the moon on a great tree and remains there still, watching over the Innu people below.", author: "Innu Story — Tshakapesh and the Moon", culture: "indigenous" },
-  { text: "The Innu say that Caribou Spirit, Papakassik, decides when the herds will come. A hunter must approach with a respectful heart and empty hands, for the caribou give themselves only to those who honour the bond between hunter and hunted.", author: "Innu Cosmology — Papakassik, Master of the Caribou", culture: "indigenous" },
-  { text: "In the time before this time, Meshapush the trickster rearranged the rivers of Nitassinan so that the fish would swim in circles and the Innu would always have food. But he also hid the best fishing spots behind riddles, so that only the patient would find them.", author: "Innu Story — Meshapush and the Rivers", culture: "indigenous" },
-
-  // Haudenosaunee — Southern Quebec, Ontario, New York
-  { text: "The Peacemaker came across the great lake in a white stone canoe, carrying the message of the Great Law. He planted the Tree of Peace — a great white pine — and beneath its roots, the nations buried their weapons. The eagle atop watches still for any threat to that peace.", author: "Haudenosaunee — The Great Law of Peace", culture: "indigenous" },
-  { text: "Sky Woman danced on the turtle's back, and as she danced, the earth grew beneath her feet. She scattered seeds from the Sky World, and from them grew the Three Sisters — corn, beans, and squash — who hold each other up as true sisters do.", author: "Haudenosaunee Creation — Sky Woman and the Three Sisters", culture: "indigenous" },
-
-  // Algonquin — Ottawa Valley, Western Quebec
-  { text: "Wisakedjak, the trickster, tried to catch the sun in a snare to make the days longer. When the sun begged to be freed, Wisakedjak relented — but not before he had learned that even the most powerful forces are bound by the same web of relationships as the smallest creature.", author: "Algonquin Story — Wisakedjak and the Sun Snare", culture: "indigenous" },
-  { text: "The Algonquin say the northern lights are the fires of the ancestors, dancing to remind us they are near. When the sky burns green and violet, the old ones are celebrating, and we are invited to remember that the boundary between worlds is thinner than we think.", author: "Algonquin Cosmology — The Ancestors' Fires", culture: "indigenous" },
-
-  // Mi'kmaq — Maritime provinces, Gaspésie
-  { text: "Glooscap shaped the land of the Maritimes with his great power. He turned his enemies into stone, carved rivers with his paddle, and called the animals to council. When he left, he promised to return when the Mi'kmaq needed him most, and the whales still sing of his coming.", author: "Mi'kmaq Creation — Glooscap the Shaper", culture: "indigenous" },
-  { text: "Glooscap asked the Great Spirit for companions, and from the foam of the ocean waves, a woman was formed. From the red clay of the earth, a man was shaped. Together they were given the gift of dreams, so they could see beyond what the waking eye can hold.", author: "Mi'kmaq Creation — The First Man and Woman", culture: "indigenous" },
-
-  // Cree — Northern Quebec (Eeyou Istchee), Ontario, Prairies
-  { text: "Wesakechak floated on the endless water after the great flood, weeping for the drowned world. He sent the otter, the beaver, and finally the muskrat to find soil. The muskrat returned half-drowned, clutching a tiny ball of earth. From that small courage, the whole land was reborn.", author: "Cree Creation — Wesakechak and the Great Flood", culture: "indigenous" },
-  { text: "The Cree say that when you walk through the boreal forest in deep winter, the trees crack and groan because they are speaking. The cold makes their voices sharp, but if you listen well, they are telling you where the animals have gone and which path leads home.", author: "Cree Teaching — The Speaking Trees", culture: "indigenous" },
-
-  // Abenaki — Eastern Townships, Vermont, Maine
-  { text: "Tabaldak, the Owner of All, made the world from nothing but his own thought. He shaped the people from the living bark of the ash tree, and breathed into them the wind from the four directions. That is why the Abenaki feel the pull of the forest — they were born from it.", author: "Abenaki Creation — Tabaldak and the Ash Tree", culture: "indigenous" },
-  { text: "Gluskabe shot arrows into the ash tree, and from the bark emerged the first Abenaki people. He then set to work making the world safer: he shrank the giant squirrel, tamed the great wind eagle, and taught the rivers to slow down. The world, he said, should be difficult enough to keep people strong, but gentle enough to let them rest.", author: "Abenaki Story — Gluskabe Shapes the World", culture: "indigenous" },
-
-  // Atikamekw — Haute-Mauricie, Central Quebec
-  { text: "The Atikamekw say the forest is not a place you enter — it is a relative you visit. Every tree remembers every season, and the moss keeps the footprints of all who have passed. To walk in Nitaskinan is to walk through a living memory that stretches back to the first morning.", author: "Atikamekw Teaching — The Living Forest", culture: "indigenous" },
-
   // ── Vipassana Tradition ──────────────────────────────────
-  { text: "The entire path of Dhamma is a path of living by example, not of proselytizing.", author: "सत्यनारायण गोयन्का (S.N. Goenka)", authorEn: "S.N. Goenka", culture: "buddhist" },
   { text: "Start with the reality of this moment, not with theories. Observe, and truth will reveal itself.", author: "सत्यनारायण गोयन्का (S.N. Goenka)", authorEn: "S.N. Goenka", culture: "buddhist" },
   { text: "Be happy, be peaceful. Keep on observing the reality as it is.", author: "सत्यनारायण गोयन्का (S.N. Goenka)", authorEn: "S.N. Goenka", culture: "buddhist" },
   { text: "The habit pattern of the mind is to roll in craving or aversion. Vipassana teaches you just to observe.", author: "सत्यनारायण गोयन्का (S.N. Goenka)", authorEn: "S.N. Goenka", culture: "buddhist" },
   { text: "You are your own master. No one from outside can dominate you unless you allow your mind to be dominated.", author: "सत्यनारायण गोयन्का (S.N. Goenka)", authorEn: "S.N. Goenka", culture: "buddhist" },
   { text: "Awareness and equanimity — this is the essence of Vipassana.", author: "सत्यनारायण गोयन्का (S.N. Goenka)", authorEn: "S.N. Goenka", culture: "buddhist" },
-  { text: "Every sensation arises and passes away. Nothing is permanent. When you practice this understanding with every fibre, you are liberated.", author: "सत्यनारायण गोयन्का (S.N. Goenka)", authorEn: "S.N. Goenka", culture: "buddhist" },
-  { text: "Do not convert people to any sect or organized religion. Convert them from misery to happiness, from bondage to liberation.", author: "सत्यनारायण गोयन्का (S.N. Goenka)", authorEn: "S.N. Goenka", culture: "buddhist" },
   { text: "Anicca — impermanence. This is the key. When you understand impermanence at the deepest level, suffering dissolves.", author: "सत्यनारायण गोयन्का (S.N. Goenka)", authorEn: "S.N. Goenka", culture: "buddhist" },
   { text: "The mind spends most of its time in the past or the future. Suffering results from not being with the present reality.", author: "सत्यनारायण गोयन्का (S.N. Goenka)", authorEn: "S.N. Goenka", culture: "buddhist" },
   { text: "The purpose of meditation is to purify the mind — to free it from unwholesome states and to develop wholesome ones.", author: "မဟာသီ ဆရာတော် (Mahasi Sayadaw)", authorEn: "Mahasi Sayadaw", culture: "buddhist" },
@@ -3240,7 +3125,7 @@ let currentBgIdx = 0;
 // Recent history for better non-repeating random (persisted across refreshes)
 const RECENT_QUOTES_KEY = 'ataraxia_recent_quotes_v2';
 const RECENT_BGS_KEY    = 'ataraxia_recent_bgs_v2';
-const MAX_RECENT_QUOTES = 30;   // good variety on 186 quotes (~16%)
+const MAX_RECENT_QUOTES = 22;   // good variety on 108 quotes (~20%)
 const MAX_RECENT_BGS    = 25;   // on 182 backgrounds
 
 let recentQuotes = [];
@@ -3249,14 +3134,6 @@ let recentBgs = [];
 /* ═══════════════════════════════════════
    QUOTE LOGIC
    ═══════════════════════════════════════ */
-function pickCulturalBackground(culture) {
-  const chosen = getRandomBgIndex(culture);
-  if (chosen == null) return;
-  currentBgIdx = chosen;
-  recordBgSeen(chosen);
-  loadBackground(chosen);
-}
-
 const QUOTE_LAYOUT_MIN_PX = 14;
 let _quoteLayoutScheduled = false;
 
@@ -3333,11 +3210,6 @@ function showRandomQuote() {
     // (e.g. "Μάρκος Αὐρήλιος") is never shown to readers in any language.
     const authorSrc = QUOTES[idx].authorEn || QUOTES[idx].author;
     authorEl.textContent = cleanTranslation(authorSrc);
-
-    // Pick a background culturally appropriate for this quote's author
-    if (QUOTES[idx].culture) {
-      pickCulturalBackground(QUOTES[idx].culture);
-    }
 
     // In English mode, fade the new text in now.  In non-English mode, skip
     // the fade-in here — the translation patch calls translateCurrentQuote()

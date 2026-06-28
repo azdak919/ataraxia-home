@@ -7,7 +7,7 @@
      • Anything else same-origin          → stale-while-revalidate
    ═══════════════════════════════════════════════════════ */
 
-const SHELL_CACHE   = 'ataraxia-shell-v22';
+const SHELL_CACHE   = 'ataraxia-shell-v23';
 const FONT_CACHE    = 'ataraxia-fonts-v1';
 const KNOWN_CACHES  = [SHELL_CACHE, FONT_CACHE];
 
@@ -40,7 +40,6 @@ const SHELL_ASSETS = [
   './icon-192-maskable.png',
   './icon-512.png',
   './icon-512-maskable.png',
-  './safari-pinned-tab.svg',
   './browserconfig.xml',
   './sw.js',
   './styles/base.css',

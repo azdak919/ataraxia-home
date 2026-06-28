@@ -42,8 +42,6 @@ const _isAndroid = /Android/i.test(navigator.userAgent);
    transient  → chime ducks other audio briefly (GPS-like)
    auto       → UA default after chime / stop
    ───────────────────────────────────────────────────────── */
-let _inChimeWindow = false;
-
 function _setAudioSession(type) {
   try {
     if (navigator.audioSession) navigator.audioSession.type = type;
@@ -51,12 +49,10 @@ function _setAudioSession(type) {
 }
 
 function _enterChimeSession() {
-  _inChimeWindow = true;
   _setAudioSession('transient');
 }
 
 function _releaseAudioSession() {
-  _inChimeWindow = false;
   _setAudioSession('auto');
 }
 
@@ -209,7 +205,7 @@ function _renderFullTimerWav(remainingSec, isBreak) {
   return _encodeWav(buf, sr);
 }
 
-function _playChimeViaAudio(wasBreak, onDone) {
+async function _playChimeViaAudio(wasBreak, onDone) {
   _enterChimeSession();
   _stopKeepaliveOsc();
 
@@ -218,22 +214,32 @@ function _playChimeViaAudio(wasBreak, onDone) {
   const audio = new Audio(url);
   audio.volume = 1.0;
 
-  const finish = () => {
+  const cleanup = () => {
     try {
       audio.pause();
       audio.removeAttribute('src');
       audio.load();
       URL.revokeObjectURL(url);
     } catch(e) {}
+  };
+
+  const finish = () => {
+    cleanup();
     _releaseAudioSession();
     if (onDone) onDone();
   };
 
+  try {
+    await audio.play();
+  } catch {
+    cleanup();
+    _releaseAudioSession();
+    return false;
+  }
+
   audio.addEventListener('ended', finish);
   audio.addEventListener('error', finish);
-  const p = audio.play();
-  if (p) p.catch(finish);
-  return audio;
+  return true;
 }
 
 async function _playChimeViaWebAudio(wasBreak) {
@@ -270,7 +276,6 @@ async function _playChimeViaWebAudio(wasBreak) {
 
 function startTimerAudio(remainingSec) {
   stopTimerAudio();
-  _inChimeWindow = false;
 
   if (_isIOS) {
     try {
@@ -358,46 +363,19 @@ async function playCompletionChime(wasBreak) {
         return;
       }
       stopTimerAudio();
-      _playChimeViaAudio(wasBreak);
+      await _playChimeViaAudio(wasBreak);
       return;
     }
 
-    if (_isAndroid) {
-      if (_audioCtx && _audioCtx.state === 'suspended') {
-        try { await _audioCtx.resume(); } catch(e) {}
-      }
-      _enterChimeSession();
-      _stopKeepaliveOsc();
-      const blob = _renderChimeWav(wasBreak);
-      const url = URL.createObjectURL(blob);
-      const audio = new Audio(url);
-      audio.volume = 1.0;
-      const cleanup = () => {
-        try {
-          audio.pause();
-          audio.removeAttribute('src');
-          audio.load();
-          URL.revokeObjectURL(url);
-        } catch(e) {}
-      };
-      const finish = () => {
-        cleanup();
-        _releaseAudioSession();
-        stopTimerAudio();
-      };
-      audio.addEventListener('ended', finish);
-      audio.addEventListener('error', finish);
-      try {
-        await audio.play();
-      } catch {
-        cleanup();
-        await _playChimeViaWebAudio(wasBreak);
-        stopTimerAudio();
-      }
-      return;
+    if (_audioCtx && _audioCtx.state === 'suspended') {
+      try { await _audioCtx.resume(); } catch(e) {}
     }
 
-    _playChimeViaAudio(wasBreak, stopTimerAudio);
+    const played = await _playChimeViaAudio(wasBreak, stopTimerAudio);
+    if (!played && _isAndroid) {
+      await _playChimeViaWebAudio(wasBreak);
+      stopTimerAudio();
+    }
   } catch(e) {
     _releaseAudioSession();
     stopTimerAudio();

@@ -960,15 +960,11 @@ function applyUIStrings(strings) {
 
 }
 
-// Override showToast and pomo label updates to use translated strings
-const _origUpdatePomoUI = PomoUI;
-
+// Patch PomoUI / onSegmentComplete for translated labels and toasts
 function getTranslatedPomoStrings() {
   return UI_STRINGS[currentLang] || UI_STRINGS.en;
 }
 
-// Patch PomoUI to use translated labels
-const _origLabel = null;
 (function patchPomoUI() {
   const origFn = PomoUI;
   window.PomoUI = function() {
@@ -1013,7 +1009,7 @@ const _origLabel = null;
 const _origOnSegmentComplete = onSegmentComplete;
 window.onSegmentComplete = function() {
   _origOnSegmentComplete();
-  // Re-show toast in the current language (original shows English)
+  // Translated completion toast (pomo.js no longer shows English toast)
   const s = getTranslatedPomoStrings();
   if (pomo.isBreak) {
     // Just flipped from focus → break

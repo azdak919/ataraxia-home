@@ -1,5 +1,5 @@
 /* Ataraxia — pomodoro timer
- * Depends: pomo-audio.js, storage.js, toast.js
+ * Depends: pomo-audio.js, storage.js
  * Exports: pomo, PomoUI, startPomo, stopPomo, resetPomo, initPomoHandlers, ...
  */
 const CIRCUMFERENCE = 2 * Math.PI * 52; // ~326.73  (r=52 in 120×120 viewBox)
@@ -266,13 +266,11 @@ function onSegmentComplete() {
     pomo.isLongBreak = isLong;
     pomo.totalSeconds = (isLong ? pomo.longBreakMin : pomo.breakMin) * 60;
     pomo.phaseDuration = pomo.totalSeconds;
-    showToast(isLong ? `${pomo.completedSessions} sessions done — long break!` : 'Session done — short break');
   } else {
     pomo.isBreak = false;
     pomo.isLongBreak = false;
     pomo.totalSeconds = pomo.workMin * 60;
     pomo.phaseDuration = pomo.totalSeconds;
-    showToast('Break over — let\'s focus');
   }
 
   pomo.pausedRemaining = pomo.totalSeconds;

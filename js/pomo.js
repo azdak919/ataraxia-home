@@ -344,7 +344,7 @@ function jumpToPhase(phase) {
   pomo.pausedRemaining = pomo.totalSeconds;
   savePomoState();
   // Close settings panels
-  document.getElementById('pomo-settings-panel')?.classList.remove('open');
+  setPomoSettingsOpen(false);
   document.getElementById('pomo-fp-settings-panel')?.classList.remove('open');
   _lastPomoRenderKey = null;
   PomoUI();
@@ -408,6 +408,16 @@ function applyFpSettings() {
   PomoUI();
 }
 
+function setPomoSettingsOpen(open) {
+  const panel = document.getElementById('pomo-settings-panel');
+  const btn = document.getElementById('pomo-settings-btn');
+  if (!panel) return;
+  panel.classList.toggle('open', open);
+  panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+  btn?.setAttribute('aria-expanded', open ? 'true' : 'false');
+  document.body.classList.toggle('pomo-settings-open', open);
+}
+
 function setPomoFullscreenOpen(open) {
   const overlay = document.getElementById('pomo-fullpage');
   if (!overlay) return;
@@ -415,6 +425,8 @@ function setPomoFullscreenOpen(open) {
   document.body.classList.toggle('pomo-fullpage-open', open);
   if (!open) {
     document.getElementById('pomo-fp-settings-panel')?.classList.remove('open');
+  } else {
+    setPomoSettingsOpen(false);
   }
 }
 
@@ -438,15 +450,16 @@ function initPomoHandlers() {
   document.getElementById('pomo-settings-btn')?.addEventListener('click', (e) => {
     e.stopPropagation();
     if (!settingsPanel) return;
-    settingsPanel.classList.toggle('open');
-    if (settingsPanel.classList.contains('open')) loadSettingsUI();
+    const open = !settingsPanel.classList.contains('open');
+    setPomoSettingsOpen(open);
+    if (open) loadSettingsUI();
   });
   settingsPanel?.addEventListener('click', (e) => e.stopPropagation());
 
   document.addEventListener('click', (e) => {
     if (!settingsPanel?.classList.contains('open')) return;
     if (settingsPanel.contains(e.target) || e.target.closest('#pomo-settings-btn')) return;
-    settingsPanel.classList.remove('open');
+    setPomoSettingsOpen(false);
   });
 
   ['setting-work', 'setting-break', 'setting-long', 'setting-sessions'].forEach(id => {
@@ -546,6 +559,10 @@ function initPomoHandlers() {
   });
 
   document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && settingsPanel?.classList.contains('open')) {
+      setPomoSettingsOpen(false);
+      return;
+    }
     if (e.key === 'Escape' && fpOverlay?.classList.contains('open')) {
       if (fpSettingsPanel?.classList.contains('open')) {
         fpSettingsPanel.classList.remove('open');

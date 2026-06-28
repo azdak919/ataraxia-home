@@ -483,6 +483,11 @@ function initPomoHandlers() {
   });
   settingsPanel?.addEventListener('click', (e) => e.stopPropagation());
 
+  document.getElementById('pomo-settings-close')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    setPomoSettingsOpen(false);
+  });
+
   document.addEventListener('click', (e) => {
     if (!settingsPanel?.classList.contains('open')) return;
     if (settingsPanel.contains(e.target) || e.target.closest('#pomo-settings-btn')) return;

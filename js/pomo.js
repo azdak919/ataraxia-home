@@ -418,6 +418,58 @@ function setPomoSettingsOpen(open) {
 
 let _fpOpenedForLandscape = false;
 
+const POMO_RING_EM = 28;
+
+/** Téléphone : --pw-base sur le widget (même logique que plein écran) */
+function syncWidgetScale() {
+  const widget = document.getElementById('pomo-widget');
+  const container = document.getElementById('pomo-container');
+  if (!widget || !container) return;
+
+  if (window.innerWidth > 720 || container.classList.contains('is-minimized')) {
+    widget.style.removeProperty('--pw-base');
+    return;
+  }
+
+  function computeBase() {
+    const rect = widget.getBoundingClientRect();
+    if (rect.width < 1 || rect.height < 1) return null;
+
+    const cs = getComputedStyle(widget);
+    const padTop = parseFloat(cs.paddingTop);
+    const padBottom = parseFloat(cs.paddingBottom);
+    const padLeft = parseFloat(cs.paddingLeft);
+    const padRight = parseFloat(cs.paddingRight);
+    const rowGap = parseFloat(cs.rowGap) || 0;
+
+    const phaseEl = document.getElementById('pomo-phase-ready');
+    const phaseH = (phaseEl && phaseEl.classList.contains('visible'))
+      ? phaseEl.getBoundingClientRect().height + rowGap
+      : 0;
+
+    const controls = widget.querySelector('.pomo-controls');
+    const controlsH = controls
+      ? controls.getBoundingClientRect().height + rowGap
+      : 0;
+
+    const availW = rect.width - padLeft - padRight;
+    const availH = rect.height - padTop - padBottom - controlsH - phaseH;
+
+    const ringPx = Math.max(96, Math.min(availW, availH));
+    return ringPx / POMO_RING_EM;
+  }
+
+  const basePx = computeBase();
+  if (basePx == null) return;
+  widget.style.setProperty('--pw-base', `${basePx}px`);
+
+  requestAnimationFrame(() => {
+    if (window.innerWidth > 720 || container.classList.contains('is-minimized')) return;
+    const refined = computeBase();
+    if (refined != null) widget.style.setProperty('--pw-base', `${refined}px`);
+  });
+}
+
 /** Calcule --fp-base en px : anneau max largeur portrait, tout proportionnel en em */
 function syncFullscreenScale() {
   const overlay = document.getElementById('pomo-fullpage');
@@ -598,11 +650,25 @@ function initPomoHandlers() {
 
   window.syncLandscapeFullscreen = syncLandscapeFullscreen;
   window.syncFullscreenScale = syncFullscreenScale;
+  window.syncWidgetScale = syncWidgetScale;
   syncLandscapeFullscreen();
+  syncWidgetScale();
 
-  window.addEventListener('resize', () => syncFullscreenScale(), { passive: true });
+  const pomoContainerEl = document.getElementById('pomo-container');
+  if (pomoContainerEl && typeof ResizeObserver !== 'undefined') {
+    const widgetScaleObserver = new ResizeObserver(() => syncWidgetScale());
+    widgetScaleObserver.observe(pomoContainerEl);
+  }
+
+  window.addEventListener('resize', () => {
+    syncFullscreenScale();
+    syncWidgetScale();
+  }, { passive: true });
   window.addEventListener('orientationchange', () => {
-    requestAnimationFrame(syncFullscreenScale);
+    requestAnimationFrame(() => {
+      syncFullscreenScale();
+      syncWidgetScale();
+    });
   }, { passive: true });
 
   _lastPomoRenderKey = null;

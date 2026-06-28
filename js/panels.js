@@ -35,6 +35,9 @@
     if (window.AtaraxiaLayout?.updateChromeInsets) {
       requestAnimationFrame(() => window.AtaraxiaLayout.updateChromeInsets());
     }
+    if (typeof window.syncWidgetScale === 'function') {
+      requestAnimationFrame(() => window.syncWidgetScale());
+    }
   }
 
   function isMinimized(panel) {

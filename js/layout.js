@@ -129,6 +129,9 @@
       if (typeof window.syncLandscapeFullscreen === 'function') {
         window.syncLandscapeFullscreen();
       }
+      if (typeof window.syncWidgetScale === 'function') {
+        window.syncWidgetScale();
+      }
     };
     window.addEventListener('resize', onLayoutChange, { passive: true });
     window.addEventListener('orientationchange', onLayoutChange, { passive: true });

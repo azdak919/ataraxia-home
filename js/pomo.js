@@ -13,9 +13,7 @@ function primePomoAudio() {
 }
 
 function phoneLayoutMax() {
-  return window.AtaraxiaLayout?.PHONE_LAYOUT_MAX
-    ?? parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--phone-layout-max'))
-    ?? 430;
+  return window.AtaraxiaLayout?.PHONE_UI_MAX ?? 720;
 }
 
 function defaultPomoState() {

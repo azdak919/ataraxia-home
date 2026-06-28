@@ -472,8 +472,8 @@ html[data-layout="wide"] .quote-action-row .btn:hover {
   }
 }
 
-/* ── Téléphone (≤430px) : largeur chrome, pomo + quote 50/50 ─── */
-@media (max-width: 430px) {
+/* ── Téléphone (≤720px) : largeur chrome, pomo + quote 50/50 ─── */
+@media (max-width: 720px) {
   .top-right-actions .lang-btn span {
     display: none;
   }

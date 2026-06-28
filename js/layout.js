@@ -11,15 +11,17 @@
     portrait: '(orientation: portrait)',
   };
 
-  /** Largeur moyenne téléphone — au-delà → layout wide (desktop/tablette). */
+  /** Pilules réduites — plafond largeur (téléphone moyen). */
   const PHONE_LAYOUT_MAX = 430;
 
-  /** Téléphone tactile étroit — layout Focus Deck + pomo/citation empilés. */
+  /** UI pleine largeur chrome — pomo/citation empilés (téléphone + petit viewport). */
+  const PHONE_UI_MAX = 720;
+
+  /** Tactile (téléphone / tablette) — layout Focus Deck, pas le wide desktop. */
   function isTouchViewport() {
-    const w = window.innerWidth;
-    if (w > PHONE_LAYOUT_MAX) return false;
     const coarse = window.matchMedia('(pointer: coarse)').matches;
     const noHover = window.matchMedia('(hover: none)').matches;
+    const w = window.innerWidth;
     const h = window.innerHeight;
     return (coarse && (w <= 1024 || h <= 520)) || (noHover && w <= 900);
   }
@@ -157,6 +159,7 @@
     LAYOUT_MQS,
     SCENE_KEY,
     PHONE_LAYOUT_MAX,
+    PHONE_UI_MAX,
     isTouchViewport,
     syncLayout,
     syncScene,

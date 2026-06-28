@@ -77,7 +77,6 @@
       --credits-bottom: max(0.65rem, env(safe-area-inset-bottom, 0px));
       --credits-opacity-visible: 0.78;
       --sol-toolbar-offset: calc(max(0.45rem, env(safe-area-inset-top, 0px)) + 5.1rem);
-      --radar-embed-h: 58px;
       --radar-embed-slot-h: 58px;
       --credits-bar-offset: 0px;
     }
@@ -217,27 +216,15 @@
       position: relative;
       z-index: 3;
       flex-shrink: 0;
-      /* Épaisseur fixe dans le flux — le popover déborde via .radar-embed-float. */
       height: var(--radar-embed-slot-h);
       min-height: var(--radar-embed-slot-h);
       max-height: var(--radar-embed-slot-h);
     }
 
-    .radar-embed-float {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: var(--radar-embed-h, var(--radar-embed-slot-h));
-      max-height: 180px;
-      z-index: 4;
-      pointer-events: none;
-    }
-
     .radar-embed-frame {
       display: block;
       width: 100%;
-      height: 100%;
+      height: var(--radar-embed-slot-h);
       border: 0;
       border-radius: 12px;
       background: transparent;
@@ -1008,17 +995,15 @@
   </div>
   </div>
   <div class="game-toolbar-tuner" id="game-toolbar-tuner">
-    <div class="radar-embed-float" id="radar-embed-float">
-      <iframe
-        id="radar-embed"
-        class="radar-embed-frame"
-        src="https://azdak919.github.io/radios-etudiantes-qc/tuner-embed.html"
-        title="Le Radar — syntoniseur radio"
-        loading="lazy"
-        allow="autoplay; encrypted-media"
-        referrerpolicy="no-referrer-when-downgrade"
-      ></iframe>
-    </div>
+    <iframe
+      id="radar-embed"
+      class="radar-embed-frame"
+      src="https://azdak919.github.io/radios-etudiantes-qc/tuner-embed.html"
+      title="Le Radar — syntoniseur radio"
+      loading="lazy"
+      allow="autoplay; encrypted-media"
+      referrerpolicy="no-referrer-when-downgrade"
+    ></iframe>
   </div>
   <div class="game-toolbar-sub">
     <div class="toolbar-stats" id="toolbar-stats">
@@ -2589,16 +2574,6 @@ window.addEventListener('resize', () => {
     iframe.src = `${location.protocol}//${location.hostname}:8888/tuner-embed.html`;
   }
 
-  window.addEventListener('message', (e) => {
-    if (e.data?.type !== 'ataraxia-radar-embed') return;
-    if (e.source !== iframe.contentWindow) return;
-    const height = Number(e.data.height);
-    if (!Number.isFinite(height) || height < 58 || height > 180) return;
-    const base = 58;
-    const next = e.data.popoverOpen ? Math.ceil(height) : base;
-    document.documentElement.style.setProperty('--radar-embed-h', `${next}px`);
-    document.getElementById('game-toolbar-tuner')?.classList.toggle('is-vol-open', !!e.data.popoverOpen);
-  });
 })();
 
 

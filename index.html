@@ -125,6 +125,8 @@
   /* Hidden by default — shown only in landscape dock */
   .dock-toggle-btn { display: none; }
 
+  /* Shared top-bar link buttons (Solitaire, Radar, Coffee, …) */
+  .action-link,
   .coffee-btn {
     font-family: var(--font-body);
     font-size: 0.78rem;
@@ -146,12 +148,15 @@
     gap: 0.35rem;
     text-decoration: none;
     white-space: nowrap;
+    flex-shrink: 0;
   }
+  .action-link:hover,
   .coffee-btn:hover {
     background: var(--bg-glass-hover);
     border-color: var(--accent);
     color: var(--text-primary);
   }
+  .action-link svg,
   .coffee-btn svg {
     width: 14px;
     height: 14px;
@@ -159,6 +164,41 @@
     opacity: 0.7;
     flex-shrink: 0;
   }
+
+  /* Icon-only toolbar — driven by html[data-layout] (see syncUILayout) */
+  html[data-layout="compact"] .action-link,
+  html[data-layout="compact"] .coffee-btn,
+  html[data-layout="dock"] .action-link,
+  html[data-layout="dock"] .coffee-btn {
+    padding: 0.45rem;
+    font-size: 0;
+    gap: 0;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+  }
+  html[data-layout="compact"] .action-link span,
+  html[data-layout="compact"] .coffee-btn span,
+  html[data-layout="dock"] .action-link span,
+  html[data-layout="dock"] .coffee-btn span { display: none; }
+  html[data-layout="compact"] .action-link svg,
+  html[data-layout="compact"] .coffee-btn svg,
+  html[data-layout="dock"] .action-link svg,
+  html[data-layout="dock"] .coffee-btn svg { width: 18px; height: 18px; opacity: 0.85; }
+
+  html[data-layout="compact"] .lang-btn,
+  html[data-layout="dock"] .lang-btn {
+    padding: 0.45rem;
+    font-size: 0;
+    gap: 0;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+  }
+  html[data-layout="compact"] .lang-btn span,
+  html[data-layout="dock"] .lang-btn span { display: none; }
+  html[data-layout="compact"] .lang-btn svg,
+  html[data-layout="dock"] .lang-btn svg { width: 18px; height: 18px; opacity: 0.85; }
 
   .lang-selector {
     position: relative;
@@ -1512,7 +1552,6 @@
      ═══════════════════════ */
   @media (max-width: 600px) {
     .top-right-actions { padding: max(0.5rem, env(safe-area-inset-top, 0px)) max(0.5rem, env(safe-area-inset-right, 0px)) 0 0; gap: 0.35rem; }
-    .lang-btn, .coffee-btn { font-size: 0.7rem; padding: 0.3rem 0.55rem; }
 
     /* Column layout, vertically centred within the safe viewport */
     .page-layout { justify-content: flex-start; }
@@ -1653,30 +1692,9 @@
       animation: none;
     }
 
-    /* Icon-only buttons inside the dock */
-    .coffee-btn {
-      padding: 0.45rem;
-      border-radius: 12px;
-      font-size: 0;
-      gap: 0;
-      justify-content: center;
-      width: 38px;
-      height: 38px;
-    }
-    .coffee-btn span { display: none; }
-    .coffee-btn svg { width: 18px; height: 18px; opacity: 0.85; }
-
-    .lang-btn {
-      padding: 0.45rem;
-      border-radius: 12px;
-      font-size: 0;
-      gap: 0;
-      justify-content: center;
-      width: 38px;
-      height: 38px;
-    }
-    .lang-btn span { display: none; }
-    .lang-btn svg { width: 18px; height: 18px; opacity: 0.85; }
+    html[data-layout="dock"] .action-link,
+    html[data-layout="dock"] .coffee-btn,
+    html[data-layout="dock"] .lang-btn { border-radius: 12px; }
 
     /* Language dropdown opens LEFT from the dock */
     .lang-dropdown {
@@ -2091,12 +2109,19 @@
 <!-- Top-right actions: Coffee + Language -->
 <div class="top-right-actions">
 
-  <a class="coffee-btn" href="solitaire.html" aria-label="Play Solitaire">
+  <a class="action-link coffee-btn" id="solitaire-btn" href="solitaire.html" aria-label="Play Solitaire">
     <svg viewBox="0 0 24 24"><path d="M12 2L5 12l7 10 7-10z"/></svg>
-    <span>Solitaire</span>
+    <span id="solitaire-btn-label">Solitaire</span>
   </a>
 
-  <a class="coffee-btn" href="https://www.buymeacoffee.com/azdak"
+  <a class="action-link coffee-btn" id="radar-btn"
+     href="https://azdak919.github.io/radios-etudiantes-qc/"
+     target="_blank" rel="noopener noreferrer" aria-label="Le Radar — radios étudiantes du Québec">
+    <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20H9v2h6v-2h-2v-3.08c3.02-.43 5.42-2.78 5.91-5.78.09-.6-.39-1.14-1-1.14z"/></svg>
+    <span id="radar-btn-label">Le Radar</span>
+  </a>
+
+  <a class="action-link coffee-btn" href="https://www.buymeacoffee.com/azdak"
      target="_blank" rel="noopener" aria-label="Buy me a coffee">
     <svg viewBox="0 0 24 24"><path d="M20 3H4v10c0 3.31 2.69 6 6 6h4c3.31 0 6-2.69 6-6V8h1a1 1 0 000-2h-1V3zm-2 10c0 2.21-1.79 4-4 4h-4c-2.21 0-4-1.79-4-4V5h12v8zm2-7h-1V4h1v2z"/></svg>
     <span id="coffee-btn-label">Buy me a coffee</span>
@@ -2310,7 +2335,7 @@
 /* ═══════════════════════════════════════
    VERSION
    ═══════════════════════════════════════ */
-const VERSION = 'v1.2.31';
+const VERSION = 'v1.2.32';
 
 /* ═══════════════════════════════════════
    QUOTES DATABASE — focus, présent, effort
@@ -2389,6 +2414,10 @@ const QUOTES = [
   { text: "Three things cannot be long hidden: the sun, the moon, and the truth.", author: "बुद्ध (The Buddha)", authorEn: "The Buddha", culture: "buddhist" },
   { text: "As a solid rock is not shaken by the wind, so the wise are not moved by praise or blame.", author: "ධම්මපදය (Dhammapada)", authorEn: "Dhammapada", culture: "buddhist" },
   { text: "Drop by drop the water pot is filled. Likewise, the wise one, gathering little by little, fills herself with good.", author: "ධම්මපදය (Dhammapada)", authorEn: "Dhammapada", culture: "buddhist" },
+  { text: "All that we are is the result of what we have thought. The mind is everything.", author: "बुद्ध · ධම්මපදය", authorEn: "The Buddha · Dhammapada", culture: "buddhist" },
+  { text: "The mind is restless and difficult to restrain, but it is subdued by practice.", author: "ධම්මපදය (Dhammapada)", authorEn: "Dhammapada", culture: "buddhist" },
+  { text: "Nothing can harm you as much as your own thoughts unguarded.", author: "बुद्ध (The Buddha)", authorEn: "The Buddha", culture: "buddhist" },
+  { text: "Delight in heedfulness. Guard well your thoughts.", author: "ධම්මපදය (Dhammapada)", authorEn: "Dhammapada", culture: "buddhist" },
 
   // ── Lao Tzu / Tao Te Ching ─────────────────────────────
   { text: "When I let go of what I am, I become what I might be.", author: "老子 (Lao Tzu)", authorEn: "Lao Tzu", culture: "chinese" },
@@ -2425,15 +2454,27 @@ const QUOTES = [
   // ── Cato the Elder ─────────────────────────────────────
   { text: "Bitter are the roots of study, but how sweet their fruit.", author: "M. Porcius Cato (Cato the Elder)", authorEn: "Cato the Elder", culture: "greco-roman" },
 
-  // ── Indigenous proverbs — courts, universels ───────────
+  // ── Premières Nations & Inuit — Québec & Canada ────────
   { text: "Listen to the wind, it talks. Listen to the silence, it speaks. Listen to your heart, it knows.", author: "Indigenous Proverb", culture: "indigenous" },
   { text: "Take only what you need and leave the land as you found it.", author: "Arapaho Proverb", culture: "indigenous" },
   { text: "The frog does not drink up the pond in which he lives.", author: "Sioux Proverb", culture: "indigenous" },
   { text: "Walk lightly in the spring; Mother Earth is pregnant.", author: "Kiowa Proverb", culture: "indigenous" },
   { text: "Don't let yesterday use up too much of today.", author: "Cherokee Proverb", culture: "indigenous" },
   { text: "Yesterday is ashes; tomorrow is wood. Only today does the fire burn brightly.", author: "Inuit Proverb", culture: "indigenous" },
-  { text: "If you want to go fast, go alone. If you want to go far, go together.", author: "Cree Proverb", culture: "indigenous" },
-  { text: "Nanabozho was given a sacred task: to walk the earth and name every plant, every stone, every creature. In the naming, he learned that to truly know something, you must first be still enough to hear what it calls itself.", author: "Anishinaabe Teaching — The Naming of the World", culture: "indigenous" },
+  { text: "You never really know the true value of a moment until it becomes a memory.", author: "Inuit Proverb", culture: "indigenous" },
+  { text: "If you want to go fast, go alone. If you want to go far, go together.", author: "Cree Proverb · Eeyou Istchee", culture: "indigenous" },
+  { text: "Tell me and I'll forget. Teach me and I'll remember. Involve me and I'll learn.", author: "Indigenous Proverb", culture: "indigenous" },
+  { text: "Listen to the elders. In their words is the knowledge passed down through generations.", author: "Anishinaabe Wisdom", culture: "indigenous" },
+  { text: "To truly know something, you must first be still enough to hear what it calls itself.", author: "Anishinaabe Teaching — Nanabozho", culture: "indigenous" },
+  { text: "Give thanks for the gifts of the earth and all living things. Gratitude keeps us connected.", author: "Haudenosaunee Teaching", culture: "indigenous" },
+  { text: "Everything has a spirit and an intention. We must treat all things with respect.", author: "Mi'kmaq Wisdom", culture: "indigenous" },
+  { text: "The land remembers everything. It teaches us if we listen with our hearts.", author: "Métis Wisdom", culture: "indigenous" },
+  { text: "The forest is not a place you enter — it is a relative you visit.", author: "Atikamekw Teaching", culture: "indigenous" },
+  { text: "Only the patient will find what is hidden.", author: "Innu Story — Meshapush", culture: "indigenous" },
+  { text: "The world should be difficult enough to keep people strong, but gentle enough to let them rest.", author: "Abenaki Teaching — Gluskabe", culture: "indigenous" },
+  { text: "We will be known forever by the tracks we leave.", author: "Dakota Proverb", culture: "indigenous" },
+  { text: "He who would do great things should not attempt them all by himself.", author: "Indigenous Proverb", culture: "indigenous" },
+  { text: "A brave man dies but once, a coward many times.", author: "Mohawk Proverb", culture: "indigenous" },
 
   // ── Vipassana Tradition ──────────────────────────────────
   { text: "Start with the reality of this moment, not with theories. Observe, and truth will reveal itself.", author: "सत्यनारायण गोयन्का (S.N. Goenka)", authorEn: "S.N. Goenka", culture: "buddhist" },
@@ -2441,6 +2482,7 @@ const QUOTES = [
   { text: "The habit pattern of the mind is to roll in craving or aversion. Vipassana teaches you just to observe.", author: "सत्यनारायण गोयन्का (S.N. Goenka)", authorEn: "S.N. Goenka", culture: "buddhist" },
   { text: "You are your own master. No one from outside can dominate you unless you allow your mind to be dominated.", author: "सत्यनारायण गोयन्का (S.N. Goenka)", authorEn: "S.N. Goenka", culture: "buddhist" },
   { text: "Awareness and equanimity — this is the essence of Vipassana.", author: "सत्यनारायण गोयन्का (S.N. Goenka)", authorEn: "S.N. Goenka", culture: "buddhist" },
+  { text: "Every sensation arises and passes away. Nothing is permanent.", author: "सत्यनारायण गोयन्का (S.N. Goenka)", authorEn: "S.N. Goenka", culture: "buddhist" },
   { text: "Anicca — impermanence. This is the key. When you understand impermanence at the deepest level, suffering dissolves.", author: "सत्यनारायण गोयन्का (S.N. Goenka)", authorEn: "S.N. Goenka", culture: "buddhist" },
   { text: "The mind spends most of its time in the past or the future. Suffering results from not being with the present reality.", author: "सत्यनारायण गोयन्का (S.N. Goenka)", authorEn: "S.N. Goenka", culture: "buddhist" },
   { text: "The purpose of meditation is to purify the mind — to free it from unwholesome states and to develop wholesome ones.", author: "မဟာသီ ဆရာတော် (Mahasi Sayadaw)", authorEn: "Mahasi Sayadaw", culture: "buddhist" },
@@ -3125,7 +3167,7 @@ let currentBgIdx = 0;
 // Recent history for better non-repeating random (persisted across refreshes)
 const RECENT_QUOTES_KEY = 'ataraxia_recent_quotes_v2';
 const RECENT_BGS_KEY    = 'ataraxia_recent_bgs_v2';
-const MAX_RECENT_QUOTES = 22;   // good variety on 108 quotes (~20%)
+const MAX_RECENT_QUOTES = 26;   // good variety on 125 quotes (~21%)
 const MAX_RECENT_BGS    = 25;   // on 182 backgrounds
 
 let recentQuotes = [];
@@ -4264,7 +4306,25 @@ function applyFpSettings() {
 // disconnected or replaced if needed in future code.
 let _quoteCardObserver = null;
 
+/* One layout flag on <html> replaces scattered @media button overrides */
+const LAYOUT_MQS = {
+  dock: '(max-height: 520px) and (orientation: landscape)',
+  compact: '(max-width: 900px)',
+};
+
+function syncUILayout() {
+  const root = document.documentElement;
+  if (window.matchMedia(LAYOUT_MQS.dock).matches) {
+    root.dataset.layout = 'dock';
+  } else if (window.matchMedia(LAYOUT_MQS.compact).matches) {
+    root.dataset.layout = 'compact';
+  } else {
+    root.dataset.layout = 'default';
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  syncUILayout();
   migrateLegacyStorage();
   document.getElementById('version-badge').textContent = VERSION;
   // Persist version so solitaire.html (and any other sub-pages) can read it
@@ -4388,8 +4448,9 @@ document.addEventListener('DOMContentLoaded', () => {
     _quoteCardObserver.observe(quoteCard);
     if (quoteInner) _quoteCardObserver.observe(quoteInner);
   }
-  window.addEventListener('resize', scheduleQuoteLayout, { passive: true });
-  landscapeMQ.addEventListener('change', scheduleQuoteLayout);
+  window.addEventListener('resize', () => { syncUILayout(); scheduleQuoteLayout(); }, { passive: true });
+  landscapeMQ.addEventListener('change', () => { syncUILayout(); scheduleQuoteLayout(); });
+  window.matchMedia(LAYOUT_MQS.compact).addEventListener('change', syncUILayout);
   scheduleQuoteLayout();
 
   // Minimizable pomodoro widget
@@ -4680,6 +4741,8 @@ const UI_STRINGS = {
     readyBreak: 'Ready to break',
     readyFocus: 'Ready to focus',
     quote: 'Quote',
+    solitaireBtn: 'Solitaire',
+    radarBtn: 'Le Radar',
     coffeeBtn: 'Buy me a coffee',
   },
   fr: {
@@ -4700,6 +4763,8 @@ const UI_STRINGS = {
     readyBreak: 'Prêt pour la pause',
     readyFocus: 'Prêt à se concentrer',
     quote: 'Citation',
+    solitaireBtn: 'Solitaire',
+    radarBtn: 'Le Radar',
     coffeeBtn: 'Offrir un café',
   },
   es: {
@@ -5536,6 +5601,14 @@ async function translateUIStrings(lang) {
 function applyUIStrings(strings) {
   document.getElementById('btn-new').textContent = strings.newQuote;
   document.getElementById('btn-bg').textContent = strings.newScene;
+  const solitaireLabel = document.getElementById('solitaire-btn-label');
+  const radarLabel = document.getElementById('radar-btn-label');
+  const solitaireBtn = document.getElementById('solitaire-btn');
+  const radarBtn = document.getElementById('radar-btn');
+  if (solitaireLabel) solitaireLabel.textContent = strings.solitaireBtn || 'Solitaire';
+  if (radarLabel) radarLabel.textContent = strings.radarBtn || 'Le Radar';
+  if (solitaireBtn) solitaireBtn.setAttribute('aria-label', strings.solitaireBtn || 'Solitaire');
+  if (radarBtn) radarBtn.setAttribute('aria-label', strings.radarBtn || 'Le Radar');
   document.getElementById('coffee-btn-label').textContent = strings.coffeeBtn || 'Buy me a coffee';
 
   // Settings panel text (normal widget)

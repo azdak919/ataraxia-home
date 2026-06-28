@@ -5,7 +5,7 @@
 let currentQuoteIdx = 0;
 let recentQuotes = [];
 const QUOTE_LAYOUT_MIN_PX = 13;
-const QUOTE_LAYOUT_MAX_PX = 34;
+const QUOTE_LAYOUT_MAX_PX = 30;
 const QUOTE_CROSSFADE_MS = 220;
 let _quoteLayoutScheduled = false;
 let _quoteLayoutBusy = false;
@@ -29,6 +29,13 @@ function invalidateQuoteLayout() {
   scheduleQuoteLayout();
 }
 
+function quoteLengthCapPx(len) {
+  if (len <= 60) return 22;
+  if (len <= 95) return 26;
+  if (len <= 140) return 28;
+  return QUOTE_LAYOUT_MAX_PX;
+}
+
 function quoteLayoutMaxPx(inner, available, textEl, authorEl, markEl) {
   const w = inner.clientWidth || 360;
   const len = (textEl.textContent || '').length;
@@ -37,8 +44,9 @@ function quoteLayoutMaxPx(inner, available, textEl, authorEl, markEl) {
   const overhead = (markEl?.offsetHeight || 22) + (authorEl.offsetHeight || 18) + 20;
   const textBlock = available - overhead;
   const fromHeight = textBlock > 0 ? textBlock / (lines * 1.46) : 18;
-  const fromWidth = w * 0.074;
-  return Math.round(Math.min(QUOTE_LAYOUT_MAX_PX, Math.max(17, fromWidth, fromHeight)));
+  const fromWidth = w * 0.068;
+  const lengthCap = quoteLengthCapPx(len);
+  return Math.round(Math.min(QUOTE_LAYOUT_MAX_PX, lengthCap, Math.max(17, fromWidth, fromHeight)));
 }
 
 function syncQuoteLayout() {

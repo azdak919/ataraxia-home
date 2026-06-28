@@ -629,8 +629,8 @@ html[data-layout="wide"] .pomo-btn--secondary svg {
 
 html[data-layout="wide"] .quote-card {
   flex: 1 1 auto;
-  min-height: min(28dvh, 220px);
-  max-height: min(44dvh, 360px);
+  min-height: min(24dvh, 188px);
+  max-height: min(38dvh, 300px);
   padding: clamp(1.1rem, 2.8dvh, 1.65rem) clamp(1.15rem, 3vw, 2rem);
   animation-delay: 0.9s;
 }
@@ -648,7 +648,7 @@ html[data-layout="wide"] .quote-mark {
 }
 
 html[data-layout="wide"] .quote-text {
-  font-size: clamp(1.05rem, 2.8dvh, 1.45rem);
+  font-size: clamp(0.98rem, 2.2dvh, 1.28rem);
   line-height: 1.48;
 }
 

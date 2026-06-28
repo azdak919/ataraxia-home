@@ -165,6 +165,9 @@ function PomoUI() {
   const renderKey = `${minStr}|${pomo.isBreak}|${pomo.isLongBreak}|${pomo.isRunning}|${pomo.phaseJustCompleted}|${pomo.completedSessions}|${currentLang}`;
   if (_lastPomoRenderKey === renderKey) return;
   _lastPomoRenderKey = renderKey;
+  requestAnimationFrame(() => {
+    if (typeof window.syncWidgetScale === 'function') window.syncWidgetScale();
+  });
 
   // ── 4. Text / label / button updates (run ~once per minute or on state change)
   const display = document.getElementById('pomo-display');
@@ -439,8 +442,47 @@ function setPomoSettingsOpen(open) {
 let _fpOpenedForLandscape = false;
 
 const POMO_RING_EM = 28;
+const POMO_OVERFLOW_EPS = 2;
 
-/** Téléphone : --pw-base sur le widget (même logique que plein écran) */
+/** phone = anneau em plein carré ; wide = compact ordinateur/tablette */
+function setPomoScaleMode(mode) {
+  const root = document.documentElement;
+  const widget = document.getElementById('pomo-widget');
+  if (mode === 'wide') {
+    root.dataset.pomoScale = 'wide';
+    widget?.style.removeProperty('--pw-base');
+  } else {
+    root.dataset.pomoScale = 'phone';
+  }
+}
+
+/** Anneau, centre ou widget déborde → bascule mode tablette */
+function detectPomoOverflow(widget) {
+  if (!widget || widget.offsetParent === null) return false;
+  const T = POMO_OVERFLOW_EPS;
+  const wRect = widget.getBoundingClientRect();
+
+  const ring = widget.querySelector('.pomo-ring-wrapper');
+  if (ring) {
+    const r = ring.getBoundingClientRect();
+    if (r.width > wRect.width + T || r.height > wRect.height + T) return true;
+    if (r.top < wRect.top - T || r.bottom > wRect.bottom + T) return true;
+    if (r.left < wRect.left - T || r.right > wRect.right + T) return true;
+  }
+
+  const center = widget.querySelector('.pomo-center');
+  if (center && (
+    center.scrollHeight > center.clientHeight + T
+    || center.scrollWidth > center.clientWidth + T
+  )) return true;
+
+  if (widget.scrollHeight > widget.clientHeight + T
+    || widget.scrollWidth > widget.clientWidth + T) return true;
+
+  return false;
+}
+
+/** Téléphone : --pw-base sur le widget ; bascule wide si overflow */
 function syncWidgetScale() {
   const widget = document.getElementById('pomo-widget');
   const container = document.getElementById('pomo-container');
@@ -448,11 +490,16 @@ function syncWidgetScale() {
 
   const maxW = phoneLayoutMax();
   if (window.innerWidth > maxW || container.classList.contains('is-minimized')) {
+    delete document.documentElement.dataset.pomoScale;
     widget.style.removeProperty('--pw-base');
     return;
   }
 
-  const quoteMinimized = document.getElementById('quote-card')?.classList.contains('is-minimized');
+  /* Évite oscillation phone↔wide une fois le mode tablette engagé */
+  if (document.documentElement.dataset.pomoScale === 'wide') {
+    widget.style.removeProperty('--pw-base');
+    return;
+  }
 
   function computeBase() {
     const rect = widget.getBoundingClientRect();
@@ -463,7 +510,7 @@ function syncWidgetScale() {
     const padBottom = parseFloat(cs.paddingBottom);
     const padLeft = parseFloat(cs.paddingLeft);
     const padRight = parseFloat(cs.paddingRight);
-    const rowGap = parseFloat(cs.rowGap) || 0;
+    const rowGap = parseFloat(cs.rowGap) || parseFloat(cs.gap) || 0;
 
     const phaseEl = document.getElementById('pomo-phase-ready');
     const phaseH = (phaseEl && phaseEl.classList.contains('visible'))
@@ -476,25 +523,31 @@ function syncWidgetScale() {
       : 0;
 
     const availW = rect.width - padLeft - padRight;
-
-    if (quoteMinimized) {
-      const ringPx = Math.max(96, availW);
-      return ringPx / POMO_RING_EM;
-    }
-
-    const availH = rect.height - padTop - padBottom - controlsH - phaseH;
-    const ringPx = Math.max(96, Math.min(availW, availH));
+    const availH = rect.height - padTop - padBottom - controlsH - phaseH - rowGap * 2;
+    const ringPx = Math.max(96, Math.min(availW, Math.max(availH, 0)));
     return ringPx / POMO_RING_EM;
   }
 
-  const basePx = computeBase();
-  if (basePx == null) return;
-  widget.style.setProperty('--pw-base', `${basePx}px`);
+  function applyPhoneScale() {
+    setPomoScaleMode('phone');
+    const basePx = computeBase();
+    if (basePx == null) return;
+    widget.style.setProperty('--pw-base', `${basePx}px`);
+  }
 
-  requestAnimationFrame(() => {
+  function finalizeScale() {
     if (window.innerWidth > maxW || container.classList.contains('is-minimized')) return;
-    const refined = computeBase();
-    if (refined != null) widget.style.setProperty('--pw-base', `${refined}px`);
+    if (detectPomoOverflow(widget)) {
+      setPomoScaleMode('wide');
+    } else {
+      const refined = computeBase();
+      if (refined != null) widget.style.setProperty('--pw-base', `${refined}px`);
+    }
+  }
+
+  applyPhoneScale();
+  requestAnimationFrame(() => {
+    requestAnimationFrame(finalizeScale);
   });
 }
 
@@ -718,9 +771,11 @@ function initPomoHandlers() {
   syncWidgetScale();
 
   const pomoContainerEl = document.getElementById('pomo-container');
-  if (pomoContainerEl && typeof ResizeObserver !== 'undefined') {
+  const pomoWidgetEl = document.getElementById('pomo-widget');
+  if (typeof ResizeObserver !== 'undefined') {
     const widgetScaleObserver = new ResizeObserver(() => syncWidgetScale());
-    widgetScaleObserver.observe(pomoContainerEl);
+    if (pomoContainerEl) widgetScaleObserver.observe(pomoContainerEl);
+    if (pomoWidgetEl) widgetScaleObserver.observe(pomoWidgetEl);
   }
 
   window.addEventListener('resize', () => {

@@ -508,6 +508,7 @@ function syncWidgetScale() {
     return;
   }
 
+  /** Anneau 28em + lignes fixes en em — évite dépassement quand citation réduite */
   function computeBase() {
     const rect = widget.getBoundingClientRect();
     if (rect.width < 1 || rect.height < 1) return null;
@@ -517,55 +518,50 @@ function syncWidgetScale() {
     const padBottom = parseFloat(cs.paddingBottom);
     const padLeft = parseFloat(cs.paddingLeft);
     const padRight = parseFloat(cs.paddingRight);
-    const rowGap = parseFloat(cs.rowGap) || parseFloat(cs.gap) || 0;
 
-    const phaseEl = document.getElementById('pomo-phase-ready');
-    const phaseH = (phaseEl && phaseEl.classList.contains('visible'))
-      ? phaseEl.getBoundingClientRect().height + rowGap
-      : 0;
-
-    const controls = widget.querySelector('.pomo-controls');
-    const controlsH = controls
-      ? controls.getBoundingClientRect().height + rowGap
-      : 0;
+    const phaseVisible = document.getElementById('pomo-phase-ready')?.classList.contains('visible');
+    const gapEm = quoteMinimized ? 0.38 : 0.55;
+    const phaseEm = phaseVisible ? 1.5 : 0;
+    const ctrlRowEm = 4.2 + 0.35 + 0.2;
+    const gapCount = phaseVisible ? 2 : 1;
+    const nonRingEm = phaseEm + ctrlRowEm + gapEm * gapCount;
 
     const availW = rect.width - padLeft - padRight;
-    const availH = rect.height - padTop - padBottom - controlsH - phaseH - rowGap * 2;
-    const ringPx = Math.max(96, Math.min(availW, Math.max(availH, 0)));
-    return ringPx / POMO_RING_EM;
+    const availInnerH = rect.height - padTop - padBottom;
+    const baseFromW = availW / POMO_RING_EM;
+    const baseFromH = availInnerH / (POMO_RING_EM + nonRingEm);
+    const minBase = 96 / POMO_RING_EM;
+
+    return Math.max(minBase, Math.min(baseFromW, baseFromH));
   }
 
-  function applyPhoneScale() {
+  function fitPhoneScale() {
     setPomoScaleMode('phone');
-    const basePx = computeBase();
-    if (basePx == null) return;
-    widget.style.setProperty('--pw-base', `${basePx}px`);
-  }
+    let base = computeBase();
+    if (base == null) return;
 
-  function finalizeScale() {
-    if (window.innerWidth > maxW || container.classList.contains('is-minimized')) return;
-    if (detectPomoOverflow(widget)) {
-      if (quoteMinimized) {
-        const base = parseFloat(getComputedStyle(widget).getPropertyValue('--pw-base')) || 12;
-        widget.style.setProperty('--pw-base', `${Math.max(8, base * 0.94)}px`);
-        if (detectPomoOverflow(widget)) setPomoScaleMode('wide');
-        else setPomoScaleMode('phone');
-      } else {
-        _pomoWideLatched = true;
-        setPomoScaleMode('wide');
+    widget.style.setProperty('--pw-base', `${base}px`);
+
+    const shrink = () => {
+      if (window.innerWidth > maxW || container.classList.contains('is-minimized')) return;
+      let iter = 0;
+      while (detectPomoOverflow(widget) && iter < 16) {
+        base = Math.max(96 / POMO_RING_EM, base * 0.92);
+        widget.style.setProperty('--pw-base', `${base}px`);
+        iter++;
       }
-    } else {
-      _pomoWideLatched = false;
-      setPomoScaleMode('phone');
-      const refined = computeBase();
-      if (refined != null) widget.style.setProperty('--pw-base', `${refined}px`);
-    }
+      if (detectPomoOverflow(widget)) {
+        if (!quoteMinimized) _pomoWideLatched = true;
+        setPomoScaleMode('wide');
+      } else {
+        _pomoWideLatched = false;
+      }
+    };
+
+    requestAnimationFrame(() => requestAnimationFrame(shrink));
   }
 
-  applyPhoneScale();
-  requestAnimationFrame(() => {
-    requestAnimationFrame(finalizeScale);
-  });
+  fitPhoneScale();
 }
 
 /** Calcule --fp-base en px : anneau + contrôles proportionnels en em */

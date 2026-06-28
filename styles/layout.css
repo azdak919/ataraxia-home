@@ -613,6 +613,7 @@ html[data-layout="wide"] .quote-action-row .btn:hover {
     padding: 0.75em 0.85em 1.15em;
     border-radius: 20px;
     box-sizing: border-box;
+    overflow: hidden;
   }
 
   html:not([data-pomo-scale="wide"]) .pomo-widget .pomo-ring-wrapper {
@@ -621,8 +622,8 @@ html[data-layout="wide"] .quote-action-row .btn:hover {
     flex: unset;
     min-height: 0;
     min-width: 0;
-    width: 28em;
-    height: 28em;
+    width: min(28em, 100%);
+    height: min(28em, 100%);
     max-width: 100%;
     max-height: 100%;
     aspect-ratio: 1;
@@ -721,11 +722,10 @@ html[data-layout="wide"] .quote-action-row .btn:hover {
   }
 
   html:not([data-pomo-scale="wide"]) .content:has(.quote-card.is-minimized) .pomo-widget .pomo-ring-wrapper {
-    width: auto;
-    height: 100%;
+    width: min(28em, 100%);
+    height: min(28em, 100%);
     max-width: 100%;
     max-height: 100%;
-    aspect-ratio: 1;
   }
 
   html:not([data-pomo-scale="wide"]) .content:has(.quote-card.is-minimized) .pomo-widget .pomo-controls {

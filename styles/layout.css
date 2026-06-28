@@ -567,11 +567,28 @@ html[data-layout="wide"] .quote-action-row .btn:hover {
     align-self: center;
   }
 
+  html[data-layout="touch"] .quote-card.is-minimized,
+  html[data-layout="wide"] .quote-card.is-minimized {
+    padding: 0 !important;
+    margin-bottom: 0;
+  }
+
   html[data-layout="touch"] .pomo-container.is-minimized .panel-restore-chip,
   html[data-layout="wide"] .pomo-container.is-minimized .panel-restore-chip,
   html[data-layout="touch"] .quote-card.is-minimized .panel-restore-chip,
   html[data-layout="wide"] .quote-card.is-minimized .panel-restore-chip {
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Citation réduite : même écart que menu ↔ pomo (≈10px au-dessus des crédits) */
+  html[data-layout="touch"] .content:has(.quote-card.is-minimized),
+  html[data-layout="wide"] .content:has(.quote-card.is-minimized) {
+    --pad-bottom-compact: calc(
+      var(--credits-pad-y) * 2 + 1.35em + var(--credits-bottom) + var(--chrome-stack-gap)
+    );
+    padding-bottom: var(--pad-bottom-compact) !important;
   }
 
   html[data-layout="touch"] .pomo-container,

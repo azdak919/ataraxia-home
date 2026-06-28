@@ -45,6 +45,7 @@
     --credits-bottom: max(0.65rem, env(safe-area-inset-bottom, 0px));
     --credits-opacity: 0.72;
     --credits-opacity-visible: 0.78;
+    --chrome-stack-gap: 0.625rem;
 
     /* Pomo controls — taille unique (boutons ronds + coins) */
     --pomo-control-size: 36px;
@@ -708,7 +709,21 @@
     align-self: center;
     width: var(--chrome-width);
     max-width: var(--chrome-width);
+    min-width: var(--chrome-width);
     box-sizing: border-box;
+  }
+
+  .quote-card.is-minimized {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0 !important;
+  }
+
+  .quote-card.is-minimized .panel-restore-chip {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 100%;
   }
 
   /* Large ring */

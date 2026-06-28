@@ -393,7 +393,7 @@ html[data-layout="wide"] .pomo-widget {
   border-radius: 22px;
 }
 
-html[data-layout="wide"] .pomo-ring-wrapper {
+html[data-layout="wide"] .pomo-widget .pomo-ring-wrapper {
   flex: 0 0 auto;
   width: clamp(128px, 20dvh, 172px);
   height: clamp(128px, 20dvh, 172px);
@@ -401,15 +401,15 @@ html[data-layout="wide"] .pomo-ring-wrapper {
   margin: 0 auto;
 }
 
-html[data-layout="wide"] .pomo-time-inside {
+html[data-layout="wide"] .pomo-widget .pomo-time-inside {
   font-size: clamp(1.85rem, 5dvh, 2.45rem);
 }
 
-html[data-layout="wide"] .pomo-time-unit {
+html[data-layout="wide"] .pomo-widget .pomo-time-unit {
   font-size: clamp(0.82rem, 2.2dvh, 1rem);
 }
 
-html[data-layout="wide"] .pomo-label {
+html[data-layout="wide"] .pomo-widget .pomo-label {
   font-size: 0.58rem;
 }
 
@@ -418,19 +418,20 @@ html[data-layout="wide"] .pomo-widget .pomo-controls {
   margin-top: 0.1rem;
 }
 
-html[data-layout="wide"] .pomo-btn--secondary {
+html[data-layout="wide"] .pomo-widget .pomo-btn--secondary {
   color: var(--text-primary);
   border-color: rgba(255, 255, 255, 0.22);
   background: rgba(255, 255, 255, 0.07);
 }
 
-html[data-layout="wide"] .pomo-btn--secondary:hover {
+html[data-layout="wide"] .pomo-widget .pomo-btn--secondary:hover {
   color: var(--text-primary);
   background: rgba(255, 255, 255, 0.14);
   border-color: rgba(255, 255, 255, 0.32);
 }
 
-html[data-layout="wide"] .pomo-corner-btn {
+html[data-layout="wide"] .pomo-widget .pomo-corner-btn,
+html[data-layout="wide"] .pomo-container .pomo-corner-btn {
   color: var(--text-secondary);
   border-color: rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.05);
@@ -494,7 +495,7 @@ html[data-layout="wide"] .quote-action-row .btn:hover {
   html[data-layout="wide"] .pomo-container {
     max-height: min(28dvh, 210px);
   }
-  html[data-layout="wide"] .pomo-ring-wrapper {
+  html[data-layout="wide"] .pomo-widget .pomo-ring-wrapper {
     width: clamp(112px, 18dvh, 148px);
     height: clamp(112px, 18dvh, 148px);
   }

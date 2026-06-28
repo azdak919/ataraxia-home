@@ -418,13 +418,40 @@ function setPomoSettingsOpen(open) {
 
 let _fpOpenedForLandscape = false;
 
+/** Calcule --fp-base en px : anneau max largeur portrait, tout proportionnel en em */
+function syncFullscreenScale() {
+  const overlay = document.getElementById('pomo-fullpage');
+  if (!overlay?.classList.contains('open')) return;
+
+  const pad = 14;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const shortSide = Math.min(vw, vh);
+  const longSide = Math.max(vw, vh);
+  const isWide = document.documentElement.dataset.layout === 'wide';
+  const ringEm = isWide ? 32 : 28;
+  const btnBlockEm = 4.2 + 0.55 + 1.1;
+
+  const widthMax = shortSide - pad * 2;
+  const heightMax = longSide - pad * 2 - btnBlockEm * (shortSide / ringEm);
+  const ringPx = Math.max(180, Math.min(widthMax, heightMax));
+  const basePx = ringPx / ringEm;
+
+  overlay.style.setProperty('--fp-base', `${basePx}px`);
+}
+
 function setPomoFullscreenOpen(open) {
   const overlay = document.getElementById('pomo-fullpage');
   if (!overlay) return;
   overlay.classList.toggle('open', open);
   document.body.classList.toggle('pomo-fullpage-open', open);
   setPomoSettingsOpen(false);
-  if (!open) _fpOpenedForLandscape = false;
+  if (!open) {
+    _fpOpenedForLandscape = false;
+    overlay.style.removeProperty('--fp-base');
+  } else {
+    requestAnimationFrame(syncFullscreenScale);
+  }
 }
 
 /** Tactile : ouvre le plein écran en paysage, referme au retour portrait si auto-ouvert. */
@@ -570,7 +597,13 @@ function initPomoHandlers() {
   });
 
   window.syncLandscapeFullscreen = syncLandscapeFullscreen;
+  window.syncFullscreenScale = syncFullscreenScale;
   syncLandscapeFullscreen();
+
+  window.addEventListener('resize', () => syncFullscreenScale(), { passive: true });
+  window.addEventListener('orientationchange', () => {
+    requestAnimationFrame(syncFullscreenScale);
+  }, { passive: true });
 
   _lastPomoRenderKey = null;
   PomoUI();

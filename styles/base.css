@@ -1199,36 +1199,18 @@
 
   /* ═══════════════════════
      POMODORO FULL-PAGE VIEW
+     Échelle unique : --fp-base (px via JS, fallback vmin)
      ═══════════════════════ */
   .pomo-fullpage-overlay {
+    --fp-base: min(3.2vw, 3.2vh);
     --fp-safe-t: max(0.5rem, env(safe-area-inset-top, 0px));
     --fp-safe-r: max(0.5rem, env(safe-area-inset-right, 0px));
     --fp-safe-b: max(0.5rem, env(safe-area-inset-bottom, 0px));
     --fp-safe-l: max(0.5rem, env(safe-area-inset-left, 0px));
-    --fp-short: min(100vw, 100dvh);
-    --fp-long: max(100vw, 100dvh);
-    --fp-stack-gap: calc(var(--fp-short) * 0.012);
-    /* Plafond largeur = portrait vertical ; hauteur tient compte des contrôles */
-    --fp-ring-phone-cap: calc(var(--fp-short) - var(--fp-safe-l) - var(--fp-safe-r));
-    --fp-btn-estimate: calc(var(--fp-short) * 0.13);
-    --fp-ring-size: min(
-      var(--fp-ring-phone-cap),
-      calc(var(--fp-long) - var(--fp-safe-t) - var(--fp-safe-b) - var(--fp-btn-estimate) - calc(var(--fp-short) * 0.04))
-    );
-    --fp-btn-size: calc(var(--fp-ring-size) * 0.14);
-    --fp-icon-size: calc(var(--fp-ring-size) * 0.056);
-    --fp-time-size: calc(var(--fp-ring-size) * 0.30);
-    --fp-label-size: calc(var(--fp-ring-size) * 0.062);
-    --fp-unit-size: calc(var(--fp-ring-size) * 0.10);
-    --fp-dot-size: calc(var(--fp-ring-size) * 0.038);
-    --fp-stroke: calc(var(--fp-ring-size) * 0.016);
-    --pomo-control-size: var(--fp-btn-size);
-    --pomo-control-icon: var(--fp-icon-size);
 
+    font-size: var(--fp-base);
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    justify-content: stretch;
     position: fixed;
     inset: 0;
     z-index: 900;
@@ -1237,8 +1219,6 @@
     -webkit-backdrop-filter: blur(32px) saturate(1.4);
     width: 100%;
     height: 100dvh;
-    height: 100vh;
-    padding: 0;
     box-sizing: border-box;
     opacity: 0;
     visibility: hidden;
@@ -1248,12 +1228,15 @@
                 visibility 0.4s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
+  .pomo-fullpage-overlay.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
   .pomo-fullpage-main {
     flex: 1;
-    min-height: 0;
-    width: 100%;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     padding:
@@ -1265,33 +1248,23 @@
   }
 
   .pomo-fullpage-timer {
-    flex: 0 0 auto;
-    width: auto;
-    max-width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: var(--fp-stack-gap);
+    gap: 0.55em;
   }
 
   .pomo-fullpage-actions {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    margin-top: 0;
+    flex-shrink: 0;
   }
 
   .pomo-fullpage-overlay .pomo-ring-wrapper {
-    width: var(--fp-ring-size) !important;
-    height: var(--fp-ring-size) !important;
-    min-width: var(--fp-ring-size);
-    min-height: var(--fp-ring-size);
-    max-width: var(--fp-ring-size) !important;
-    max-height: var(--fp-ring-size) !important;
-    aspect-ratio: 1;
+    width: 28em !important;
+    height: 28em !important;
+    min-width: 28em;
+    min-height: 28em;
+    max-width: min(28em, calc(100vw - 2em)) !important;
+    max-height: min(28em, calc(100dvh - 11em)) !important;
     flex: 0 0 auto !important;
     cursor: default;
   }
@@ -1303,139 +1276,93 @@
 
   .pomo-fullpage-overlay .pomo-ring-bg,
   .pomo-fullpage-overlay .pomo-ring-progress {
-    stroke-width: var(--fp-stroke);
-  }
-
-  .pomo-fullpage-overlay .pomo-time-inside {
-    font-size: var(--fp-time-size) !important;
-    line-height: 1;
+    stroke-width: 0.55em;
   }
 
   .pomo-fullpage-overlay .pomo-label {
-    font-size: var(--fp-label-size) !important;
+    font-size: 2em !important;
     letter-spacing: 0.14em;
   }
 
-  .pomo-fullpage-overlay .pomo-dots {
-    margin-top: calc(var(--fp-ring-size) * 0.02);
-    gap: calc(var(--fp-ring-size) * 0.014) !important;
-  }
-
-  .pomo-fullpage-overlay .pomo-dot {
-    width: var(--fp-dot-size) !important;
-    height: var(--fp-dot-size) !important;
+  .pomo-fullpage-overlay .pomo-time-inside {
+    font-size: 8.5em !important;
+    line-height: 1;
   }
 
   .pomo-fullpage-overlay .pomo-time-unit {
-    font-size: var(--fp-unit-size) !important;
+    font-size: 0.34em !important;
+  }
+
+  .pomo-fullpage-overlay .pomo-dots {
+    margin-top: 0.35em;
+    gap: 0.45em !important;
+  }
+
+  .pomo-fullpage-overlay .pomo-dot {
+    width: 1.15em !important;
+    height: 1.15em !important;
   }
 
   .pomo-fullpage-overlay .pomo-btn--primary,
   .pomo-fullpage-overlay .pomo-btn--secondary {
-    width: var(--fp-btn-size) !important;
-    height: var(--fp-btn-size) !important;
-    min-width: var(--fp-btn-size) !important;
-    min-height: var(--fp-btn-size) !important;
+    width: 4.2em !important;
+    height: 4.2em !important;
+    min-width: 4.2em !important;
+    min-height: 4.2em !important;
     flex-shrink: 0 !important;
   }
 
   .pomo-fullpage-overlay .pomo-btn svg {
-    width: var(--fp-icon-size) !important;
-    height: var(--fp-icon-size) !important;
+    width: 1.75em !important;
+    height: 1.75em !important;
   }
 
   .pomo-fullpage-overlay .pomo-controls {
-    gap: calc(var(--fp-ring-size) * 0.045) !important;
+    gap: 1.1em !important;
     margin: 0;
     flex-shrink: 0;
   }
 
   .pomo-fullpage-overlay .pomo-phase-ready-label {
     margin: 0;
-    width: min(100%, var(--fp-ring-size));
-    font-size: calc(var(--fp-ring-size) * 0.048) !important;
+    width: 28em;
+    max-width: 100%;
+    font-size: 1.5em !important;
   }
 
   .pomo-fullpage-overlay .pomo-phase-ready-label:not(.visible) {
     display: none;
   }
 
-  .pomo-fullpage-overlay.open {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-  }
-
   @media (orientation: landscape) {
-    .pomo-fullpage-overlay {
-      --fp-side-controls: calc(var(--fp-btn-size) + var(--fp-stack-gap));
-      --fp-ring-size: min(
-        var(--fp-ring-phone-cap),
-        calc(var(--fp-long) - var(--fp-safe-t) - var(--fp-safe-b) - 0.25rem),
-        calc(var(--fp-short) - var(--fp-safe-l) - var(--fp-safe-r) - var(--fp-side-controls))
-      );
-      --fp-btn-size: calc(var(--fp-ring-size) * 0.14);
-      --fp-icon-size: calc(var(--fp-ring-size) * 0.056);
-      --fp-time-size: calc(var(--fp-ring-size) * 0.30);
-      --fp-label-size: calc(var(--fp-ring-size) * 0.062);
-      --fp-unit-size: calc(var(--fp-ring-size) * 0.10);
-      --fp-dot-size: calc(var(--fp-ring-size) * 0.038);
-      --fp-stroke: calc(var(--fp-ring-size) * 0.016);
-      --pomo-control-size: var(--fp-btn-size);
-      --pomo-control-icon: var(--fp-icon-size);
-    }
-
     .pomo-fullpage-timer {
-      display: grid;
-      grid-template-columns: auto auto;
-      grid-template-rows: auto auto;
+      flex-direction: row;
       align-items: center;
-      justify-items: center;
-      column-gap: var(--fp-stack-gap);
-      row-gap: calc(var(--fp-stack-gap) * 0.75);
-    }
-
-    .pomo-fullpage-overlay .pomo-ring-wrapper {
-      grid-column: 1;
-      grid-row: 1;
-    }
-
-    .pomo-fullpage-overlay .pomo-phase-ready-label {
-      grid-column: 1;
-      grid-row: 2;
-    }
-
-    .pomo-fullpage-actions {
-      grid-column: 2;
-      grid-row: 1 / -1;
-      align-self: center;
-      width: auto;
+      gap: 0.65em;
     }
 
     .pomo-fullpage-overlay .pomo-controls {
       flex-direction: column;
-      gap: calc(var(--fp-ring-size) * 0.035);
+      gap: 0.85em !important;
+    }
+
+    .pomo-fullpage-overlay .pomo-ring-wrapper {
+      max-width: min(28em, calc(100vw - 8em)) !important;
+      max-height: min(28em, calc(100dvh - 2em)) !important;
     }
   }
 
-  /* Desktop : cercle plus grand, sans plafond téléphone */
   html[data-layout="wide"] .pomo-fullpage-overlay {
-    --fp-ring-size: min(
-      calc(100vw - var(--fp-safe-l) - var(--fp-safe-r) - 1.5rem),
-      calc(100dvh - var(--fp-safe-t) - var(--fp-safe-b) - var(--fp-controls-block) - var(--fp-phase-block) - 0.5rem),
-      min(560px, calc(var(--fp-long) * 0.68))
-    );
+    --fp-base: min(3.6vmin, 22px);
   }
 
-  @media (orientation: landscape) {
-    html[data-layout="wide"] .pomo-fullpage-overlay {
-      --fp-side-controls: calc(var(--pomo-control-size) * 3 + var(--fp-stack-gap) * 2);
-      --fp-ring-size: min(
-        calc(100dvh - var(--fp-safe-t) - var(--fp-safe-b) - 0.5rem),
-        calc(100vw - var(--fp-safe-l) - var(--fp-safe-r) - var(--fp-side-controls) - 1rem),
-        min(560px, calc(var(--fp-long) * 0.78))
-      );
-    }
+  html[data-layout="wide"] .pomo-fullpage-overlay .pomo-ring-wrapper {
+    width: 32em !important;
+    height: 32em !important;
+    min-width: 32em;
+    min-height: 32em;
+    max-width: min(32em, calc(100vw - 4em)) !important;
+    max-height: min(32em, calc(100dvh - 12em)) !important;
   }
 
   body.pomo-fullpage-open {
@@ -1451,8 +1378,8 @@
     position: absolute;
     top: max(1rem, env(safe-area-inset-top, 0px));
     right: max(1rem, env(safe-area-inset-right, 0px));
-    width: var(--pomo-control-size);
-    height: var(--pomo-control-size);
+    width: 3.5em;
+    height: 3.5em;
     border-radius: 50%;
     border: 1px solid var(--border-glass);
     background: transparent;
@@ -1472,8 +1399,8 @@
   .pomo-fullpage-close:active { background: var(--bg-glass-hover); transform: scale(0.9); }
 
   .pomo-fullpage-close svg {
-    width: var(--pomo-control-icon);
-    height: var(--pomo-control-icon);
+    width: 1.6em;
+    height: 1.6em;
     fill: currentColor;
   }
 

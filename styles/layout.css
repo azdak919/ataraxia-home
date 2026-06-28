@@ -5,39 +5,67 @@
 
 /* ── Touch layout tokens ─────────────────────────────── */
 html[data-layout="touch"] {
-  --ring-max: min(94vw, calc(100dvh - 15rem));
+  --ring-max: min(90vw, calc(100dvh - 17.5rem));
   --touch-glass: rgba(255, 255, 255, 0.38);
   --touch-glass-border: rgba(255, 255, 255, 0.18);
-  --content-pad-top: max(3.25rem, calc(env(safe-area-inset-top, 0px) + 2.75rem));
-  --content-pad-bottom: max(6.75rem, calc(env(safe-area-inset-bottom, 0px) + 5.75rem));
-  --scene-bar-offset: 3.6rem;
+  --toolbar-offset: 3.35rem;
+  --content-pad-top: max(5.25rem, calc(env(safe-area-inset-top, 0px) + var(--toolbar-offset)));
+  --content-pad-bottom: max(7.5rem, calc(env(safe-area-inset-bottom, 0px) + 6.5rem));
+  --scene-bar-offset: 4rem;
 }
 
-/* ── Toolbar: icon-only on touch ─────────────────────── */
+/* ── Toolbar: pastille centrée (miroir de la barre scène) ── */
+html[data-layout="touch"] .top-right-actions {
+  top: max(0.45rem, env(safe-area-inset-top, 0px));
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  padding: 0.28rem 0.35rem;
+  gap: 0.15rem;
+  max-width: calc(100vw - 1.25rem);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.38);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(22px) saturate(1.3);
+  -webkit-backdrop-filter: blur(22px) saturate(1.3);
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.22);
+}
+
 html[data-layout="touch"] .action-link,
 html[data-layout="touch"] .coffee-btn {
-  padding: 0.45rem;
+  padding: 0.4rem;
   font-size: 0;
   gap: 0;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border-color: transparent;
+  background: transparent;
 }
 html[data-layout="touch"] .action-link span,
 html[data-layout="touch"] .coffee-btn span { display: none; }
 html[data-layout="touch"] .action-link svg,
-html[data-layout="touch"] .coffee-btn svg { width: 18px; height: 18px; opacity: 0.85; }
+html[data-layout="touch"] .coffee-btn svg { width: 17px; height: 17px; opacity: 0.88; }
 
 html[data-layout="touch"] .lang-btn {
-  padding: 0.45rem;
+  padding: 0.4rem;
   font-size: 0;
   gap: 0;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border-color: transparent;
+  background: transparent;
 }
 html[data-layout="touch"] .lang-btn span { display: none; }
-html[data-layout="touch"] .lang-btn svg { width: 18px; height: 18px; opacity: 0.85; }
+html[data-layout="touch"] .lang-btn svg { width: 17px; height: 17px; opacity: 0.88; }
+html[data-layout="touch"] .action-link:active,
+html[data-layout="touch"] .coffee-btn:active,
+html[data-layout="touch"] .lang-btn:active {
+  background: rgba(255, 255, 255, 0.1);
+}
 
 /* ── Scene bar ───────────────────────────────────────── */
 .focus-scene-bar { display: none; }
@@ -103,10 +131,10 @@ html[data-layout="touch"] .content {
   width: 100%;
   max-width: 100%;
   margin: 0;
-  padding: var(--content-pad-top) 0.65rem var(--content-pad-bottom);
-  gap: 0;
+  padding: var(--content-pad-top) 0.75rem var(--content-pad-bottom);
+  gap: 0.35rem;
   align-items: stretch;
-  justify-content: stretch;
+  justify-content: center;
 }
 
 html[data-layout="touch"][data-scene="timer"] .quote-card { display: none !important; }
@@ -126,8 +154,8 @@ html[data-layout="touch"] .pomo-widget {
   height: 100%;
   max-width: none;
   border-radius: 20px;
-  padding: 0.85rem 0.85rem 1rem;
-  gap: 0.35rem;
+  padding: 0.7rem 0.85rem 0.85rem;
+  gap: 0.25rem;
   justify-content: space-between;
   background: var(--touch-glass);
   border: 1px solid var(--touch-glass-border);
@@ -159,9 +187,9 @@ html[data-layout="touch"] .pomo-controls {
   position: relative;
   z-index: 3;
   flex-shrink: 0;
-  gap: 0.85rem;
-  margin-top: 0;
-  padding-bottom: 0.15rem;
+  gap: 0.75rem;
+  margin-top: 0.15rem;
+  padding-bottom: 0.1rem;
 }
 html[data-layout="touch"] .pomo-btn { touch-action: manipulation; }
 html[data-layout="touch"] .pomo-btn--primary {
@@ -218,7 +246,7 @@ html[data-layout="touch"] .quote-card {
   width: 100%;
   max-height: none;
   margin: 0;
-  padding: 1.35rem 1.15rem 1.15rem;
+  padding: 1.2rem 1rem 1rem;
   border-radius: 20px;
   background: var(--touch-glass);
   border: 1px solid var(--touch-glass-border);
@@ -254,31 +282,41 @@ html[data-layout="touch"] .quote-author {
 }
 html[data-layout="touch"] .quote-action-row {
   flex-shrink: 0;
-  gap: 0.55rem;
-  margin-top: 0.85rem;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
   display: flex;
+  flex-wrap: wrap;
+  justify-content: stretch;
 }
 html[data-layout="touch"] .quote-action-row .btn {
-  flex: 1;
+  flex: 1 1 calc(50% - 0.25rem);
   min-height: 44px;
-  font-size: 0.72rem;
-  padding: 0.5rem 0.75rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  padding: 0.5rem 0.65rem;
 }
 
 /* ── Credits (touch) ───────────────────────────────── */
 html[data-layout="touch"] .bottom-badges {
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
   bottom: calc(max(0.55rem, env(safe-area-inset-bottom, 0px)) + var(--scene-bar-offset));
-  font-size: 0.52rem;
-  opacity: 0.45;
+  max-width: calc(100vw - 1.5rem);
+  padding: 0.35rem 0.7rem;
+  font-size: 0.56rem;
+  text-align: center;
+  opacity: 0.68;
 }
-html[data-layout="touch"] .bottom-badges.visible { opacity: 0.55; }
+html[data-layout="touch"] .bottom-badges.visible { opacity: 0.78; }
 
 @media (orientation: portrait) {
   html[data-layout="touch"] .bottom-badges {
-    left: max(1rem, env(safe-area-inset-left, 0px));
-    right: max(1rem, env(safe-area-inset-right, 0px));
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
     width: auto;
-    max-width: none;
+    max-width: calc(100vw - 1.5rem);
     justify-content: center;
     text-align: center;
     flex-wrap: wrap;
@@ -451,9 +489,28 @@ html[data-layout="touch"] .pomo-fullpage-overlay .pomo-ring {
   }
 }
 
+@media (max-width: 400px) {
+  html[data-layout="touch"] .quote-action-row {
+    flex-direction: column;
+  }
+  html[data-layout="touch"] .quote-action-row .btn {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+}
+
 @media (max-width: 360px) {
+  html[data-layout="touch"] {
+    --ring-max: min(88vw, calc(100dvh - 16.5rem));
+  }
   html[data-layout="touch"] .scene-btn span { display: none; }
   html[data-layout="touch"] .scene-btn { padding: 0.45rem 0.8rem; min-width: 44px; }
+  html[data-layout="touch"] .action-link,
+  html[data-layout="touch"] .coffee-btn,
+  html[data-layout="touch"] .lang-btn {
+    width: 34px;
+    height: 34px;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -462,6 +519,10 @@ html[data-layout="touch"] .pomo-fullpage-overlay .pomo-ring {
     --touch-glass-border: rgba(255, 255, 255, 0.1);
   }
   html[data-layout="touch"] .focus-scene-bar {
+    background: rgba(0, 0, 0, 0.52);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+  html[data-layout="touch"] .top-right-actions {
     background: rgba(0, 0, 0, 0.52);
     border-color: rgba(255, 255, 255, 0.08);
   }

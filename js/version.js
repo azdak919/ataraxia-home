@@ -1,4 +1,4 @@
 /* Ataraxia — version
  * Exports: VERSION (global)
  */
-const VERSION = 'v1.4.3';
+const VERSION = 'v1.4.4';

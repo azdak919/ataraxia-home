@@ -7,6 +7,11 @@ let pomo = loadPomoState();
 
 const PomoAudio = () => window.AtaraxiaPomoAudio;
 
+/** Active le contexte audio (geste utilisateur requis la première fois). */
+function primePomoAudio() {
+  return PomoAudio()?.ensureAudioReady?.() ?? Promise.resolve(null);
+}
+
 function phoneLayoutMax() {
   return window.AtaraxiaLayout?.PHONE_LAYOUT_MAX
     ?? parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--phone-layout-max'))
@@ -321,9 +326,12 @@ function startPomo() {
   pomo.phaseJustCompleted = false;
   savePomoState();
   const audio = PomoAudio();
-  audio?.initAudioCtx();
-  audio?.startTimerAudio(remaining);
-  audio?.requestWakeLock();
+  if (audio) {
+    void primePomoAudio().then(() => {
+      audio.startTimerAudio(remaining);
+      audio.requestWakeLock();
+    });
+  }
 
   // Request notification permission
   if ('Notification' in window && Notification.permission === 'default') {
@@ -564,14 +572,15 @@ function openPomoFullscreen() {
 }
 
 function initPomoHandlers() {
-  PomoAudio()?.init({
+  const audioApi = PomoAudio();
+  if (!audioApi) {
+    console.warn('[Ataraxia] pomo-audio.js missing — timer chime disabled');
+  }
+  audioApi?.init({
     getPomoState: () => pomo,
     getRemaining,
     formatMinutes,
-    onPlay: () => {
-      PomoAudio()?.initAudioCtx();
-      startPomo();
-    },
+    onPlay: startPomo,
     onPause: stopPomo,
   });
 
@@ -582,10 +591,7 @@ function initPomoHandlers() {
     }, { once: true });
   }
 
-  document.getElementById('pomo-play')?.addEventListener('click', () => {
-    PomoAudio()?.initAudioCtx();
-    startPomo();
-  });
+  document.getElementById('pomo-play')?.addEventListener('click', () => startPomo());
   document.getElementById('pomo-pause')?.addEventListener('click', stopPomo);
   document.getElementById('pomo-reset')?.addEventListener('click', resetPomo);
 
@@ -679,7 +685,6 @@ function initPomoHandlers() {
 
   document.getElementById('pomo-fp-play')?.addEventListener('click', (e) => {
     e.stopPropagation();
-    PomoAudio()?.initAudioCtx();
     startPomo();
   });
   document.getElementById('pomo-fp-pause')?.addEventListener('click', (e) => {
@@ -733,4 +738,15 @@ function initPomoHandlers() {
 
   _lastPomoRenderKey = null;
   PomoUI();
+
+  // Timer repris après rechargement : réarme le keepalive (chime fiable en fin de phase)
+  if (pomo.isRunning && getRemaining() > 0 && audioApi) {
+    const rem = getRemaining();
+    void audioApi.resumeAudioCtx().then(() => {
+      if (pomo.isRunning && getRemaining() > 0) {
+        audioApi.startTimerAudio(rem);
+        audioApi.requestWakeLock();
+      }
+    });
+  }
 }

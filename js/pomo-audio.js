@@ -54,8 +54,14 @@
 
   function resumeAudioCtx() {
     const ctx = initAudioCtx();
-    if (!ctx || ctx.state !== 'suspended') return Promise.resolve(ctx);
-    return ctx.resume().catch(() => ctx);
+    if (!ctx) return Promise.resolve(null);
+    if (ctx.state === 'running') return Promise.resolve(ctx);
+    return ctx.resume().then(() => ctx).catch(() => ctx);
+  }
+
+  /** init + resume — à appeler sur geste utilisateur (play, espace, etc.) */
+  function ensureAudioReady() {
+    return resumeAudioCtx();
   }
 
   function isAudioSuspended() {
@@ -296,7 +302,7 @@
     }
   }
 
-  function startTimerAudio(remainingSec) {
+  async function startTimerAudio(remainingSec) {
     stopTimerAudio();
     const pomo = _pomo();
     const isBreak = !!pomo?.isBreak;
@@ -312,13 +318,12 @@
         _timerAudio.loop = false;
         _timerAudio.addEventListener('ended', () => stopTimerAudio(), { once: true });
         const p = _timerAudio.play();
-        if (p) p.catch(() => {});
+        if (p) await p.catch(() => {});
       } catch (e) {}
     } else {
       try {
-        const ctx = initAudioCtx();
-        if (ctx) {
-          if (ctx.state === 'suspended') ctx.resume();
+        const ctx = await resumeAudioCtx();
+        if (ctx?.state === 'running') {
           _keepaliveGain = ctx.createGain();
           _keepaliveGain.gain.value = 0.001;
           _keepaliveGain.connect(ctx.destination);
@@ -408,6 +413,15 @@
 
       await resumeAudioCtx();
 
+      // Contexte actif (keepalive) → WebAudio plus fiable que <audio> blob
+      if (_audioCtx?.state === 'running') {
+        const webOk = await _playChimeViaWebAudio(wasBreak);
+        if (webOk) {
+          stopTimerAudio();
+          return;
+        }
+      }
+
       const played = await _playChimeViaAudio(wasBreak, stopTimerAudio);
       if (!played) {
         await _playChimeViaWebAudio(wasBreak);
@@ -423,6 +437,7 @@
     init,
     initAudioCtx,
     resumeAudioCtx,
+    ensureAudioReady,
     isAudioSuspended,
     requestWakeLock,
     releaseWakeLock,

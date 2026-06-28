@@ -7,7 +7,7 @@
      • Anything else same-origin          → stale-while-revalidate
    ═══════════════════════════════════════════════════════ */
 
-const SHELL_CACHE   = 'ataraxia-shell-v55';
+const SHELL_CACHE   = 'ataraxia-shell-v56';
 const FONT_CACHE    = 'ataraxia-fonts-v1';
 const KNOWN_CACHES  = [SHELL_CACHE, FONT_CACHE];
 

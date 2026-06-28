@@ -891,6 +891,22 @@
     </svg>
     <span id="shuffle-bg-label">Background</span>
   </button>
+  <a class="toolbar-btn" id="radar-btn"
+     href="https://azdak919.github.io/radios-etudiantes-qc/"
+     target="_blank" rel="noopener noreferrer" aria-label="Le Radar">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20H9v2h6v-2h-2v-3.08c3.02-.43 5.42-2.78 5.91-5.78.09-.6-.39-1.14-1-1.14z"/>
+    </svg>
+    <span id="radar-btn-label">Le Radar</span>
+  </a>
+  <a class="toolbar-btn" id="coffee-btn"
+     href="https://www.buymeacoffee.com/azdak"
+     target="_blank" rel="noopener" aria-label="Buy me a coffee">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M20 3H4v10c0 3.31 2.69 6 6 6h4c3.31 0 6-2.69 6-6V8h1a1 1 0 000-2h-1V3zm-2 10c0 2.21-1.79 4-4 4h-4c-2.21 0-4-1.79-4-4V5h12v8zm2-7h-1V4h1v2z"/>
+    </svg>
+    <span id="coffee-btn-label">Buy me a coffee</span>
+  </a>
   <div class="lang-selector">
     <button class="lang-btn" id="lang-btn" aria-label="Change language">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0014.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
@@ -1011,6 +1027,7 @@ const SOL_UI_EN = {
   hint: 'Hint', autoComplete: 'Auto Complete',
   played: 'Played', won: 'Won', streak: 'Streak', best: 'Best',
   shuffleBg: 'Background', noMoves: 'No more productive moves — try Undo or New Game',
+  radarBtn: 'Le Radar', coffeeBtn: 'Buy me a coffee',
 };
 
 // Hardcoded translations for languages where the generic API produces wrong results
@@ -1024,6 +1041,7 @@ const SOL_UI_HARDCODED = {
     solitaire: 'Solitaire', hint: 'Indice', autoComplete: 'Compléter',
     played: 'Joués', won: 'Gagnés', streak: 'Série', best: 'Meilleur',
     shuffleBg: 'Arrière-plan', noMoves: 'Plus de coups productifs — Annuler ou Nouvelle partie',
+    radarBtn: 'Le Radar', coffeeBtn: 'Offrir un café',
   },
   es: {
     pomodoro: 'Pomodoro', pomodoroBack: 'Volver al Pomodoro',
@@ -1033,6 +1051,7 @@ const SOL_UI_HARDCODED = {
     solitaire: 'Solitario', hint: 'Pista', autoComplete: 'Completar',
     played: 'Jugadas', won: 'Ganadas', streak: 'Racha', best: 'Mejor',
     shuffleBg: 'Fondo', noMoves: 'Sin más movimientos productivos — Deshacer o Nueva partida',
+    radarBtn: 'Le Radar', coffeeBtn: 'Invítame un café',
   },
   de: {
     pomodoro: 'Pomodoro', pomodoroBack: 'Zurück zum Pomodoro',
@@ -1042,6 +1061,7 @@ const SOL_UI_HARDCODED = {
     solitaire: 'Solitär', hint: 'Hinweis', autoComplete: 'Vervollständigen',
     played: 'Gespielt', won: 'Gewonnen', streak: 'Serie', best: 'Beste',
     shuffleBg: 'Hintergrund', noMoves: 'Keine produktiven Züge mehr — Rückgängig oder Neues Spiel',
+    radarBtn: 'Le Radar', coffeeBtn: 'Kauf mir einen Kaffee',
   },
   it: {
     pomodoro: 'Pomodoro', pomodoroBack: 'Torna al Pomodoro',
@@ -1051,6 +1071,7 @@ const SOL_UI_HARDCODED = {
     solitaire: 'Solitario', hint: 'Suggerimento', autoComplete: 'Completare',
     played: 'Giocate', won: 'Vinte', streak: 'Serie', best: 'Migliore',
     shuffleBg: 'Sfondo', noMoves: 'Nessuna mossa produttiva — Annulla o Nuova partita',
+    radarBtn: 'Le Radar', coffeeBtn: 'Offrimi un caffè',
   },
   pt: {
     pomodoro: 'Pomodoro', pomodoroBack: 'Voltar ao Pomodoro',
@@ -1060,6 +1081,7 @@ const SOL_UI_HARDCODED = {
     solitaire: 'Paciência', hint: 'Dica', autoComplete: 'Completar',
     played: 'Jogadas', won: 'Ganhas', streak: 'Série', best: 'Melhor',
     shuffleBg: 'Fundo', noMoves: 'Sem mais movimentos produtivos — Desfazer ou Novo jogo',
+    radarBtn: 'Le Radar', coffeeBtn: 'Pague-me um café',
   },
 };
 
@@ -3394,6 +3416,15 @@ function applyUIStrings(strings) {
   const backLink = document.getElementById('back-pomodoro-link');
   if (backLabel) backLabel.textContent = strings.pomodoro || SOL_UI_EN.pomodoro;
   if (backLink) backLink.setAttribute('aria-label', strings.pomodoroBack || SOL_UI_EN.pomodoroBack);
+
+  const radarLabel = document.getElementById('radar-btn-label');
+  const radarBtn = document.getElementById('radar-btn');
+  const coffeeLabel = document.getElementById('coffee-btn-label');
+  const coffeeBtn = document.getElementById('coffee-btn');
+  if (radarLabel) radarLabel.textContent = strings.radarBtn || SOL_UI_EN.radarBtn;
+  if (radarBtn) radarBtn.setAttribute('aria-label', strings.radarBtn || SOL_UI_EN.radarBtn);
+  if (coffeeLabel) coffeeLabel.textContent = strings.coffeeBtn || SOL_UI_EN.coffeeBtn;
+  if (coffeeBtn) coffeeBtn.setAttribute('aria-label', strings.coffeeBtn || SOL_UI_EN.coffeeBtn);
 }
 
 function setLanguageStatus(msg) {

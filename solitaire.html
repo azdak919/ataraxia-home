@@ -78,6 +78,7 @@
       --credits-opacity-visible: 0.78;
       --sol-toolbar-offset: calc(max(0.45rem, env(safe-area-inset-top, 0px)) + 5.1rem);
       --radar-embed-h: 58px;
+      --radar-embed-slot-h: 58px;
       --credits-bar-offset: 0px;
     }
 
@@ -214,19 +215,26 @@
       position: relative;
       z-index: 3;
       flex-shrink: 0;
+      /* Hauteur fixe dans le flux — le popover volume déborde sans élargir la pastille. */
+      height: var(--radar-embed-slot-h);
+      min-height: var(--radar-embed-slot-h);
+      max-height: var(--radar-embed-slot-h);
     }
 
     .radar-embed-frame {
-      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: var(--radar-embed-h);
-      min-height: 58px;
+      min-height: var(--radar-embed-slot-h);
       max-height: 180px;
       border: 0;
       border-radius: 12px;
       background: transparent;
       color-scheme: normal;
       overflow: hidden;
+      z-index: 2;
     }
 
     .game-toolbar-sub {

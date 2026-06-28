@@ -5,6 +5,16 @@
 let currentBgIdx = 0;
 let recentBgs = [];
 const BG_CROSSFADE_MS = 900;
+
+function safeHttpsUrl(url) {
+  if (!url || typeof url !== 'string') return null;
+  try {
+    const u = new URL(url.trim());
+    return u.protocol === 'https:' ? u.href : null;
+  } catch {
+    return null;
+  }
+}
 // Return an appropriate image width for the current viewport + device pixel ratio.
 // Capped at 2× DPR so 3× phones don't download 6000 px images.
 function _responsiveImgWidth() {
@@ -59,24 +69,31 @@ function _applyBackground(url, creditText, linkUrl, source, title = '') {
 
     // Safer DOM construction (was innerHTML). Prevents any future XSS risk and is more explicit.
     credit.textContent = '';
+    const safeLink = safeHttpsUrl(linkUrl);
     if (source === 'Unsplash' || source === 'Pexels') {
       const titlePart = title ? `«${title}» · ` : '';
       credit.appendChild(document.createTextNode(`Photo: ${titlePart}`));
+      if (safeLink) {
+        const a = document.createElement('a');
+        a.href = safeLink;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.textContent = creditText;
+        credit.appendChild(a);
+      } else {
+        credit.appendChild(document.createTextNode(creditText));
+      }
+      credit.appendChild(document.createTextNode(` · ${source}`));
+    } else if (safeLink) {
       const a = document.createElement('a');
-      a.href = linkUrl;
+      a.href = safeLink;
       a.target = '_blank';
-      a.rel = 'noopener';
+      a.rel = 'noopener noreferrer';
       a.textContent = creditText;
       credit.appendChild(a);
       credit.appendChild(document.createTextNode(` · ${source}`));
     } else {
-      const a = document.createElement('a');
-      a.href = linkUrl;
-      a.target = '_blank';
-      a.rel = 'noopener';
-      a.textContent = creditText;
-      credit.appendChild(a);
-      credit.appendChild(document.createTextNode(` · ${source}`));
+      credit.appendChild(document.createTextNode(`${creditText} · ${source}`));
     }
     document.querySelector('.bottom-badges').classList.add('visible');
 

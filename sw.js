@@ -7,7 +7,7 @@
      • Anything else same-origin          → stale-while-revalidate
    ═══════════════════════════════════════════════════════ */
 
-const SHELL_CACHE   = 'ataraxia-shell-v39';
+const SHELL_CACHE   = 'ataraxia-shell-v40';
 const FONT_CACHE    = 'ataraxia-fonts-v1';
 const KNOWN_CACHES  = [SHELL_CACHE, FONT_CACHE];
 
@@ -118,12 +118,26 @@ self.addEventListener('fetch', (event) => {
 
 // ── Helpers ───────────────────────────────────────────────
 
+const CACHEABLE_TYPES = /^(text\/html|text\/css|application\/javascript|text\/javascript|application\/json|image\/|font\/|application\/manifest\+json)/i;
+const CACHEABLE_EXT = /\.(html?|css|js|json|png|jpe?g|svg|ico|webmanifest|xml|woff2?)$/i;
+
+function isCacheableResponse(response, request) {
+  if (!response || !response.ok) return false;
+  const type = response.headers.get('content-type') || '';
+  if (CACHEABLE_TYPES.test(type)) return true;
+  try {
+    return CACHEABLE_EXT.test(new URL(request.url).pathname);
+  } catch {
+    return false;
+  }
+}
+
 async function cacheFirst(cacheName, request) {
   const cached = await caches.match(request);
   if (cached) return cached;
 
   const response = await fetch(request);
-  if (response.ok) {
+  if (isCacheableResponse(response, request)) {
     const cache = await caches.open(cacheName);
     cache.put(request, response.clone());
   }
@@ -135,7 +149,7 @@ async function staleWhileRevalidate(cacheName, request) {
   const cached = await cache.match(request);
 
   const networkFetch = fetch(request).then((response) => {
-    if (response.ok) {
+    if (isCacheableResponse(response, request)) {
       cache.put(request, response.clone());
       return response;
     }

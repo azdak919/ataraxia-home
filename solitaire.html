@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Solitaire — Ataraxia</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'nonce-ataraxia-sol'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://images.unsplash.com https://images.pexels.com https://upload.wikimedia.org https://commons.wikimedia.org https://deckofcardsapi.com; connect-src 'self' https://api.mymemory.translated.net https://translate.googleapis.com https://libretranslate.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
 
   <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
@@ -959,7 +960,7 @@
       </a>
       <a class="toolbar-btn toolbar-btn--sub" id="coffee-btn"
          href="https://www.buymeacoffee.com/azdak"
-         target="_blank" rel="noopener" aria-label="Buy me a coffee">
+         target="_blank" rel="noopener noreferrer" aria-label="Buy me a coffee">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M20 3H4v10c0 3.31 2.69 6 6 6h4c3.31 0 6-2.69 6-6V8h1a1 1 0 000-2h-1V3zm-2 10c0 2.21-1.79 4-4 4h-4c-2.21 0-4-1.79-4-4V5h12v8zm2-7h-1V4h1v2z"/>
         </svg>
@@ -1014,14 +1015,14 @@
 <div class="bottom-badges" id="bottom-badges">
   <div class="img-credit" id="img-credit"></div>
   <span class="credits-divider">&middot;</span>
-  <a class="license-badge" href="https://www.gnu.org/licenses/gpl-2.0.html" target="_blank" rel="noopener">
+  <a class="license-badge" href="https://www.gnu.org/licenses/gpl-2.0.html" target="_blank" rel="noopener noreferrer">
     <span>Charles Tison</span>
     <span class="copyleft-symbol" aria-label="Copyleft">&copy;</span>
     <span>GPL v2</span>
   </a>
 </div>
 
-<script>
+<script nonce="ataraxia-sol">
 /* ══════════════════════════════════════════════════════════
    CARD IMAGES — Deck of Cards API (deckofcardsapi.com)
    Images: https://deckofcardsapi.com/static/img/{VALUE}{SUIT}.png
@@ -3172,11 +3173,37 @@ function _applyBackground(url, creditText, linkUrl, source, title = '') {
     // Persist current background URL so solitaire.html can share it
     try { localStorage.setItem('ataraxia_bg_url', url); } catch(e) {}
 
+    credit.textContent = '';
+    const safeLink = (() => {
+      try {
+        const u = new URL(String(linkUrl || '').trim());
+        return u.protocol === 'https:' ? u.href : null;
+      } catch { return null; }
+    })();
     if (source === 'Unsplash' || source === 'Pexels') {
       const titlePart = title ? `«${title}» · ` : '';
-      credit.innerHTML = `Photo: ${titlePart}<a href="${linkUrl}" target="_blank" rel="noopener">${creditText}</a> · ${source}`;
+      credit.appendChild(document.createTextNode(`Photo: ${titlePart}`));
+      if (safeLink) {
+        const a = document.createElement('a');
+        a.href = safeLink;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.textContent = creditText;
+        credit.appendChild(a);
+      } else {
+        credit.appendChild(document.createTextNode(creditText));
+      }
+      credit.appendChild(document.createTextNode(` · ${source}`));
+    } else if (safeLink) {
+      const a = document.createElement('a');
+      a.href = safeLink;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.textContent = creditText;
+      credit.appendChild(a);
+      credit.appendChild(document.createTextNode(` · ${source}`));
     } else {
-      credit.innerHTML = `<a href="${linkUrl}" target="_blank" rel="noopener">${creditText}</a> · ${source}`;
+      credit.appendChild(document.createTextNode(`${creditText} · ${source}`));
     }
     document.querySelector('.bottom-badges').classList.add('visible');
 
@@ -3279,8 +3306,9 @@ const SUPPORTED_LANGS = [
 // Solitaire-specific UI strings
 // (SOL_UI_EN is declared early in the STATE section)
 
-const TRANSLATION_CACHE_KEY = 'ataraxia_translations';
+const TRANSLATION_CACHE_KEY = 'ataraxia_translations_v3';
 const TRANSLATION_CACHE_KEY_LEGACY = 'stoicflow_translations';
+const TRANSLATION_CACHE_KEY_LEGACY_V2 = 'ataraxia_translations';
 const LANG_PREF_KEY = 'ataraxia_lang';
 const LANG_PREF_KEY_LEGACY = 'stoicflow_lang';
 const TRANSLATION_CACHE_MAX = 500;
@@ -3288,10 +3316,29 @@ const TRANSLATION_CACHE_MAX = 500;
 // currentLang and _cachedUIStrings are declared early in the STATE section
 let translationCache = {};
 
+function cleanTranslation(str) {
+  if (typeof str !== 'string' || !str) return str;
+  let out = str.replace(/<g[^>]*>([\s\S]*?)<\/g>/gi, '$1');
+  out = out.replace(/<[^>]+>/g, '');
+  out = out
+    .replace(/&apos;/gi, "'")
+    .replace(/&quot;/gi, '"')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCharCode(parseInt(h, 16)));
+  out = out.replace(/^[«»‹›"'`]+|[«»‹›"'`]+$/g, '');
+  out = out.replace(/[»›]{2,}/g, '');
+  out = out.replace(/\s+([.,;:!?])/g, '$1');
+  return out.replace(/\s+/g, ' ').trim();
+}
+
 function migrateLegacyStorage() {
   [
     [LANG_PREF_KEY_LEGACY, LANG_PREF_KEY],
     [TRANSLATION_CACHE_KEY_LEGACY, TRANSLATION_CACHE_KEY],
+    [TRANSLATION_CACHE_KEY_LEGACY_V2, TRANSLATION_CACHE_KEY],
   ].forEach(([legacy, current]) => {
     try {
       const value = localStorage.getItem(legacy);
@@ -3331,11 +3378,12 @@ function getCacheKey(text, targetLang) {
 }
 
 function getCachedTranslation(text, targetLang) {
-  return translationCache[getCacheKey(text, targetLang)] || null;
+  const raw = translationCache[getCacheKey(text, targetLang)];
+  return raw ? cleanTranslation(raw) : null;
 }
 
 function setCachedTranslation(text, targetLang, translated) {
-  translationCache[getCacheKey(text, targetLang)] = translated;
+  translationCache[getCacheKey(text, targetLang)] = cleanTranslation(translated);
   trimTranslationCache();
 }
 
@@ -3360,7 +3408,7 @@ async function translateText(text, targetLang) {
     if (resp.ok) {
       const data = await resp.json();
       if (data.responseStatus === 200 && data.responseData && data.responseData.translatedText) {
-        const translated = data.responseData.translatedText;
+        const translated = cleanTranslation(data.responseData.translatedText);
         if (translated !== text.toUpperCase()) {
           setCachedTranslation(text, targetLang, translated);
           return translated;
@@ -3376,7 +3424,7 @@ async function translateText(text, targetLang) {
     const resp = await fetch(url);
     if (resp.ok) {
       const data = await resp.json();
-      const translated = data?.[0]?.map(s => s?.[0]).filter(Boolean).join('');
+      const translated = cleanTranslation(data?.[0]?.map(s => s?.[0]).filter(Boolean).join(''));
       if (translated) {
         setCachedTranslation(text, targetLang, translated);
         return translated;
@@ -3394,8 +3442,9 @@ async function translateText(text, targetLang) {
     if (resp.ok) {
       const data = await resp.json();
       if (data.translatedText) {
-        setCachedTranslation(text, targetLang, data.translatedText);
-        return data.translatedText;
+        const translated = cleanTranslation(data.translatedText);
+        setCachedTranslation(text, targetLang, translated);
+        return translated;
       }
     }
   } catch(e) {}

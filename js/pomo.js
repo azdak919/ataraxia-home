@@ -22,13 +22,40 @@ function defaultPomoState() {
   };
 }
 
+function _clampInt(n, min, max, fallback) {
+  if (typeof n !== 'number' || !Number.isFinite(n)) return fallback;
+  return Math.min(max, Math.max(min, Math.round(n)));
+}
+
+function _sanitizePomoState(s) {
+  const d = defaultPomoState();
+  const out = { ...d, ...s };
+  out.workMin = _clampInt(out.workMin, 1, 90, d.workMin);
+  out.breakMin = _clampInt(out.breakMin, 1, 30, d.breakMin);
+  out.longBreakMin = _clampInt(out.longBreakMin, 1, 60, d.longBreakMin);
+  out.sessionsBeforeLong = _clampInt(out.sessionsBeforeLong, 1, 12, d.sessionsBeforeLong);
+  out.completedSessions = _clampInt(out.completedSessions, 0, 999, d.completedSessions);
+  out.totalSeconds = _clampInt(out.totalSeconds, 0, 5400, d.totalSeconds);
+  out.phaseDuration = _clampInt(out.phaseDuration, 0, 5400, d.phaseDuration);
+  out.pausedRemaining = out.pausedRemaining == null
+    ? null
+    : _clampInt(out.pausedRemaining, 0, 5400, d.totalSeconds);
+  out.isRunning = !!out.isRunning;
+  out.isBreak = !!out.isBreak;
+  out.isLongBreak = !!out.isLongBreak;
+  out.phaseJustCompleted = !!out.phaseJustCompleted;
+  out.startedAt = (typeof out.startedAt === 'number' && Number.isFinite(out.startedAt))
+    ? out.startedAt
+    : null;
+  return out;
+}
+
 function loadPomoState() {
   try {
     const raw = localStorage.getItem(POMO_KEY)
       || localStorage.getItem(POMO_KEY_LEGACY);
     if (raw) {
-      const s = JSON.parse(raw);
-      if (typeof s.workMin !== 'number') return defaultPomoState();
+      const s = _sanitizePomoState(JSON.parse(raw));
       // Timer en cours : rattraper toutes les phases expirées pendant l'absence.
       if (s.isRunning && s.startedAt && (s.totalSeconds || 0) > 0) {
         let elapsed = (Date.now() - s.startedAt) / 1000;
@@ -56,7 +83,7 @@ function loadPomoState() {
           s.pausedRemaining = Math.max(0, s.totalSeconds - elapsed);
         }
       }
-      return s;
+      return _sanitizePomoState(s);
     }
   } catch(e) {}
   return defaultPomoState();

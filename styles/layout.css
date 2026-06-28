@@ -151,7 +151,8 @@ html[data-layout="touch"] .pomo-widget .pomo-controls {
   margin-top: 0.15rem;
   padding-bottom: 0.1rem;
 }
-html[data-layout="touch"] .pomo-btn,
+html[data-layout="touch"] .pomo-widget .pomo-btn,
+html[data-layout="touch"] .pomo-fullpage-overlay .pomo-btn,
 html[data-layout="touch"] .pomo-corner-btn { touch-action: manipulation; }
 html[data-layout="touch"] .pomo-widget .pomo-dot { width: 8px; height: 8px; }
 html[data-layout="touch"] .pomo-widget .pomo-dots { gap: 6px; }
@@ -260,43 +261,6 @@ html[data-layout="touch"] .bottom-badges {
   html[data-layout="touch"] .pomo-settings {
     max-width: 420px;
   }
-}
-
-/* ── Portrait forcé (mobile tactile) — désactivé : paysage → plein écran pomo ── */
-.portrait-lock {
-  position: fixed;
-  inset: 0;
-  z-index: 10000;
-  display: none;
-  place-items: center;
-  padding: max(1.5rem, env(safe-area-inset-top, 0px)) 1.5rem max(1.5rem, env(safe-area-inset-bottom, 0px));
-  background: rgba(12, 11, 10, 0.94);
-  color: #f1ece4;
-  text-align: center;
-}
-.portrait-lock.is-active { display: grid; }
-body.is-portrait-locked { overflow: hidden; }
-.portrait-lock__inner { max-width: 18rem; }
-.portrait-lock__icon {
-  width: 3rem;
-  height: 3rem;
-  margin: 0 auto 1rem;
-  color: var(--accent, #c9a87c);
-  opacity: 0.9;
-}
-.portrait-lock__title {
-  margin: 0 0 0.5rem;
-  font-family: var(--font-body);
-  font-size: 1.05rem;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-}
-.portrait-lock__text {
-  margin: 0;
-  font-family: var(--font-body);
-  font-size: 0.88rem;
-  line-height: 1.5;
-  color: rgba(241, 236, 228, 0.72);
 }
 
 @media (max-width: 400px) {

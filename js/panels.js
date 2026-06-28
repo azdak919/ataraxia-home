@@ -2,9 +2,6 @@
 (function () {
   'use strict';
 
-  const POMO_MIN_KEY = 'ataraxia_pomo_minimized';
-  const QUOTE_MIN_KEY = 'ataraxia_quote_minimized';
-
   function panelEl(panel) {
     return panel === 'pomo'
       ? document.getElementById('pomo-container')
@@ -69,8 +66,6 @@
   }
 
   window.AtaraxiaPanels = {
-    POMO_MIN_KEY,
-    QUOTE_MIN_KEY,
     setPanelMinimized,
     isMinimized,
     initPanelMinimize,

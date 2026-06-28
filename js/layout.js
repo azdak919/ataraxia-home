@@ -26,15 +26,9 @@
   function migrateSceneStorage() {
     try {
       if (localStorage.getItem(SCENE_KEY) != null) return;
-      const legacy =
-        localStorage.getItem(LEGACY_SCENE_KEY)
-        || (localStorage.getItem('ataraxia_quote_minimized') === 'true' ? 'quote' : null)
-        || (localStorage.getItem('ataraxia_pomo_minimized') === 'true' ? 'timer' : null)
-        || 'timer';
+      const legacy = localStorage.getItem(LEGACY_SCENE_KEY) || 'timer';
       localStorage.setItem(SCENE_KEY, legacy === 'quote' ? 'quote' : 'timer');
       localStorage.removeItem(LEGACY_SCENE_KEY);
-      localStorage.removeItem('ataraxia_quote_minimized');
-      localStorage.removeItem('ataraxia_pomo_minimized');
     } catch (e) {}
   }
 
@@ -118,16 +112,7 @@
     } else {
       delete root.dataset.scene;
     }
-    syncPortraitLock();
     requestAnimationFrame(watchChromeInsets);
-  }
-
-  function syncPortraitLock() {
-    const overlay = document.getElementById('portrait-lock');
-    if (!overlay) return;
-    overlay.classList.remove('is-active');
-    overlay.setAttribute('aria-hidden', 'true');
-    document.body.classList.remove('is-portrait-locked');
   }
 
   function isTouchLayout() {
@@ -146,10 +131,7 @@
       }
     };
     window.addEventListener('resize', onLayoutChange, { passive: true });
-    window.addEventListener('orientationchange', () => {
-      onLayoutChange();
-      syncPortraitLock();
-    }, { passive: true });
+    window.addEventListener('orientationchange', onLayoutChange, { passive: true });
     window.matchMedia(LAYOUT_MQS.touch).addEventListener('change', onLayoutChange);
     window.matchMedia(LAYOUT_MQS.portrait).addEventListener('change', onLayoutChange);
 
@@ -160,7 +142,6 @@
   function init() {
     migrateSceneStorage();
     syncLayout();
-    syncPortraitLock();
     watchChromeInsets();
     initLayoutListeners();
   }
@@ -171,7 +152,6 @@
     isTouchViewport,
     syncLayout,
     syncScene,
-    syncPortraitLock,
     setScene,
     isTouchLayout,
     updateChromeInsets,

@@ -660,7 +660,10 @@
   .quote-card.is-minimized .panel-restore-chip { display: flex; }
 
   .quote-card.is-minimized {
-    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0 !important;
     background: transparent;
     border-color: transparent;
     box-shadow: none;
@@ -679,6 +682,17 @@
     min-height: 0;
     max-height: none;
     animation: none;
+    align-self: center;
+    width: var(--chrome-width);
+    max-width: var(--chrome-width);
+    min-width: var(--chrome-width);
+    box-sizing: border-box;
+  }
+
+  .quote-card.is-minimized .panel-restore-chip {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 100%;
   }
 
   .content:has(.is-minimized) {
@@ -704,34 +718,13 @@
     pointer-events: none;
   }
 
-  .pomo-container.is-minimized,
-  .quote-card.is-minimized {
-    align-self: center;
-    width: var(--chrome-width);
-    max-width: var(--chrome-width);
-    min-width: var(--chrome-width);
-    box-sizing: border-box;
-  }
-
-  .quote-card.is-minimized {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    padding: 0 !important;
-  }
-
-  .quote-card.is-minimized .panel-restore-chip {
-    flex: 0 0 auto;
-    width: 100%;
-    max-width: 100%;
-  }
-
-  /* Large ring */
-  .pomo-ring-wrapper {
+  /* Widget timer — isolé du plein écran (.pomo-fullpage-overlay) */
+  .pomo-widget .pomo-ring-wrapper {
     position: relative;
     width: clamp(130px, 20vw, 162px);
     aspect-ratio: 1;
     flex-shrink: 0;
+    cursor: pointer;
   }
 
   .pomo-ring {
@@ -771,7 +764,7 @@
     gap: 0.1rem;
   }
 
-  .pomo-label {
+  .pomo-widget .pomo-label {
     font-family: var(--font-body);
     font-size: 0.6rem;
     font-weight: 500;
@@ -784,7 +777,7 @@
     white-space: nowrap;
   }
 
-  .pomo-time-inside {
+  .pomo-widget .pomo-time-inside {
     font-family: 'Raleway', var(--font-body), system-ui, sans-serif;
     font-size: clamp(1.8rem, 4vw, 2.7rem);
     font-weight: 300;
@@ -795,7 +788,7 @@
     font-feature-settings: "tnum" 1;
   }
 
-  .pomo-time-unit {
+  .pomo-widget .pomo-time-unit {
     font-family: var(--font-body);
     font-size: 0.9rem;
     font-weight: 300;
@@ -808,16 +801,22 @@
   /* Session progress dots */
   .pomo-dots {
     display: flex;
+  }
+
+  .pomo-widget .pomo-dots {
     gap: 4px;
     margin-top: 0.3rem;
   }
 
   .pomo-dot {
-    width: 5px;
-    height: 5px;
     border-radius: 50%;
     background: var(--pomo-ring-bg);
     transition: background 0.3s ease;
+  }
+
+  .pomo-widget .pomo-dot {
+    width: 5px;
+    height: 5px;
   }
 
   .pomo-dot.done {
@@ -848,7 +847,7 @@
     flex-shrink: 0;
   }
 
-  .pomo-btn--primary {
+  .pomo-widget .pomo-btn--primary {
     width: var(--pomo-control-size);
     height: var(--pomo-control-size);
     background: var(--pomo-work);
@@ -878,7 +877,7 @@
     50%       { box-shadow: 0 4px 18px var(--accent-glow), 0 0 0 7px transparent; }
   }
 
-  .pomo-phase-ready-label {
+  .pomo-widget .pomo-phase-ready-label {
     font-family: var(--font-body);
     font-size: 0.54rem;
     font-weight: 500;
@@ -897,16 +896,16 @@
     line-height: 1.3;
   }
 
-  .pomo-phase-ready-label.visible {
+  .pomo-widget .pomo-phase-ready-label.visible {
     opacity: 1;
     max-height: 2.6em;
   }
 
-  .pomo-phase-ready-label.on-break {
+  .pomo-widget .pomo-phase-ready-label.on-break {
     color: var(--pomo-break);
   }
 
-  .pomo-btn--secondary {
+  .pomo-widget .pomo-btn--secondary {
     width: var(--pomo-control-size);
     height: var(--pomo-control-size);
   }
@@ -922,8 +921,8 @@
     fill: currentColor;
   }
 
-  .pomo-btn--primary svg,
-  .pomo-btn--secondary svg {
+  .pomo-widget .pomo-btn--primary svg,
+  .pomo-widget .pomo-btn--secondary svg {
     width: var(--pomo-control-icon);
     height: var(--pomo-control-icon);
   }
@@ -1402,10 +1401,6 @@
     width: 1.6em;
     height: 1.6em;
     fill: currentColor;
-  }
-
-  .pomo-ring-wrapper {
-    cursor: pointer;
   }
 
   /* ═══════════════════════

@@ -599,17 +599,15 @@
     box-shadow: 0 14px 44px var(--shadow-medium), 0 2px 8px var(--shadow-soft);
   }
 
-  /* Corner chrome buttons (fullscreen, minimize) — même surface que menu/crédits */
+  /* Corner buttons (fullscreen, réduire) — teinte = contrôles secondaires pomo */
   .pomo-corner-btn {
     position: absolute;
     width: var(--pomo-control-size);
     height: var(--pomo-control-size);
     border-radius: 50%;
-    border: 1px solid var(--chrome-surface-border);
-    background: var(--chrome-surface-bg);
-    backdrop-filter: var(--chrome-surface-blur);
-    -webkit-backdrop-filter: var(--chrome-surface-blur);
-    color: var(--text-secondary);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--text-primary);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -623,12 +621,12 @@
 
   .pomo-corner-btn:hover {
     background: rgba(255, 255, 255, 0.14);
-    border-color: rgba(255, 255, 255, 0.22);
+    border-color: rgba(255, 255, 255, 0.32);
     color: var(--text-primary);
   }
   .pomo-corner-btn:active {
-    background: rgba(255, 255, 255, 0.18);
-    transform: scale(0.9);
+    background: rgba(255, 255, 255, 0.14);
+    transform: scale(0.93);
   }
 
   .pomo-corner-btn svg {
@@ -952,14 +950,20 @@
   .pomo-widget .pomo-btn--secondary {
     width: var(--pomo-control-size);
     height: var(--pomo-control-size);
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.07);
   }
 
-  .pomo-btn--secondary:hover {
-    background: var(--bg-glass-hover);
+  .pomo-widget .pomo-btn--secondary:hover {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.32);
     color: var(--text-primary);
-    border-color: var(--accent);
   }
-  .pomo-btn--secondary:active { background: var(--bg-glass-hover); transform: scale(0.93); }
+  .pomo-widget .pomo-btn--secondary:active {
+    background: rgba(255, 255, 255, 0.14);
+    transform: scale(0.93);
+  }
 
   .pomo-btn svg {
     fill: currentColor;

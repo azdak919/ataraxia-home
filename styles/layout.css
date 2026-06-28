@@ -382,18 +382,6 @@ html[data-layout="wide"] .pomo-widget .pomo-controls {
   margin-top: 0.1rem;
 }
 
-html[data-layout="wide"] .pomo-widget .pomo-btn--secondary {
-  color: var(--text-primary);
-  border-color: rgba(255, 255, 255, 0.22);
-  background: rgba(255, 255, 255, 0.07);
-}
-
-html[data-layout="wide"] .pomo-widget .pomo-btn--secondary:hover {
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(255, 255, 255, 0.32);
-}
-
 html[data-layout="wide"] .quote-card {
   flex: 1 1 auto;
   min-height: min(24dvh, 188px);

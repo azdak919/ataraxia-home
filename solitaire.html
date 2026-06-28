@@ -202,6 +202,8 @@
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
+      flex-shrink: 0;
+      min-width: 11.5ch;
     }
 
     .toolbar-stat {
@@ -218,14 +220,28 @@
       font-size: var(--tb-sub-font);
       line-height: 1;
       color: rgba(255, 255, 255, 0.35);
-      display: none;
+      flex-shrink: 0;
     }
 
-    .toolbar-stat--time { display: none; }
+    .toolbar-stat--moves,
+    .toolbar-stat--time {
+      flex-shrink: 0;
+    }
 
-    .toolbar-stats.has-moves .toolbar-stat-sep,
-    .toolbar-stats.has-moves .toolbar-stat--time {
-      display: inline;
+    #stat-moves {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+      display: inline-block;
+      min-width: 2ch;
+      text-align: right;
+    }
+
+    #stat-time {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+      display: inline-block;
+      min-width: 5ch;
+      text-align: center;
     }
 
     .toolbar-sub-sep {
@@ -922,12 +938,12 @@
   </div>
   <div class="game-toolbar-sub">
     <div class="toolbar-stats" id="toolbar-stats">
-      <span class="toolbar-stat">
+      <span class="toolbar-stat toolbar-stat--moves">
         <span id="stat-moves">0</span>
         <span id="moves-label">moves</span>
       </span>
       <span class="toolbar-stat-sep" aria-hidden="true">·</span>
-      <span class="toolbar-stat toolbar-stat--time">
+      <span class="toolbar-stat toolbar-stat--time" aria-label="Elapsed time">
         <span id="stat-time">0:00</span>
       </span>
     </div>
@@ -1876,10 +1892,8 @@ function updateStats() {
   }
   const movesEl = document.getElementById('stat-moves');
   const timeEl  = document.getElementById('stat-time');
-  const statsWrap = document.getElementById('toolbar-stats');
   if (movesEl) movesEl.textContent = moveCount;
   if (timeEl) timeEl.textContent = startTime ? formatTime(Date.now() - startTime) : '0:00';
-  if (statsWrap) statsWrap.classList.toggle('has-moves', moveCount > 0);
 }
 
 /* ══════════════════════════════════════════════════════════

@@ -1674,8 +1674,8 @@
   }
 
   /* ═══════════════════════════════════════════════════════════
-     PHONE PORTRAIT — Focus Deck (dual full-screen scenes)
-     One scene at a time: giant timer OR full quote — not both stacked
+     PHONE — Focus Deck (portrait + paysage tactile)
+     Une scène plein écran à la fois — plus de cartes empilées
      ═══════════════════════════════════════════════════════════ */
   .focus-scene-bar { display: none; }
 
@@ -1919,8 +1919,66 @@
     html[data-layout="focus"] .scene-btn { padding: 0.45rem 0.8rem; min-width: 44px; }
   }
 
+  /* ── Focus Deck — paysage téléphone (hauteur = contrainte) ─ */
+  @media (orientation: landscape) and (max-height: 650px) {
+    html[data-layout="focus"] .content {
+      padding: max(2.5rem, calc(env(safe-area-inset-top, 0px) + 2rem))
+               max(0.65rem, env(safe-area-inset-right, 0px))
+               max(4.25rem, calc(env(safe-area-inset-bottom, 0px) + 3.5rem))
+               max(0.65rem, env(safe-area-inset-left, 0px));
+    }
+    html[data-layout="focus"] .pomo-widget {
+      padding: 0.45rem 0.85rem 0.4rem;
+      border-radius: 16px;
+    }
+    html[data-layout="focus"] .pomo-ring-wrapper {
+      max-width: min(calc(100dvh - 3.25rem), calc(100vw - 2rem));
+      max-height: min(calc(100dvh - 3.25rem), calc(100vw - 2rem));
+    }
+    html[data-layout="focus"] .pomo-time-inside { font-size: clamp(2.6rem, 22dvh, 4.5rem); }
+    html[data-layout="focus"] .pomo-time-unit { font-size: clamp(0.9rem, 6dvh, 1.35rem); }
+    html[data-layout="focus"] .pomo-label { font-size: clamp(0.58rem, 3.5dvh, 0.78rem); }
+    html[data-layout="focus"] .pomo-btn--primary {
+      width: clamp(52px, 14dvh, 66px);
+      height: clamp(52px, 14dvh, 66px);
+    }
+    html[data-layout="focus"] .pomo-btn--secondary {
+      width: clamp(44px, 11dvh, 56px);
+      height: clamp(44px, 11dvh, 56px);
+    }
+    html[data-layout="focus"] .pomo-controls { gap: 0.65rem; }
+    html[data-layout="focus"] .quote-card {
+      padding: 0.75rem 1.1rem 0.7rem;
+      border-radius: 16px;
+    }
+    html[data-layout="focus"] .quote-text {
+      font-size: clamp(0.92rem, 2.6vw, 1.15rem);
+      line-height: 1.4;
+    }
+    html[data-layout="focus"] .quote-action-row .btn {
+      min-height: 40px;
+      font-size: 0.68rem;
+    }
+    html[data-layout="focus"] .bottom-badges {
+      bottom: calc(max(0.45rem, env(safe-area-inset-bottom, 0px)) + 3.25rem);
+      font-size: 0.42rem;
+    }
+    html[data-layout="focus"] .bottom-badges .img-credit,
+    html[data-layout="focus"] .bottom-badges .img-credit + .credits-divider {
+      display: none;
+    }
+    html[data-layout="focus"] .pomo-settings {
+      top: max(2.5rem, calc(env(safe-area-inset-top, 0px) + 2rem));
+      max-height: calc(100dvh - 5rem);
+      max-width: min(420px, calc(100vw - 1.5rem));
+    }
+    html[data-layout="focus"] .focus-scene-bar {
+      bottom: max(0.4rem, env(safe-area-inset-bottom, 0px));
+    }
+  }
+
   /* ═══════════════════════════════════════════════════════════
-     PHONE LANDSCAPE — 3-Zone Dock Layout
+     PHONE LANDSCAPE — 3-Zone Dock Layout (legacy, remplacé par Focus)
      Left: Pomodoro  |  Middle: Quote  |  Right: Utility Dock
      Fully isolated: only fires on short landscape screens
      ═══════════════════════════════════════════════════════════ */
@@ -2697,7 +2755,7 @@
 /* ═══════════════════════════════════════
    VERSION
    ═══════════════════════════════════════ */
-const VERSION = 'v1.2.41';
+const VERSION = 'v1.2.42';
 
 /* ═══════════════════════════════════════
    OPEN-SOURCE BACKGROUND IMAGES
@@ -3432,8 +3490,7 @@ function syncQuoteLayout() {
   if (!card || !inner || !body || !textEl || !authorEl) return;
   if (card.classList.contains('minimized')) return;
 
-  const landscapeDock = window.matchMedia(LAYOUT_MQS.dock).matches;
-  if (landscapeDock) return;
+  if (document.documentElement.dataset.layout === 'focus') return;
 
   const cacheKey = `${currentQuoteIdx}|${Math.round(inner.clientWidth)}|${Math.round(inner.clientHeight)}|${currentLang}`;
   if (_quoteLayoutCacheKey === cacheKey) return;
@@ -4589,8 +4646,8 @@ let _quoteCardObserver = null;
 
 /* One layout flag on <html> replaces scattered @media button overrides */
 const LAYOUT_MQS = {
-  dock: '(max-height: 580px) and (orientation: landscape) and (max-width: 920px)',
-  focus: '(max-width: 600px) and (orientation: portrait)',
+  /* Téléphone tactile : portrait ≤600px OU paysage (toute largeur, ex. iPhone Pro Max 932px) */
+  focus: '(hover: none) and (((max-width: 600px) and (orientation: portrait)) or ((orientation: landscape) and (max-height: 650px)))',
   compact: '(max-width: 900px)',
 };
 const FOCUS_SCENE_KEY = 'ataraxia_focus_scene';
@@ -4641,9 +4698,7 @@ function syncFocusScene() {
 
 function syncUILayout() {
   const root = document.documentElement;
-  if (window.matchMedia(LAYOUT_MQS.dock).matches) {
-    root.dataset.layout = 'dock';
-  } else if (window.matchMedia(LAYOUT_MQS.focus).matches) {
+  if (window.matchMedia(LAYOUT_MQS.focus).matches) {
     root.dataset.layout = 'focus';
   } else if (window.matchMedia(LAYOUT_MQS.compact).matches) {
     root.dataset.layout = 'compact';
@@ -4715,7 +4770,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Collapsible quote card
   const quoteCard = document.getElementById('quote-card');
   const quoteMinBtn = document.getElementById('quote-minimize-btn');
-  const landscapeMQ = window.matchMedia(LAYOUT_MQS.dock);
+  const focusMQ = window.matchMedia(LAYOUT_MQS.focus);
   const dockTogglePomo = document.getElementById('dock-toggle-pomo');
   const dockToggleQuote = document.getElementById('dock-toggle-quote');
 
@@ -4757,7 +4812,7 @@ document.addEventListener('DOMContentLoaded', () => {
     syncDockToggleState();
   });
   quoteCard.addEventListener('click', (e) => {
-    if (quoteCard.classList.contains('minimized') && !landscapeMQ.matches) {
+    if (quoteCard.classList.contains('minimized') && !focusMQ.matches) {
       quoteCard.classList.remove('minimized');
       quoteMinBtn.setAttribute('aria-label', 'Minimize quote');
       localStorage.setItem('ataraxia_quote_minimized', 'false');
@@ -4779,7 +4834,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (quoteInner) _quoteCardObserver.observe(quoteInner);
   }
   window.addEventListener('resize', () => { syncUILayout(); scheduleQuoteLayout(); }, { passive: true });
-  landscapeMQ.addEventListener('change', () => { syncUILayout(); scheduleQuoteLayout(); });
+  focusMQ.addEventListener('change', () => { syncUILayout(); scheduleQuoteLayout(); });
   window.matchMedia(LAYOUT_MQS.compact).addEventListener('change', syncUILayout);
   window.matchMedia(LAYOUT_MQS.focus).addEventListener('change', () => { syncUILayout(); scheduleQuoteLayout(); });
   scheduleQuoteLayout();
@@ -4819,7 +4874,7 @@ document.addEventListener('DOMContentLoaded', () => {
     syncDockToggleState();
   });
   pomoWidget.addEventListener('click', (e) => {
-    if (pomoWidget.classList.contains('minimized') && !landscapeMQ.matches) {
+    if (pomoWidget.classList.contains('minimized') && !focusMQ.matches) {
       pomoWidget.classList.remove('minimized');
       localStorage.setItem('ataraxia_pomo_minimized', 'false');
       updatePomoOffset();

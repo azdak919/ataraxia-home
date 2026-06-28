@@ -551,8 +551,8 @@ html[data-layout="wide"] .top-right-actions {
 html[data-layout="wide"] .content {
   justify-content: center;
   align-items: stretch;
-  gap: clamp(0.5rem, 1.2dvh, 0.85rem);
-  max-width: min(540px, calc(100vw - 2rem));
+  gap: clamp(0.55rem, 1.4dvh, 0.9rem);
+  max-width: min(580px, calc(100vw - 2rem));
   padding-top: clamp(3rem, 5.5dvh, 3.75rem);
   padding-bottom: max(3.5rem, calc(env(safe-area-inset-bottom, 0px) + 2.75rem));
   overflow-y: auto;
@@ -561,9 +561,9 @@ html[data-layout="wide"] .content {
 }
 
 html[data-layout="wide"] .pomo-container {
-  flex: 0 1 auto;
+  flex: 0 0 auto;
   min-height: 0;
-  max-height: min(34dvh, 260px);
+  max-height: min(30dvh, 248px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -628,29 +628,41 @@ html[data-layout="wide"] .pomo-btn--secondary svg {
 }
 
 html[data-layout="wide"] .quote-card {
-  flex: 0 1 auto;
-  min-height: 0;
-  max-height: min(32dvh, 240px);
-  padding: clamp(0.85rem, 2dvh, 1.25rem) clamp(1rem, 2.5vw, 1.65rem);
+  flex: 1 1 auto;
+  min-height: min(28dvh, 220px);
+  max-height: min(44dvh, 360px);
+  padding: clamp(1.1rem, 2.8dvh, 1.65rem) clamp(1.15rem, 3vw, 2rem);
   animation-delay: 0.9s;
 }
 
+html[data-layout="wide"] .quote-inner {
+  gap: clamp(0.55rem, 1.5dvh, 0.9rem);
+}
+
+html[data-layout="wide"] .quote-body {
+  gap: clamp(0.45rem, 1.2dvh, 0.7rem);
+}
+
+html[data-layout="wide"] .quote-mark {
+  font-size: clamp(1.25rem, 3.5dvh, 1.75rem);
+}
+
 html[data-layout="wide"] .quote-text {
-  font-size: clamp(0.92rem, 2.1dvh, 1.2rem);
-  line-height: 1.42;
+  font-size: clamp(1.05rem, 2.8dvh, 1.45rem);
+  line-height: 1.48;
 }
 
 html[data-layout="wide"] .quote-author {
-  font-size: clamp(0.58rem, 1.4dvh, 0.72rem);
+  font-size: clamp(0.62rem, 1.6dvh, 0.78rem);
 }
 
 html[data-layout="wide"] .quote-action-row {
-  padding-top: 0.2rem;
+  padding-top: clamp(0.15rem, 0.5dvh, 0.35rem);
 }
 
 html[data-layout="wide"] .quote-action-row .btn {
-  padding: 0.45rem 1.05rem;
-  font-size: 0.68rem;
+  padding: 0.5rem 1.15rem;
+  font-size: 0.7rem;
 }
 
 html[data-layout="wide"] .bottom-badges {
@@ -677,13 +689,17 @@ html[data-layout="wide"] .bottom-badges.visible {
     gap: 0.45rem;
   }
   html[data-layout="wide"] .pomo-container {
-    max-height: min(30dvh, 220px);
+    max-height: min(28dvh, 210px);
   }
   html[data-layout="wide"] .pomo-ring-wrapper {
     width: clamp(112px, 18dvh, 148px);
     height: clamp(112px, 18dvh, 148px);
   }
   html[data-layout="wide"] .quote-card {
-    max-height: min(28dvh, 200px);
+    min-height: min(24dvh, 180px);
+    max-height: min(38dvh, 300px);
+  }
+  html[data-layout="wide"] .quote-text {
+    font-size: clamp(0.98rem, 2.4dvh, 1.28rem);
   }
 }

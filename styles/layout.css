@@ -147,32 +147,18 @@ html[data-layout="touch"] .pomo-controls {
   margin-top: 0.15rem;
   padding-bottom: 0.1rem;
 }
-html[data-layout="touch"] .pomo-btn { touch-action: manipulation; }
-html[data-layout="touch"] .pomo-btn--primary {
-  width: var(--pomo-primary-size, clamp(58px, 15vw, 72px));
-  height: var(--pomo-primary-size, clamp(58px, 15vw, 72px));
+html[data-layout="touch"] {
+  --pomo-control-size: clamp(44px, 11vw, 52px);
+  --pomo-control-icon: clamp(18px, 4.5vw, 22px);
 }
-html[data-layout="touch"] .pomo-btn--secondary {
-  width: var(--pomo-secondary-size, clamp(48px, 12vw, 58px));
-  height: var(--pomo-secondary-size, clamp(48px, 12vw, 58px));
-}
-html[data-layout="touch"] .pomo-btn--primary svg {
-  width: clamp(24px, 6vw, 30px);
-  height: clamp(24px, 6vw, 30px);
-}
-html[data-layout="touch"] .pomo-btn--secondary svg {
-  width: clamp(20px, 5vw, 26px);
-  height: clamp(20px, 5vw, 26px);
-}
+html[data-layout="touch"] .pomo-btn,
+html[data-layout="touch"] .pomo-corner-btn { touch-action: manipulation; }
 html[data-layout="touch"] .pomo-dot { width: 8px; height: 8px; }
 html[data-layout="touch"] .pomo-dots { gap: 6px; }
-html[data-layout="touch"] .pomo-fullscreen-btn {
-  width: 36px;
-  height: 36px;
+html[data-layout="touch"] .pomo-fullscreen-btn,
+html[data-layout="touch"] .panel-minimize-btn {
   top: 0.5rem;
-  left: 0.5rem;
 }
-html[data-layout="touch"] .pomo-fullscreen-btn svg { width: 17px; height: 17px; }
 
 html[data-layout="touch"] .pomo-settings {
   position: fixed;
@@ -467,14 +453,12 @@ html[data-layout="wide"] .pomo-controls {
   margin-top: 0.1rem;
 }
 
-html[data-layout="wide"] .pomo-btn--primary {
-  width: 50px;
-  height: 50px;
+html[data-layout="wide"] {
+  --pomo-control-size: 42px;
+  --pomo-control-icon: 17px;
 }
 
 html[data-layout="wide"] .pomo-btn--secondary {
-  width: 42px;
-  height: 42px;
   color: var(--text-primary);
   border-color: rgba(255, 255, 255, 0.22);
   background: rgba(255, 255, 255, 0.07);
@@ -486,9 +470,7 @@ html[data-layout="wide"] .pomo-btn--secondary:hover {
   border-color: rgba(255, 255, 255, 0.32);
 }
 
-html[data-layout="wide"] .pomo-fullscreen-btn {
-  width: 30px;
-  height: 30px;
+html[data-layout="wide"] .pomo-corner-btn {
   color: var(--text-secondary);
   border-color: rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.05);
@@ -503,16 +485,6 @@ html[data-layout="wide"] .pomo-fullpage-overlay .pomo-ring-wrapper,
 html[data-layout="wide"] .pomo-fullpage-overlay .pomo-ring {
   width: min(280px, 38dvh, calc(100dvh - 13rem));
   height: min(280px, 38dvh, calc(100dvh - 13rem));
-}
-
-html[data-layout="wide"] .pomo-btn--primary svg {
-  width: 22px;
-  height: 22px;
-}
-
-html[data-layout="wide"] .pomo-btn--secondary svg {
-  width: 18px;
-  height: 18px;
 }
 
 html[data-layout="wide"] .quote-card {
@@ -688,5 +660,11 @@ html[data-layout="wide"] .quote-action-row .btn:hover {
 
   html[data-layout="wide"] .pomo-container {
     animation: none;
+  }
+
+  html[data-layout="touch"] .content:has(.pomo-container.is-minimized):has(.quote-card.is-minimized),
+  html[data-layout="wide"] .content:has(.pomo-container.is-minimized):has(.quote-card.is-minimized) {
+    justify-content: flex-start;
+    gap: 0.35rem;
   }
 }

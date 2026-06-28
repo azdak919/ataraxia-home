@@ -58,6 +58,10 @@ const UI_STRINGS = {
     solitaireBtn: 'Solitaire',
     radarBtn: 'Le Radar',
     coffeeBtn: 'Buy me a coffee',
+    minimizePomo: 'Minimize timer',
+    restorePomo: 'Restore timer',
+    minimizeQuote: 'Minimize quote',
+    restoreQuote: 'Restore quote',
   },
   fr: {
     newQuote: 'Nouvelle citation',
@@ -80,6 +84,10 @@ const UI_STRINGS = {
     solitaireBtn: 'Solitaire',
     radarBtn: 'Le Radar',
     coffeeBtn: 'Offrir un café',
+    minimizePomo: 'Réduire le minuteur',
+    restorePomo: 'Agrandir le minuteur',
+    minimizeQuote: 'Réduire la citation',
+    restoreQuote: 'Agrandir la citation',
   },
   es: {
     newQuote: 'Nueva cita',
@@ -934,6 +942,24 @@ function applyUIStrings(strings) {
   const sceneQuoteLabel = document.getElementById('scene-label-quote');
   if (sceneTimerLabel) sceneTimerLabel.textContent = strings.focus;
   if (sceneQuoteLabel) sceneQuoteLabel.textContent = strings.quote;
+
+  const fallback = UI_STRINGS.en;
+  const pomoMinBtn = document.getElementById('pomo-minimize-btn');
+  const quoteMinBtn = document.getElementById('quote-minimize-btn');
+  const pomoRestoreBtn = document.getElementById('pomo-restore-btn');
+  const quoteRestoreBtn = document.getElementById('quote-restore-btn');
+  if (pomoMinBtn) pomoMinBtn.setAttribute('aria-label', strings.minimizePomo || fallback.minimizePomo);
+  if (quoteMinBtn) quoteMinBtn.setAttribute('aria-label', strings.minimizeQuote || fallback.minimizeQuote);
+  if (pomoRestoreBtn) {
+    pomoRestoreBtn.setAttribute('aria-label', strings.restorePomo || fallback.restorePomo);
+    const lbl = document.getElementById('pomo-restore-label');
+    if (lbl) lbl.textContent = strings.focus;
+  }
+  if (quoteRestoreBtn) {
+    quoteRestoreBtn.setAttribute('aria-label', strings.restoreQuote || fallback.restoreQuote);
+    const lbl = document.getElementById('quote-restore-label');
+    if (lbl) lbl.textContent = strings.quote;
+  }
 }
 
 // Patch PomoUI / onSegmentComplete for translated labels and toasts

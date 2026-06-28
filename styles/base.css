@@ -45,6 +45,10 @@
     --credits-bottom: max(0.65rem, env(safe-area-inset-bottom, 0px));
     --credits-opacity: 0.72;
     --credits-opacity-visible: 0.78;
+
+    /* Pomo controls — taille unique (boutons ronds + coins) */
+    --pomo-control-size: 36px;
+    --pomo-control-icon: 15px;
   }
 
   /* Dark theme — adapts to OS preference */
@@ -522,6 +526,10 @@
     z-index: 100;
     flex-shrink: 0;
     margin-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
     animation: pomoEnter 1.1s cubic-bezier(0.22, 1, 0.36, 1) 1.0s both;
   }
   .pomo-container.anim-done {
@@ -556,13 +564,11 @@
     box-shadow: 0 14px 44px var(--shadow-medium), 0 2px 8px var(--shadow-soft);
   }
 
-  /* Fullscreen button */
-  .pomo-fullscreen-btn {
+  /* Corner chrome buttons (fullscreen, minimize) */
+  .pomo-corner-btn {
     position: absolute;
-    top: 0.5rem;
-    left: 0.5rem;
-    width: 26px;
-    height: 26px;
+    width: var(--pomo-control-size);
+    height: var(--pomo-control-size);
     border-radius: 50%;
     border: 1px solid var(--border-glass);
     background: transparent;
@@ -573,18 +579,105 @@
     justify-content: center;
     transition: all 0.25s ease;
     z-index: 2;
+    padding: 0;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  .pomo-fullscreen-btn:hover {
+  .pomo-corner-btn:hover {
     background: var(--bg-glass-hover);
     color: var(--text-primary);
   }
-  .pomo-fullscreen-btn:active { background: var(--bg-glass-hover); transform: scale(0.9); }
+  .pomo-corner-btn:active { background: var(--bg-glass-hover); transform: scale(0.9); }
 
-  .pomo-fullscreen-btn svg {
-    width: 14px;
-    height: 14px;
+  .pomo-corner-btn svg {
+    width: var(--pomo-control-icon);
+    height: var(--pomo-control-icon);
     fill: currentColor;
+  }
+
+  .pomo-fullscreen-btn {
+    top: 0.5rem;
+    left: 0.5rem;
+  }
+
+  .panel-minimize-btn {
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+
+  .quote-card > .panel-minimize-btn {
+    z-index: 3;
+  }
+
+  /* Restore chip — visible when panel minimized */
+  .panel-restore-chip {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    width: 100%;
+    min-height: var(--pomo-control-size);
+    padding: 0.45rem 1rem;
+    border-radius: 20px;
+    border: 1px solid var(--chrome-surface-border);
+    background: var(--chrome-surface-bg);
+    backdrop-filter: var(--chrome-surface-blur);
+    -webkit-backdrop-filter: var(--chrome-surface-blur);
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+  }
+
+  .panel-restore-chip svg {
+    width: var(--pomo-control-icon);
+    height: var(--pomo-control-icon);
+    fill: currentColor;
+    flex-shrink: 0;
+  }
+
+  .panel-restore-chip:hover {
+    background: rgba(255, 255, 255, 0.14);
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+
+  .panel-restore-chip:active { transform: scale(0.98); }
+
+  .pomo-container.is-minimized .pomo-widget { display: none; }
+  .pomo-container.is-minimized .panel-restore-chip { display: flex; }
+
+  .quote-card.is-minimized .quote-inner,
+  .quote-card.is-minimized > .panel-minimize-btn { display: none; }
+  .quote-card.is-minimized .panel-restore-chip { display: flex; }
+
+  .quote-card.is-minimized {
+    padding: 0;
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .quote-card.is-minimized:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .pomo-container.is-minimized,
+  .quote-card.is-minimized {
+    flex: 0 0 auto !important;
+    min-height: 0;
+    max-height: none;
+    animation: none;
   }
 
   /* Large ring */
@@ -709,10 +802,9 @@
     flex-shrink: 0;
   }
 
-  /* Large primary play/pause button */
   .pomo-btn--primary {
-    width: clamp(38px, 5vw, 44px);
-    height: clamp(38px, 5vw, 44px);
+    width: var(--pomo-control-size);
+    height: var(--pomo-control-size);
     background: var(--pomo-work);
     border-color: transparent;
     color: #fff;
@@ -768,10 +860,9 @@
     color: var(--pomo-break);
   }
 
-  /* Small secondary reset/settings buttons */
   .pomo-btn--secondary {
-    width: 32px;
-    height: 32px;
+    width: var(--pomo-control-size);
+    height: var(--pomo-control-size);
   }
 
   .pomo-btn--secondary:hover {
@@ -785,14 +876,10 @@
     fill: currentColor;
   }
 
-  .pomo-btn--primary svg {
-    width: 18px;
-    height: 18px;
-  }
-
+  .pomo-btn--primary svg,
   .pomo-btn--secondary svg {
-    width: 13px;
-    height: 13px;
+    width: var(--pomo-control-icon);
+    height: var(--pomo-control-icon);
   }
 
   /* Settings panel — modal unique (widget + plein écran) */
@@ -1154,29 +1241,14 @@
     font-size: 1.4rem;
   }
 
+  .pomo-fullpage-overlay {
+    --pomo-control-size: 48px;
+    --pomo-control-icon: 20px;
+  }
+
   .pomo-fullpage-overlay .pomo-controls {
     gap: 0.65rem;
     margin-top: 0.1rem;
-  }
-
-  .pomo-fullpage-overlay .pomo-btn--primary {
-    width: 60px;
-    height: 60px;
-  }
-
-  .pomo-fullpage-overlay .pomo-btn--primary svg {
-    width: 26px;
-    height: 26px;
-  }
-
-  .pomo-fullpage-overlay .pomo-btn--secondary {
-    width: 44px;
-    height: 44px;
-  }
-
-  .pomo-fullpage-overlay .pomo-btn--secondary svg {
-    width: 18px;
-    height: 18px;
   }
 
   .pomo-fullpage-overlay .pomo-phase-ready-label {
@@ -1196,8 +1268,8 @@
     position: absolute;
     top: max(1rem, env(safe-area-inset-top, 0px));
     right: max(1rem, env(safe-area-inset-right, 0px));
-    width: 40px;
-    height: 40px;
+    width: var(--pomo-control-size);
+    height: var(--pomo-control-size);
     border-radius: 50%;
     border: 1px solid var(--border-glass);
     background: transparent;
@@ -1207,6 +1279,7 @@
     align-items: center;
     justify-content: center;
     transition: all 0.25s ease;
+    padding: 0;
   }
 
   .pomo-fullpage-close:hover {
@@ -1216,8 +1289,8 @@
   .pomo-fullpage-close:active { background: var(--bg-glass-hover); transform: scale(0.9); }
 
   .pomo-fullpage-close svg {
-    width: 18px;
-    height: 18px;
+    width: var(--pomo-control-icon);
+    height: var(--pomo-control-icon);
     fill: currentColor;
   }
 
@@ -1268,7 +1341,8 @@
     .btn:hover,
     .pomo-btn--primary:hover,
     .pomo-btn--secondary:hover,
-    .pomo-fullscreen-btn:hover,
+    .pomo-corner-btn:hover,
+    .panel-restore-chip:hover,
     .pomo-fullpage-close:hover,
     .phase-chip:hover {
       background: unset;

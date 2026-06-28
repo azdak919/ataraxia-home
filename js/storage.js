@@ -11,6 +11,8 @@ const TRANSLATION_CACHE_KEY = 'ataraxia_translations_v3';
 const TRANSLATION_CACHE_KEY_LEGACY = 'stoicflow_translations';
 const LANG_PREF_KEY = 'ataraxia_lang';
 const LANG_PREF_KEY_LEGACY = 'stoicflow_lang';
+const POMO_MIN_KEY = 'ataraxia_pomo_minimized';
+const QUOTE_MIN_KEY = 'ataraxia_quote_minimized';
 const TRANSLATION_CACHE_MAX = 500;
 
 function migrateLegacyStorage() {

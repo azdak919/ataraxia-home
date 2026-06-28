@@ -12,15 +12,17 @@
  *   pomo.js            — pomodoro state, UI, fullscreen, settings
  *   translate.js       — auto-translation (quotes + UI strings)
  *   layout.js          — touch/wide layout + Focus Deck scenes
+ *   panels.js          — minimize / restore pomo + quote panels
  *
  * Init order (DOMContentLoaded):
- *   layout.syncLayout → migrateLegacyStorage → initPomoHandlers
- *   → backgrounds + quotes → translate
+ *   layout.syncLayout → migrateLegacyStorage → initPanelMinimize
+ *   → initPomoHandlers → backgrounds + quotes → translate
  */
 let _quoteCardObserver = null;
 document.addEventListener('DOMContentLoaded', () => {
   if (window.AtaraxiaLayout) window.AtaraxiaLayout.syncLayout();
   migrateLegacyStorage();
+  if (window.AtaraxiaPanels) window.AtaraxiaPanels.initPanelMinimize();
   // Pomo first — must not depend on quote init (quotes.js may load late or fail)
   initPomoHandlers();
 

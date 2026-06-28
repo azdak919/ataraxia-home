@@ -66,6 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
     console.warn('Quote init failed:', e);
   }
 
+  document.getElementById('home-reload-btn')?.addEventListener('click', () => location.reload());
+
   // Quote buttons
   document.getElementById('btn-new').addEventListener('click', showRandomQuote);
   document.getElementById('btn-bg').addEventListener('click', nextBackground);

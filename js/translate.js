@@ -59,6 +59,7 @@ const UI_STRINGS = {
     solitaireBtn: 'Solitaire',
     radarBtn: 'Le Radar',
     coffeeBtn: 'Buy me a coffee',
+    homeReload: 'Reload page',
     minimizePomo: 'Minimize timer',
     restorePomo: 'Restore timer',
     minimizeQuote: 'Minimize quote',
@@ -86,6 +87,7 @@ const UI_STRINGS = {
     solitaireBtn: 'Solitaire',
     radarBtn: 'Le Radar',
     coffeeBtn: 'Offrir un café',
+    homeReload: 'Recharger la page',
     minimizePomo: 'Réduire le minuteur',
     restorePomo: 'Agrandir le minuteur',
     minimizeQuote: 'Réduire la citation',
@@ -922,6 +924,8 @@ function applyUIStrings(strings) {
   if (solitaireBtn) solitaireBtn.setAttribute('aria-label', strings.solitaireBtn || 'Solitaire');
   if (radarBtn) radarBtn.setAttribute('aria-label', strings.radarBtn || 'Le Radar');
   document.getElementById('coffee-btn-label').textContent = strings.coffeeBtn || 'Buy me a coffee';
+  const homeReloadBtn = document.getElementById('home-reload-btn');
+  if (homeReloadBtn) homeReloadBtn.setAttribute('aria-label', strings.homeReload || 'Reload page');
 
   // Settings panel text (normal widget)
   const settingsPanel = document.getElementById('pomo-settings-panel');

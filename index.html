@@ -68,7 +68,12 @@
 
 <!-- Top toolbar — même pattern que Solitaire (une rangée, pas de sous-barre) -->
 <nav class="top-right-actions" aria-label="Navigation">
-  <div class="app-toolbar-main">
+  <div class="app-toolbar-row">
+    <button class="toolbar-btn toolbar-btn--home" id="home-reload-btn" type="button" aria-label="Reload page">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z"/></svg>
+    </button>
+    <div class="app-toolbar-divider" aria-hidden="true"></div>
+    <div class="app-toolbar-main">
     <a class="toolbar-btn" id="solitaire-btn" href="solitaire.html" aria-label="Play Solitaire">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2L5 12l7 10 7-10z"/></svg>
       <span id="solitaire-btn-label">Solitaire</span>
@@ -91,6 +96,7 @@
       </button>
       <div class="lang-dropdown" id="lang-dropdown"></div>
       <div class="lang-translating" id="lang-status"></div>
+    </div>
     </div>
   </div>
 </nav>

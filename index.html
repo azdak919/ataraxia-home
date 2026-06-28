@@ -1741,18 +1741,19 @@
       text-align: left;
     }
 
-    /* ── Left Panel: Pomodoro (~40%) ─────────────────── */
+    /* ── Left Panel: Pomodoro (~52%, priorité visuelle) ─ */
     .pomo-container {
       order: 1;
-      flex: 0 0 40%;
+      flex: 0 0 52%;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 40%;
+      align-items: stretch;
+      justify-content: stretch;
+      width: 52%;
       height: 100%;
       margin-top: 0;
-      padding: 0.6% 0.35%;
+      padding: max(0.2rem, env(safe-area-inset-top, 0px)) 0.2rem max(0.2rem, env(safe-area-inset-bottom, 0px)) max(0.2rem, env(safe-area-inset-left, 0px));
       transition: flex 0.3s ease, width 0.3s ease;
+      z-index: 110;
     }
     .content:has(.quote-card.minimized) .pomo-container {
       flex: 1 1 auto;
@@ -1762,54 +1763,83 @@
     .pomo-widget {
       width: 100%;
       height: 100%;
-      padding: 0.4rem 0.4rem 0.35rem;
-      border-radius: 14px;
+      padding: 0.3rem 0.35rem 0.25rem;
+      border-radius: 12px;
       background: rgba(255, 255, 255, 0.46);
       border: 1px solid rgba(255, 255, 255, 0.22);
       backdrop-filter: blur(20px) saturate(1.3);
       -webkit-backdrop-filter: blur(20px) saturate(1.3);
       box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07);
-      justify-content: center;
-      gap: 0.3rem;
+      justify-content: space-between;
+      gap: 0.2rem;
       overflow: hidden;
       box-sizing: border-box;
     }
     .pomo-ring-wrapper {
-      width: clamp(90px, 32vh, 160px);
-      height: clamp(90px, 32vh, 160px);
+      flex: 1 1 auto;
+      aspect-ratio: 1;
+      width: auto;
+      height: auto;
+      max-width: min(100%, calc(100dvh - 2.75rem));
+      max-height: min(100%, calc(100dvh - 2.75rem));
+      margin: 0 auto;
+      align-self: center;
     }
     .content:has(.quote-card.minimized) .pomo-ring-wrapper {
-      width: clamp(100px, 38vh, 180px);
-      height: clamp(100px, 38vh, 180px);
+      max-width: min(100%, calc(100dvh - 2.5rem), 72vw);
+      max-height: min(100%, calc(100dvh - 2.5rem), 72vw);
     }
     .pomo-ring { width: 100%; height: 100%; }
-    .pomo-time-inside { font-size: clamp(1.8rem, 8vh, 3rem); }
-    .pomo-time-unit { font-size: clamp(0.7rem, 2.2vh, 1rem); }
-    .pomo-label { font-size: clamp(0.45rem, 1.6vh, 0.65rem); letter-spacing: 0.14em; }
-    .pomo-controls { gap: 0.35rem; margin-top: 0; }
-    .pomo-btn--primary { width: clamp(34px, 9vh, 46px); height: clamp(34px, 9vh, 46px); }
-    .pomo-btn--secondary { width: clamp(26px, 6.5vh, 34px); height: clamp(26px, 6.5vh, 34px); }
-    .pomo-btn--primary svg { width: clamp(14px, 3.5vh, 20px); height: clamp(14px, 3.5vh, 20px); }
-    .pomo-btn--secondary svg { width: clamp(11px, 2.8vh, 15px); height: clamp(11px, 2.8vh, 15px); }
-    .pomo-phase-ready-label { font-size: 0.5rem; }
-    .pomo-dots { margin-top: 0; gap: 3px; }
-    .pomo-dot { width: 5px; height: 5px; }
+    .pomo-time-inside { font-size: clamp(2.2rem, 12vh, 4rem); }
+    .pomo-time-unit { font-size: clamp(0.85rem, 3.2vh, 1.25rem); }
+    .pomo-label { font-size: clamp(0.55rem, 2vh, 0.75rem); letter-spacing: 0.14em; }
+    .pomo-controls { gap: 0.5rem; margin-top: 0; flex-shrink: 0; padding-bottom: 0.1rem; }
+    .pomo-btn { touch-action: manipulation; }
+    .pomo-btn--primary { width: clamp(48px, 12vh, 58px); height: clamp(48px, 12vh, 58px); }
+    .pomo-btn--secondary { width: clamp(40px, 10vh, 50px); height: clamp(40px, 10vh, 50px); }
+    .pomo-btn--primary svg { width: clamp(20px, 5vh, 26px); height: clamp(20px, 5vh, 26px); }
+    .pomo-btn--secondary svg { width: clamp(16px, 4vh, 22px); height: clamp(16px, 4vh, 22px); }
+    .pomo-phase-ready-label { font-size: clamp(0.55rem, 1.8vh, 0.7rem); }
+    .pomo-dots { margin-top: 0; gap: 5px; }
+    .pomo-dot { width: 7px; height: 7px; }
 
-    /* Settings panel — fixed overlay in quote zone (never clipped by dock) */
+    /* Settings panel — colonne pomo, au-dessus de tout */
     .pomo-settings {
       position: fixed;
-      bottom: auto;
-      top: 50%;
-      left: max(calc(40% + 0.35rem), calc(env(safe-area-inset-left, 0px) + 0.35rem));
-      right: calc(var(--dock-width) + env(safe-area-inset-right, 0px) + 0.5rem);
-      transform: translateY(-50%);
-      max-height: calc(100dvh - 0.75rem);
-      min-width: 0;
-      width: auto;
-      z-index: 600;
+      top: max(0.25rem, env(safe-area-inset-top, 0px));
+      bottom: max(0.25rem, env(safe-area-inset-bottom, 0px));
+      left: max(0.25rem, env(safe-area-inset-left, 0px));
+      width: calc(52% - 0.5rem);
+      right: auto;
+      transform: none;
+      max-height: none;
+      min-width: 168px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      z-index: 1000;
+      padding: 1rem;
+      animation: none;
     }
+    .pomo-settings.open { display: block; }
     .content:has(.quote-card.minimized) .pomo-settings {
-      left: max(0.35rem, env(safe-area-inset-left, 0px));
+      width: calc(100% - var(--dock-width) - env(safe-area-inset-right, 0px) - 0.5rem);
+    }
+    .pomo-settings .setting-row { margin-bottom: 0.75rem; }
+    .pomo-settings .setting-row label { font-size: 0.85rem; }
+    .pomo-settings .setting-row input[type="number"] {
+      width: 64px;
+      min-height: 38px;
+      font-size: 0.95rem;
+      padding: 0.4rem;
+    }
+    .pomo-settings .phase-chip {
+      min-height: 38px;
+      font-size: 0.78rem;
+      padding: 0.4rem 0.5rem;
+    }
+    .content:has(.pomo-settings.open) .quote-card {
+      opacity: 0.35;
+      pointer-events: none;
     }
 
     /* ── Middle Panel: Quote (fills remaining) ───────── */
@@ -1818,8 +1848,8 @@
       flex: 1 1 auto;
       width: auto;
       height: 100%;
-      margin: max(0.35rem, env(safe-area-inset-top, 0px)) 0.35% max(0.3rem, env(safe-area-inset-bottom, 0px)) 0.35%;
-      padding: 0.5rem 0.6rem;
+      margin: max(0.2rem, env(safe-area-inset-top, 0px)) max(0.2rem, env(safe-area-inset-right, 0px)) max(0.2rem, env(safe-area-inset-bottom, 0px)) 0;
+      padding: 0.45rem 0.55rem;
       border-radius: 14px;
       overflow: hidden;
       box-sizing: border-box;
@@ -1971,9 +2001,9 @@
     .pomo-minimize-btn,
     .quote-minimize-btn { display: none !important; }
 
-    /* Fullscreen btn — smaller in landscape */
-    .pomo-fullscreen-btn { top: 0.3rem; left: 0.3rem; width: 22px; height: 22px; }
-    .pomo-fullscreen-btn svg { width: 12px; height: 12px; }
+    /* Fullscreen btn — thumb-friendly in landscape */
+    .pomo-fullscreen-btn { top: 0.25rem; left: 0.25rem; width: 32px; height: 32px; }
+    .pomo-fullscreen-btn svg { width: 16px; height: 16px; }
   }
 
   @media (max-height: 580px) and (orientation: landscape) and (max-width: 920px) and (prefers-color-scheme: dark) {
@@ -2397,7 +2427,7 @@
 /* ═══════════════════════════════════════
    VERSION
    ═══════════════════════════════════════ */
-const VERSION = 'v1.2.39';
+const VERSION = 'v1.2.40';
 
 /* ═══════════════════════════════════════
    OPEN-SOURCE BACKGROUND IMAGES
@@ -4511,17 +4541,20 @@ document.addEventListener('DOMContentLoaded', () => {
     settingsPanel.classList.toggle('open');
     if (settingsPanel.classList.contains('open')) loadSettingsUI();
   });
+  settingsPanel.addEventListener('click', (e) => e.stopPropagation());
 
   // Close settings on outside click
   document.addEventListener('click', (e) => {
-    if (!settingsPanel.contains(e.target) && e.target.id !== 'pomo-settings-btn') {
-      settingsPanel.classList.remove('open');
-    }
+    if (!settingsPanel.classList.contains('open')) return;
+    if (settingsPanel.contains(e.target) || e.target.closest('#pomo-settings-btn')) return;
+    settingsPanel.classList.remove('open');
   });
 
-  // Settings inputs — apply on change
+  // Settings inputs — apply on change and while typing (mobile-friendly)
   ['setting-work', 'setting-break', 'setting-long', 'setting-sessions'].forEach(id => {
-    document.getElementById(id).addEventListener('change', applySettings);
+    const el = document.getElementById(id);
+    el.addEventListener('change', applySettings);
+    el.addEventListener('input', applySettings);
   });
 
   // Phase jump chips

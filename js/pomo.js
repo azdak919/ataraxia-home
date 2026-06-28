@@ -435,14 +435,24 @@ function applyFpSettings() {
   PomoUI();
 }
 
+function useSharedFullscreenSettings() {
+  return typeof window.AtaraxiaLayout !== 'undefined'
+    && window.AtaraxiaLayout.isTouchViewport();
+}
+
 function setPomoSettingsOpen(open) {
   const panel = document.getElementById('pomo-settings-panel');
   const btn = document.getElementById('pomo-settings-btn');
+  const fpBtn = document.getElementById('pomo-fp-settings-btn');
   if (!panel) return;
   panel.classList.toggle('open', open);
   panel.setAttribute('aria-hidden', open ? 'false' : 'true');
   btn?.setAttribute('aria-expanded', open ? 'true' : 'false');
+  fpBtn?.setAttribute('aria-expanded', open ? 'true' : 'false');
   document.body.classList.toggle('pomo-settings-open', open);
+  if (open) {
+    document.getElementById('pomo-fp-settings-panel')?.classList.remove('open');
+  }
 }
 
 function setPomoFullscreenOpen(open) {
@@ -490,7 +500,11 @@ function initPomoHandlers() {
 
   document.addEventListener('click', (e) => {
     if (!settingsPanel?.classList.contains('open')) return;
-    if (settingsPanel.contains(e.target) || e.target.closest('#pomo-settings-btn')) return;
+    if (
+      settingsPanel.contains(e.target)
+      || e.target.closest('#pomo-settings-btn')
+      || e.target.closest('#pomo-fp-settings-btn')
+    ) return;
     setPomoSettingsOpen(false);
   });
 
@@ -552,7 +566,18 @@ function initPomoHandlers() {
 
   fpOverlay?.addEventListener('click', (e) => {
     if (e.target === fpOverlay) {
+      if (settingsPanel?.classList.contains('open') && useSharedFullscreenSettings()) return;
+      if (fpSettingsPanel?.classList.contains('open')) {
+        fpSettingsPanel.classList.remove('open');
+        return;
+      }
       setPomoFullscreenOpen(false);
+      return;
+    }
+    if (!useSharedFullscreenSettings() && fpSettingsPanel?.classList.contains('open')) {
+      if (!fpSettingsPanel.contains(e.target) && !e.target.closest('#pomo-fp-settings-btn')) {
+        fpSettingsPanel.classList.remove('open');
+      }
     }
   });
 
@@ -563,6 +588,12 @@ function initPomoHandlers() {
   const fpSettingsPanel = document.getElementById('pomo-fp-settings-panel');
   document.getElementById('pomo-fp-settings-btn')?.addEventListener('click', (e) => {
     e.stopPropagation();
+    if (useSharedFullscreenSettings()) {
+      const open = !settingsPanel?.classList.contains('open');
+      setPomoSettingsOpen(open);
+      if (open) loadSettingsUI();
+      return;
+    }
     if (!fpSettingsPanel) return;
     fpSettingsPanel.classList.toggle('open');
     if (fpSettingsPanel.classList.contains('open')) loadFpSettingsUI();
@@ -584,22 +615,16 @@ function initPomoHandlers() {
     fpSettingsPanel?.classList.remove('open');
   });
 
-  fpOverlay?.addEventListener('click', (e) => {
-    if (fpSettingsPanel && !fpSettingsPanel.contains(e.target) && e.target.id !== 'pomo-fp-settings-btn') {
-      fpSettingsPanel.classList.remove('open');
-    }
-  });
-
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && settingsPanel?.classList.contains('open')) {
       setPomoSettingsOpen(false);
       return;
     }
     if (e.key === 'Escape' && fpOverlay?.classList.contains('open')) {
-      if (fpSettingsPanel?.classList.contains('open')) {
+      if (fpSettingsPanel?.classList.contains('open') && !useSharedFullscreenSettings()) {
         fpSettingsPanel.classList.remove('open');
       } else {
-        fpOverlay.classList.remove('open');
+        setPomoFullscreenOpen(false);
       }
     }
   });

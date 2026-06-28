@@ -859,6 +859,15 @@
     background: var(--settings-bg-solid);
   }
 
+  /* Paramètres au-dessus du plein écran (mobile) */
+  body.pomo-fullpage-open.pomo-settings-open::before {
+    z-index: 940;
+  }
+
+  body.pomo-fullpage-open.pomo-settings-open .pomo-settings.open {
+    z-index: 950;
+  }
+
   @keyframes settingsIn {
     from { opacity: 0; transform: translateX(-50%) translateY(-6px); }
     to   { opacity: 1; transform: translateX(-50%) translateY(0); }

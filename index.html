@@ -2310,7 +2310,7 @@
 /* ═══════════════════════════════════════
    VERSION
    ═══════════════════════════════════════ */
-const VERSION = 'v1.2.29';
+const VERSION = 'v1.2.30';
 
 /* ═══════════════════════════════════════
    STOIC QUOTES DATABASE
@@ -5858,6 +5858,7 @@ async function switchLanguage(langCode) {
   }
 
   setLanguageStatus('');
+  scheduleQuoteLayout();
 }
 
 function buildLangDropdown() {

@@ -1666,7 +1666,9 @@
      Left: Pomodoro  |  Middle: Quote  |  Right: Utility Dock
      Fully isolated: only fires on short landscape screens
      ═══════════════════════════════════════════════════════════ */
-  @media (max-height: 520px) and (orientation: landscape) {
+  @media (max-height: 580px) and (orientation: landscape) and (max-width: 920px) {
+
+    :root { --dock-width: 52px; }
 
     /* ── Page scaffold ─────────────────────────────────── */
     .page-layout {
@@ -1685,11 +1687,11 @@
       align-items: stretch;
       justify-content: stretch;
       /* shrink to leave room for the right dock, don't use margin-right which adds to width:100% */
-      width: calc(100% - 56px - env(safe-area-inset-right, 0px));
+      width: calc(100% - var(--dock-width) - env(safe-area-inset-right, 0px));
       max-width: 100%;
       margin: 0;
       padding: 0;
-      gap: 0;
+      gap: 3px;
     }
 
     /* ── Right Dock  (repurposed .top-right-actions) ──── */
@@ -1699,24 +1701,28 @@
       right: 0;
       bottom: 0;
       left: auto;
-      width: calc(56px + env(safe-area-inset-right, 0px));
+      width: calc(var(--dock-width) + env(safe-area-inset-right, 0px));
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      gap: 0.4rem;
-      padding: max(0.6rem, env(safe-area-inset-top, 0px)) 0.4rem 0.4rem;
-      padding-right: calc(0.4rem + env(safe-area-inset-right, 0px));
-      background: rgba(0, 0, 0, 0.18);
-      border-left: 1px solid rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(20px) saturate(1.3);
-      -webkit-backdrop-filter: blur(20px) saturate(1.3);
+      gap: 0.35rem;
+      padding: max(0.5rem, env(safe-area-inset-top, 0px)) 0.35rem 0.35rem;
+      padding-right: calc(0.35rem + env(safe-area-inset-right, 0px));
+      background: rgba(0, 0, 0, 0.12);
+      border-left: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(16px) saturate(1.2);
+      -webkit-backdrop-filter: blur(16px) saturate(1.2);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
       z-index: 100;
       animation: none;
     }
 
-    html[data-layout="dock"] .action-link,
-    html[data-layout="dock"] .coffee-btn,
-    html[data-layout="dock"] .lang-btn { border-radius: 12px; }
+  html[data-layout="dock"] .action-link,
+  html[data-layout="dock"] .coffee-btn,
+  html[data-layout="dock"] .lang-btn,
+  html[data-layout="dock"] .dock-toggle-btn { border-radius: 12px; flex-shrink: 0; }
 
     /* Language dropdown opens LEFT from the dock */
     .lang-dropdown {
@@ -1735,35 +1741,46 @@
       text-align: left;
     }
 
-    /* ── Left Panel: Pomodoro (~48%) ─────────────────── */
+    /* ── Left Panel: Pomodoro (~40%) ─────────────────── */
     .pomo-container {
       order: 1;
-      flex: 0 0 48%;
+      flex: 0 0 40%;
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 48%;
+      width: 40%;
       height: 100%;
       margin-top: 0;
-      padding: 1.5% 1%;
+      padding: 0.6% 0.35%;
+      transition: flex 0.3s ease, width 0.3s ease;
+    }
+    .content:has(.quote-card.minimized) .pomo-container {
+      flex: 1 1 auto;
+      width: auto;
     }
 
     .pomo-widget {
       width: 100%;
       height: 100%;
-      padding: 0.5rem 0.5rem 0.4rem;
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.68);
-      backdrop-filter: blur(24px) saturate(1.4);
-      -webkit-backdrop-filter: blur(24px) saturate(1.4);
+      padding: 0.4rem 0.4rem 0.35rem;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.46);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(20px) saturate(1.3);
+      -webkit-backdrop-filter: blur(20px) saturate(1.3);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07);
       justify-content: center;
-      gap: 0.35rem;
+      gap: 0.3rem;
       overflow: hidden;
       box-sizing: border-box;
     }
     .pomo-ring-wrapper {
       width: clamp(90px, 32vh, 160px);
       height: clamp(90px, 32vh, 160px);
+    }
+    .content:has(.quote-card.minimized) .pomo-ring-wrapper {
+      width: clamp(100px, 38vh, 180px);
+      height: clamp(100px, 38vh, 180px);
     }
     .pomo-ring { width: 100%; height: 100%; }
     .pomo-time-inside { font-size: clamp(1.8rem, 8vh, 3rem); }
@@ -1778,14 +1795,21 @@
     .pomo-dots { margin-top: 0; gap: 3px; }
     .pomo-dot { width: 5px; height: 5px; }
 
-    /* Settings panel — slides out to the right of pomo */
+    /* Settings panel — fixed overlay in quote zone (never clipped by dock) */
     .pomo-settings {
+      position: fixed;
       bottom: auto;
       top: 50%;
-      left: calc(100% + 0.5rem);
+      left: max(calc(40% + 0.35rem), calc(env(safe-area-inset-left, 0px) + 0.35rem));
+      right: calc(var(--dock-width) + env(safe-area-inset-right, 0px) + 0.5rem);
       transform: translateY(-50%);
-      max-height: calc(100dvh - 1rem);
-      min-width: 180px;
+      max-height: calc(100dvh - 0.75rem);
+      min-width: 0;
+      width: auto;
+      z-index: 600;
+    }
+    .content:has(.quote-card.minimized) .pomo-settings {
+      left: max(0.35rem, env(safe-area-inset-left, 0px));
     }
 
     /* ── Middle Panel: Quote (fills remaining) ───────── */
@@ -1794,17 +1818,19 @@
       flex: 1 1 auto;
       width: auto;
       height: 100%;
-      margin: max(0.5rem, env(safe-area-inset-top, 0px)) 0.5% max(0.4rem, env(safe-area-inset-bottom, 0px)) 0.5%;
-      padding: 0.6rem 0.7rem;
-      border-radius: 16px;
+      margin: max(0.35rem, env(safe-area-inset-top, 0px)) 0.35% max(0.3rem, env(safe-area-inset-bottom, 0px)) 0.35%;
+      padding: 0.5rem 0.6rem;
+      border-radius: 14px;
       overflow: hidden;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      background: rgba(255, 255, 255, 0.68);
-      backdrop-filter: blur(24px) saturate(1.4);
-      -webkit-backdrop-filter: blur(24px) saturate(1.4);
+      background: rgba(255, 255, 255, 0.46);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(20px) saturate(1.3);
+      -webkit-backdrop-filter: blur(20px) saturate(1.3);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07);
     }
     .quote-inner {
       flex: 1;
@@ -1822,19 +1848,33 @@
       gap: 0.2rem;
     }
     .quote-text {
-      font-size: clamp(0.62rem, 1.5vw, 0.82rem);
+      font-size: clamp(0.64rem, 1.6vw, 0.84rem);
       line-height: 1.35;
     }
+    .content:has(.pomo-container:has(.pomo-widget.minimized)) .quote-card:not(.minimized) .quote-text {
+      font-size: clamp(0.72rem, 2.2vw, 0.92rem);
+    }
     .quote-mark { font-size: 0.9rem; }
-    .quote-author { font-size: 0.48rem; }
-    .quote-action-row { flex-shrink: 0; gap: 0.2rem; padding-top: 0.1rem; }
-    .quote-action-row .btn { font-size: 0.46rem; padding: 0.18rem 0.4rem; border-radius: 6px; }
+    .quote-author { font-size: 0.5rem; }
+    .quote-action-row {
+      flex-shrink: 0;
+      gap: 0.35rem;
+      padding-top: 0.15rem;
+      display: flex;
+    }
+    .quote-action-row .btn {
+      font-size: 0.56rem;
+      padding: 0.32rem 0.5rem;
+      min-height: 30px;
+      flex: 1;
+      border-radius: 8px;
+    }
 
     /* ── Credits → bottom-right of content area (background) ── */
     .bottom-badges {
       position: fixed;
       bottom: max(0.35rem, env(safe-area-inset-bottom, 0px));
-      right: calc(56px + env(safe-area-inset-right, 0px) + 0.5rem);
+      right: calc(var(--dock-width) + env(safe-area-inset-right, 0px) + 0.5rem);
       left: auto;
       width: auto;
       padding: 0.2rem 0.5rem;
@@ -1873,9 +1913,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 38px;
-      height: 38px;
+      width: 40px;
+      height: 40px;
       padding: 0.45rem;
+      flex-shrink: 0;
       border: none;
       border-radius: 12px;
       background: rgba(255, 255, 255, 0.1);
@@ -1935,16 +1976,18 @@
     .pomo-fullscreen-btn svg { width: 12px; height: 12px; }
   }
 
-  @media (max-height: 520px) and (orientation: landscape) and (prefers-color-scheme: dark) {
+  @media (max-height: 580px) and (orientation: landscape) and (max-width: 920px) and (prefers-color-scheme: dark) {
     .top-right-actions {
-      background: rgba(0, 0, 0, 0.32);
-      border-left-color: rgba(255, 255, 255, 0.06);
+      background: rgba(0, 0, 0, 0.22);
+      border-left-color: rgba(255, 255, 255, 0.05);
     }
     .pomo-widget:not(.minimized) {
-      background: rgba(40, 36, 32, 0.75);
+      background: rgba(40, 36, 32, 0.52);
+      border-color: rgba(255, 255, 255, 0.1);
     }
     .quote-card:not(.minimized) {
-      background: rgba(40, 36, 32, 0.75);
+      background: rgba(40, 36, 32, 0.52);
+      border-color: rgba(255, 255, 255, 0.1);
     }
     .dock-toggle-btn {
       background: rgba(255, 255, 255, 0.08);
@@ -1958,7 +2001,7 @@
      PHONE LANDSCAPE — Fullscreen Pomo Overlay
      Pomo centered, settings populate the remaining side space
      ═══════════════════════════════════════════════════════════ */
-  @media (max-height: 520px) and (orientation: landscape) {
+  @media (max-height: 580px) and (orientation: landscape) and (max-width: 920px) {
     .pomo-fullpage-overlay {
       flex-direction: column;
       gap: 0.5rem;
@@ -2354,7 +2397,7 @@
 /* ═══════════════════════════════════════
    VERSION
    ═══════════════════════════════════════ */
-const VERSION = 'v1.2.38';
+const VERSION = 'v1.2.39';
 
 /* ═══════════════════════════════════════
    OPEN-SOURCE BACKGROUND IMAGES
@@ -3089,7 +3132,7 @@ function syncQuoteLayout() {
   if (!card || !inner || !body || !textEl || !authorEl) return;
   if (card.classList.contains('minimized')) return;
 
-  const landscapeDock = window.matchMedia('(max-height: 520px) and (orientation: landscape)').matches;
+  const landscapeDock = window.matchMedia(LAYOUT_MQS.dock).matches;
   if (landscapeDock) return;
 
   const cacheKey = `${currentQuoteIdx}|${Math.round(inner.clientWidth)}|${Math.round(inner.clientHeight)}|${currentLang}`;
@@ -4246,7 +4289,7 @@ let _quoteCardObserver = null;
 
 /* One layout flag on <html> replaces scattered @media button overrides */
 const LAYOUT_MQS = {
-  dock: '(max-height: 520px) and (orientation: landscape)',
+  dock: '(max-height: 580px) and (orientation: landscape) and (max-width: 920px)',
   compact: '(max-width: 900px)',
 };
 
@@ -4323,7 +4366,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Collapsible quote card
   const quoteCard = document.getElementById('quote-card');
   const quoteMinBtn = document.getElementById('quote-minimize-btn');
-  const landscapeMQ = window.matchMedia('(max-height: 520px) and (orientation: landscape)');
+  const landscapeMQ = window.matchMedia(LAYOUT_MQS.dock);
   const dockTogglePomo = document.getElementById('dock-toggle-pomo');
   const dockToggleQuote = document.getElementById('dock-toggle-quote');
 
@@ -4449,6 +4492,7 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('ataraxia_quote_minimized', isMin);
       updateQuoteOffset();
       syncDockToggleState();
+      if (!isMin) scheduleQuoteLayout();
     });
   }
 

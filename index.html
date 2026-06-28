@@ -60,6 +60,8 @@
     --toast-bg: rgba(255,255,255,0.85);
     --settings-bg: rgba(252, 249, 246, 0.96);
     --settings-border: rgba(160, 148, 132, 0.45);
+    --quote-fade: 220ms;
+    --bg-fade: 900ms;
   }
 
   /* Dark theme — adapts to OS preference */
@@ -329,9 +331,9 @@
   #bg-layer { opacity: 1; }
   #bg-layer-next {
     opacity: 0;
-    transition: opacity 1.8s ease;
-    will-change: opacity;
+    transition: opacity var(--bg-fade) ease-out;
   }
+  #bg-layer-next.is-fading { will-change: opacity; }
   #bg-layer-next.loaded { opacity: 1; }
 
   #bg-overlay {
@@ -383,7 +385,7 @@
     flex-shrink: 1;
     min-height: 0;
     width: 100%;
-    max-height: min(58dvh, 520px);
+    max-height: min(64dvh, 580px);
     display: flex;
     flex-direction: column;
     container-type: inline-size;
@@ -542,7 +544,7 @@
 
   .quote-mark {
     font-family: var(--font-display);
-    font-size: clamp(1.5rem, 5cqw, 2.75rem);
+    font-size: clamp(1.15rem, 3.8cqw, 2rem);
     line-height: 1;
     color: var(--accent);
     opacity: 0.35;
@@ -553,15 +555,15 @@
 
   .quote-text {
     font-family: var(--font-display);
-    font-size: var(--quote-text-size, clamp(1rem, 4.2cqw, 1.65rem));
+    font-size: var(--quote-text-size, clamp(1.15rem, 5.5cqw, 2.15rem));
     font-weight: 400;
-    line-height: 1.5;
+    line-height: 1.48;
     color: var(--text-primary);
     margin: 0;
     max-width: 100%;
     font-style: italic;
     text-wrap: pretty;
-    transition: opacity 0.35s ease;
+    transition: opacity var(--quote-fade) ease;
   }
 
   .quote-author {
@@ -575,7 +577,7 @@
     max-width: 100%;
     line-height: 1.35;
     text-wrap: balance;
-    transition: opacity 0.35s ease;
+    transition: opacity var(--quote-fade) ease;
   }
 
   .quote-author::before {
@@ -1584,11 +1586,11 @@
 
     /* Quote card */
     .quote-card { padding: 1.5rem 1.25rem; border-radius: 16px; }
-    .quote-text { font-size: clamp(1.1rem, 4.2vw, 1.4rem); line-height: 1.45; }
+    .quote-text { line-height: 1.45; }
     .quote-author { font-size: 0.72rem; letter-spacing: 0.14em; }
     .quote-action-row { gap: 0.5rem; margin-top: 1rem; }
     .quote-action-row .btn { font-size: 0.68rem; padding: 0.45rem 1rem; }
-    .quote-card { max-height: min(52dvh, 460px); }
+    .quote-card { max-height: min(56dvh, 500px); }
     .quote-inner { max-height: none; }
     .quote-body { max-height: min(38dvh, 320px); }
 
@@ -2084,13 +2086,8 @@
       padding: clamp(1.5rem, 3dvh, 2.25rem) clamp(1.25rem, 3vw, 2rem);
     }
 
-    .quote-card { max-height: min(54dvh, 480px); }
-    .quote-body { max-height: min(42dvh, 360px); }
-
-    .quote-text {
-      font-size: clamp(1.15rem, 2.5vw, 1.55rem);
-      line-height: 1.5;
-    }
+    .quote-card { max-height: min(58dvh, 520px); }
+    .quote-body { max-height: min(44dvh, 380px); }
   }
 </style>
 
@@ -2336,7 +2333,7 @@
 /* ═══════════════════════════════════════
    VERSION
    ═══════════════════════════════════════ */
-const VERSION = 'v1.2.33';
+const VERSION = 'v1.2.34';
 
 /* ═══════════════════════════════════════
    QUOTES DATABASE — focus, présent, effort
@@ -3177,10 +3174,14 @@ let recentBgs = [];
 /* ═══════════════════════════════════════
    QUOTE LOGIC
    ═══════════════════════════════════════ */
-const QUOTE_LAYOUT_MIN_PX = 14;
+const QUOTE_LAYOUT_MIN_PX = 13;
+const QUOTE_LAYOUT_MAX_PX = 34;
+const QUOTE_CROSSFADE_MS = 220;
+const BG_CROSSFADE_MS = 900;
 let _quoteLayoutScheduled = false;
 let _quoteLayoutBusy = false;
 let _quoteLayoutCacheKey = '';
+let _quoteSwapGen = 0;
 
 function resetQuoteTypography() {
   const card = document.getElementById('quote-card');
@@ -3199,6 +3200,18 @@ function invalidateQuoteLayout() {
   scheduleQuoteLayout();
 }
 
+function quoteLayoutMaxPx(inner, available, textEl, authorEl, markEl) {
+  const w = inner.clientWidth || 360;
+  const len = (textEl.textContent || '').length;
+  const charsPerLine = Math.max(14, Math.floor(w / 8.5));
+  const lines = Math.max(1, Math.ceil(len / charsPerLine));
+  const overhead = (markEl?.offsetHeight || 22) + (authorEl.offsetHeight || 18) + 20;
+  const textBlock = available - overhead;
+  const fromHeight = textBlock > 0 ? textBlock / (lines * 1.46) : 18;
+  const fromWidth = w * 0.074;
+  return Math.round(Math.min(QUOTE_LAYOUT_MAX_PX, Math.max(17, fromWidth, fromHeight)));
+}
+
 function syncQuoteLayout() {
   const card = document.getElementById('quote-card');
   const inner = card?.querySelector('.quote-inner');
@@ -3206,6 +3219,7 @@ function syncQuoteLayout() {
   const actions = card?.querySelector('.quote-action-row');
   const textEl = document.getElementById('quote-text');
   const authorEl = document.getElementById('quote-author');
+  const markEl = card?.querySelector('.quote-mark');
   if (!card || !inner || !body || !textEl || !authorEl) return;
   if (card.classList.contains('minimized')) return;
 
@@ -3233,29 +3247,26 @@ function syncQuoteLayout() {
     authorEl.style.transition = 'none';
 
     let lo = QUOTE_LAYOUT_MIN_PX;
-    let hi = Math.round(parseFloat(getComputedStyle(textEl).fontSize)) || 26;
+    let hi = quoteLayoutMaxPx(inner, available, textEl, authorEl, markEl);
     let best = lo;
 
     const fits = (size) => {
       textEl.style.fontSize = `${size}px`;
       authorEl.style.fontSize = `${Math.max(10, Math.round(size * 0.52))}px`;
+      textEl.style.lineHeight = size < 16 ? '1.42' : '1.48';
       return body.scrollHeight <= available + 1;
     };
 
-    if (fits(hi)) {
-      best = hi;
-    } else {
-      while (lo <= hi) {
-        const mid = (lo + hi) >> 1;
-        if (fits(mid)) {
-          best = mid;
-          lo = mid + 1;
-        } else {
-          hi = mid - 1;
-        }
+    while (lo <= hi) {
+      const mid = (lo + hi) >> 1;
+      if (fits(mid)) {
+        best = mid;
+        lo = mid + 1;
+      } else {
+        hi = mid - 1;
       }
-      fits(best);
     }
+    fits(best);
 
     textEl.style.transition = '';
     authorEl.style.transition = '';
@@ -3276,37 +3287,47 @@ function scheduleQuoteLayout() {
 function showRandomQuote() {
   const textEl = document.getElementById('quote-text');
   const authorEl = document.getElementById('quote-author');
+  const swapGen = ++_quoteSwapGen;
 
-  // fade out — wait longer than the transition (0.35s) before swapping
   textEl.style.opacity = '0';
   authorEl.style.opacity = '0';
 
-  setTimeout(() => {
-    const idx = getRandomQuoteIndex();
+  const idx = getRandomQuoteIndex();
+  const quote = QUOTES[idx];
+  const authorSrc = quote.authorEn || quote.author;
+  const translatePromise = currentLang !== 'en'
+    ? batchTranslate([quote.text, authorSrc], currentLang)
+    : null;
+
+  setTimeout(async () => {
+    if (swapGen !== _quoteSwapGen) return;
+
     currentQuoteIdx = idx;
     recordQuoteSeen(idx);
 
-    textEl.textContent = QUOTES[idx].text;
-    // Always prefer the English author name (authorEn) so native-script text
-    // (e.g. "Μάρκος Αὐρήλιος") is never shown to readers in any language.
-    const authorSrc = QUOTES[idx].authorEn || QUOTES[idx].author;
-    authorEl.textContent = cleanTranslation(authorSrc);
-
-    // In English mode, fade the new text in now.  In non-English mode, skip
-    // the fade-in here — the translation patch calls translateCurrentQuote()
-    // ~450ms from now, which handles a single clean fade-in with translated
-    // text.  Fading in English text here would cause an abrupt content jump
-    // when the translation arrives while the text is already visible.
     if (currentLang === 'en') {
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        textEl.style.opacity = '1';
-        authorEl.style.opacity = '1';
-        invalidateQuoteLayout();
-      }));
-    } else {
-      invalidateQuoteLayout();
+      textEl.textContent = quote.text;
+      authorEl.textContent = cleanTranslation(authorSrc);
+    } else if (translatePromise) {
+      try {
+        const [translatedText, translatedAuthor] = await translatePromise;
+        if (swapGen !== _quoteSwapGen) return;
+        textEl.textContent = cleanTranslation(translatedText);
+        authorEl.textContent = cleanTranslation(translatedAuthor);
+      } catch (_) {
+        if (swapGen !== _quoteSwapGen) return;
+        textEl.textContent = quote.text;
+        authorEl.textContent = cleanTranslation(authorSrc);
+      }
     }
-  }, 420);
+
+    invalidateQuoteLayout();
+    requestAnimationFrame(() => {
+      if (swapGen !== _quoteSwapGen) return;
+      textEl.style.opacity = '1';
+      authorEl.style.opacity = '1';
+    });
+  }, QUOTE_CROSSFADE_MS + 16);
 }
 
 /* ═══════════════════════════════════════
@@ -3337,6 +3358,7 @@ function loadBackground(index) {
 
 // Cleanup function for any in-progress background crossfade transition.
 let _bgCrossfadeCleanup = null;
+let _bgFadeTimer = null;
 
 function _applyBackground(url, creditText, linkUrl, source, title = '') {
   const layerCurrent = document.getElementById('bg-layer');
@@ -3359,6 +3381,7 @@ function _applyBackground(url, creditText, linkUrl, source, title = '') {
     layerNext.style.backgroundImage = `url(${url})`;
     layerNext.offsetHeight; // read layout to force reflow and commit opacity:0 before re-enabling the transition
     layerNext.style.transition = '';
+    layerNext.classList.add('is-fading');
     requestAnimationFrame(() => { layerNext.classList.add('loaded'); });
 
     // Persist current background URL so solitaire.html can share it
@@ -3387,31 +3410,29 @@ function _applyBackground(url, creditText, linkUrl, source, title = '') {
     }
     document.querySelector('.bottom-badges').classList.add('visible');
 
-    // Once the crossfade completes, promote the incoming layer to the current
-    // layer and silently reset the incoming layer for the next transition.
-    function onTransitionEnd(e) {
-      if (e.propertyName !== 'opacity' || e.target !== layerNext) return;
+    function finalizeCrossfade() {
+      if (_bgFadeTimer) {
+        clearTimeout(_bgFadeTimer);
+        _bgFadeTimer = null;
+      }
       layerNext.removeEventListener('transitionend', onTransitionEnd);
       _bgCrossfadeCleanup = null;
       layerCurrent.style.backgroundImage = `url(${url})`;
       layerNext.style.transition = 'none';
-      layerNext.classList.remove('loaded');
+      layerNext.classList.remove('loaded', 'is-fading');
       layerNext.style.backgroundImage = '';
       requestAnimationFrame(() => { layerNext.style.transition = ''; });
     }
-    layerNext.addEventListener('transitionend', onTransitionEnd);
 
-    // Store a cleanup closure so rapid scene changes can cancel an in-progress
-    // crossfade and keep the layer state consistent.
+    function onTransitionEnd(e) {
+      if (e.propertyName !== 'opacity' || e.target !== layerNext) return;
+      finalizeCrossfade();
+    }
+    layerNext.addEventListener('transitionend', onTransitionEnd);
+    _bgFadeTimer = setTimeout(finalizeCrossfade, BG_CROSSFADE_MS + 80);
+
     _bgCrossfadeCleanup = () => {
-      layerNext.removeEventListener('transitionend', onTransitionEnd);
-      if (layerNext.style.backgroundImage) {
-        layerCurrent.style.backgroundImage = layerNext.style.backgroundImage;
-      }
-      layerNext.style.transition = 'none';
-      layerNext.classList.remove('loaded');
-      layerNext.style.backgroundImage = '';
-      requestAnimationFrame(() => { layerNext.style.transition = ''; });
+      finalizeCrossfade();
     };
   };
   img.onerror = () => {
@@ -5767,23 +5788,6 @@ window.onSegmentComplete = function() {
   }
 };
 onSegmentComplete = window.onSegmentComplete;
-
-// Patch showRandomQuote to translate after showing
-const _origShowRandomQuote = showRandomQuote;
-window.showRandomQuote = function() {
-  _origShowRandomQuote();
-  if (currentLang !== 'en') {
-    // Immediately replace the native-script author with the English version so
-    // it is readable during the fade-in. The quote text translation follows.
-    const q = QUOTES[currentQuoteIdx];
-    if (q && q.authorEn) {
-      document.getElementById('quote-author').textContent = cleanTranslation(q.authorEn);
-    }
-    // Translate the quote text after the fade-in delay
-    setTimeout(() => translateCurrentQuote(), 450);
-  }
-};
-showRandomQuote = window.showRandomQuote;
 
 function setLanguageStatus(msg) {
   const el = document.getElementById('lang-status');

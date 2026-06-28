@@ -2334,7 +2334,7 @@
 /* ═══════════════════════════════════════
    VERSION
    ═══════════════════════════════════════ */
-const VERSION = 'v1.2.35';
+const VERSION = 'v1.2.36';
 
 /* ═══════════════════════════════════════
    QUOTES DATABASE — focus, présent, effort
@@ -2490,6 +2490,70 @@ const QUOTES = [
   { text: "The way to peace is not through the outside world, but through the inner world of each individual.", author: "सत्यनारायण गोयन्का (S.N. Goenka)", authorEn: "S.N. Goenka", culture: "buddhist" },
   { text: "Work diligently. Diligently. Work patiently and persistently. Patiently and persistently. And you are bound to be successful. Bound to be successful.", author: "सत्यनारायण गोयन्का (S.N. Goenka)", authorEn: "S.N. Goenka", culture: "buddhist" },
 ];
+
+/* Curated quote translations — bypasses APIs for quality-sensitive entries */
+const QUOTE_I18N = {
+  "Listen to the wind, it talks. Listen to the silence, it speaks. Listen to your heart, it knows.": {
+    fr: { text: "Écoute le vent, il parle. Écoute le silence, il chante. Écoute ton cœur, il sait.", author: "Proverbe autochtone" },
+  },
+  "Take only what you need and leave the land as you found it.": {
+    fr: { text: "Prends seulement ce dont tu as besoin et laisse la terre comme tu l'as trouvée.", author: "Proverbe Arapaho" },
+  },
+  "The frog does not drink up the pond in which he lives.": {
+    fr: { text: "La grenouille ne boit pas l'étang où elle vit.", author: "Proverbe Sioux" },
+  },
+  "Walk lightly in the spring; Mother Earth is pregnant.": {
+    fr: { text: "Marche légèrement au printemps ; la Terre Mère est enceinte.", author: "Proverbe Kiowa" },
+  },
+  "Don't let yesterday use up too much of today.": {
+    fr: { text: "Ne laisse pas hier consommer trop d'aujourd'hui.", author: "Proverbe Cherokee" },
+  },
+  "Yesterday is ashes; tomorrow is wood. Only today does the fire burn brightly.": {
+    fr: { text: "Hier est cendre ; demain est bois. Seulement aujourd'hui le feu brûle intensément.", author: "Proverbe inuit" },
+  },
+  "You never really know the true value of a moment until it becomes a memory.": {
+    fr: { text: "On ne connaît la vraie valeur d'un instant que lorsqu'il devient un souvenir.", author: "Proverbe inuit" },
+  },
+  "If you want to go fast, go alone. If you want to go far, go together.": {
+    fr: { text: "Si tu veux aller vite, vas seul. Si tu veux aller loin, allons ensemble.", author: "Proverbe cri · Eeyou Istchee" },
+  },
+  "Tell me and I'll forget. Teach me and I'll remember. Involve me and I'll learn.": {
+    fr: { text: "Dis-moi et j'oublierai. Enseigne-moi et je me souviendrai. Implique-moi et j'apprendrai.", author: "Proverbe autochtone" },
+  },
+  "Listen to the elders. In their words is the knowledge passed down through generations.": {
+    fr: { text: "Écoute les anciens. Leurs paroles portent le savoir transmis de génération en génération.", author: "Sagesse Anishinaabe" },
+  },
+  "To truly know something, you must first be still enough to hear what it calls itself.": {
+    fr: { text: "Pour vraiment connaître une chose, il faut d'abord être assez tranquille pour entendre comment elle se nomme.", author: "Enseignement Anishinaabe — Nanabozho" },
+  },
+  "Give thanks for the gifts of the earth and all living things. Gratitude keeps us connected.": {
+    fr: { text: "Remercie pour les dons de la terre et de tous les êtres vivants. La gratitude nous garde reliés.", author: "Enseignement Haudenosaunee" },
+  },
+  "Everything has a spirit and an intention. We must treat all things with respect.": {
+    fr: { text: "Tout a un esprit et une intention. Nous devons traiter chaque chose avec respect.", author: "Sagesse Mi'kmaq" },
+  },
+  "The land remembers everything. It teaches us if we listen with our hearts.": {
+    fr: { text: "La terre se souvient de tout. Elle nous enseigne si nous écoutons avec le cœur.", author: "Sagesse métisse" },
+  },
+  "The forest is not a place you enter — it is a relative you visit.": {
+    fr: { text: "La forêt n'est pas un lieu que l'on entre — c'est un parent que l'on visite.", author: "Enseignement Atikamekw" },
+  },
+  "Only the patient will find what is hidden.": {
+    fr: { text: "Seul le patient trouvera ce qui est caché.", author: "Récit Innu — Meshapush" },
+  },
+  "The world should be difficult enough to keep people strong, but gentle enough to let them rest.": {
+    fr: { text: "Le monde doit être assez difficile pour nous rendre forts, mais assez doux pour nous laisser nous reposer.", author: "Enseignement Abenaki — Gluskabe" },
+  },
+  "We will be known forever by the tracks we leave.": {
+    fr: { text: "On se souviendra de nous à jamais grâce aux traces que nous laissons.", author: "Proverbe dakota" },
+  },
+  "He who would do great things should not attempt them all by himself.": {
+    fr: { text: "Celui qui veut accomplir de grandes choses ne doit pas tout tenter seul.", author: "Proverbe autochtone" },
+  },
+  "A brave man dies but once, a coward many times.": {
+    fr: { text: "Un homme brave ne meurt qu'une fois ; un lâche meurt mille fois.", author: "Proverbe mohawk" },
+  },
+};
 
 /* ═══════════════════════════════════════
    OPEN-SOURCE BACKGROUND IMAGES
@@ -3285,6 +3349,25 @@ function scheduleQuoteLayout() {
   });
 }
 
+async function resolveLocalizedQuote(quote, lang) {
+  const authorBase = quote.authorEn || quote.author;
+  if (lang === 'en') {
+    return { text: quote.text, author: cleanTranslation(authorBase) };
+  }
+  const curated = QUOTE_I18N[quote.text]?.[lang];
+  if (curated) {
+    return {
+      text: cleanTranslation(curated.text),
+      author: cleanTranslation(curated.author || authorBase),
+    };
+  }
+  const [translatedText, translatedAuthor] = await batchTranslate([quote.text, authorBase], lang);
+  return {
+    text: cleanTranslation(translatedText),
+    author: cleanTranslation(translatedAuthor),
+  };
+}
+
 function showRandomQuote() {
   const textEl = document.getElementById('quote-text');
   const authorEl = document.getElementById('quote-author');
@@ -3295,10 +3378,7 @@ function showRandomQuote() {
 
   const idx = getRandomQuoteIndex();
   const quote = QUOTES[idx];
-  const authorSrc = quote.authorEn || quote.author;
-  const translatePromise = currentLang !== 'en'
-    ? batchTranslate([quote.text, authorSrc], currentLang)
-    : null;
+  const localizePromise = resolveLocalizedQuote(quote, currentLang);
 
   setTimeout(async () => {
     if (swapGen !== _quoteSwapGen) return;
@@ -3306,20 +3386,16 @@ function showRandomQuote() {
     currentQuoteIdx = idx;
     recordQuoteSeen(idx);
 
-    if (currentLang === 'en') {
+    try {
+      const localized = await localizePromise;
+      if (swapGen !== _quoteSwapGen) return;
+      textEl.textContent = localized.text;
+      authorEl.textContent = localized.author;
+    } catch (_) {
+      if (swapGen !== _quoteSwapGen) return;
+      const authorSrc = quote.authorEn || quote.author;
       textEl.textContent = quote.text;
       authorEl.textContent = cleanTranslation(authorSrc);
-    } else if (translatePromise) {
-      try {
-        const [translatedText, translatedAuthor] = await translatePromise;
-        if (swapGen !== _quoteSwapGen) return;
-        textEl.textContent = cleanTranslation(translatedText);
-        authorEl.textContent = cleanTranslation(translatedAuthor);
-      } catch (_) {
-        if (swapGen !== _quoteSwapGen) return;
-        textEl.textContent = quote.text;
-        authorEl.textContent = cleanTranslation(authorSrc);
-      }
     }
 
     invalidateQuoteLayout();
@@ -5411,7 +5487,7 @@ const UI_STRINGS = {
  * The result is smooth, consistent, and free of garbage across languages while
  * staying 100% client-side with no external dependencies or build step.
  */
-const TRANSLATION_CACHE_KEY = 'ataraxia_translations';
+const TRANSLATION_CACHE_KEY = 'ataraxia_translations_v2';
 const TRANSLATION_CACHE_KEY_LEGACY = 'stoicflow_translations';
 const LANG_PREF_KEY = 'ataraxia_lang';
 const LANG_PREF_KEY_LEGACY = 'stoicflow_lang';
@@ -5498,7 +5574,19 @@ function cleanTranslation(str) {
   let out = str.replace(/<g[^>]*>([\s\S]*?)<\/g>/gi, '$1');
   // Remove any other stray HTML/XML tags that might leak
   out = out.replace(/<[^>]+>/g, '');
-  // Normalize whitespace
+  // Decode HTML entities from translation APIs (&apos;, &#39;, etc.)
+  out = out
+    .replace(/&apos;/gi, "'")
+    .replace(/&quot;/gi, '"')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCharCode(parseInt(h, 16)));
+  // Strip leaked guillemets / quote marks (UI already shows a decorative mark)
+  out = out.replace(/^[«»‹›"'`]+|[«»‹›"'`]+$/g, '');
+  out = out.replace(/[»›]{2,}/g, '');
+  out = out.replace(/\s+([.,;:!?])/g, '$1');
   out = out.replace(/\s+/g, ' ').trim();
   return out;
 }
@@ -5615,16 +5703,12 @@ async function translateCurrentQuote() {
   // This is desired for full immersion, especially when the attribution is a
   // story title (e.g. "Algonquin Story — Wisakedjak and the Sun Snare" →
   // French equivalent). We start from the clean English source data.
-  const authorSource = quote.authorEn || quote.author;
-  const [translatedText, translatedAuthor] = await batchTranslate(
-    [quote.text, authorSource],
-    currentLang
-  );
+  const localized = await resolveLocalizedQuote(quote, currentLang);
 
   // Only update if still showing the same quote (stale calls are ignored).
   if (currentQuoteIdx === QUOTES.indexOf(quote)) {
-    textEl.textContent = cleanTranslation(translatedText);
-    authorEl.textContent = cleanTranslation(translatedAuthor);
+    textEl.textContent = localized.text;
+    authorEl.textContent = localized.author;
 
     // Double rAF ensures browser renders opacity:0 before starting fade-in transition
     requestAnimationFrame(() => requestAnimationFrame(() => {

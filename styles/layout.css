@@ -307,44 +307,9 @@ html[data-layout="touch"] .quote-action-row .btn {
   padding: 0.5rem 0.65rem;
 }
 
-/* ── Credits (touch) ───────────────────────────────── */
+/* ── Credits (touch) — au-dessus de la barre scène ─── */
 html[data-layout="touch"] .bottom-badges {
-  left: 50%;
-  right: auto;
-  transform: translateX(-50%);
-  bottom: calc(max(0.55rem, env(safe-area-inset-bottom, 0px)) + var(--scene-bar-offset));
-  max-width: calc(100vw - 1.5rem);
-  padding: 0.35rem 0.7rem;
-  font-size: 0.56rem;
-  text-align: center;
-  opacity: 0.68;
-}
-html[data-layout="touch"] .bottom-badges.visible { opacity: 0.78; }
-
-@media (orientation: portrait) {
-  html[data-layout="touch"] .bottom-badges {
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    width: auto;
-    max-width: calc(100vw - 1.5rem);
-    justify-content: center;
-    text-align: center;
-    flex-wrap: wrap;
-    gap: 0.1rem 0.35rem;
-    box-sizing: border-box;
-  }
-  html[data-layout="touch"] .img-credit {
-    flex-basis: 100%;
-    text-align: center;
-    white-space: normal;
-    overflow: visible;
-    text-overflow: unset;
-    max-width: 100%;
-  }
-  html[data-layout="touch"] .bottom-badges .img-credit + .credits-divider {
-    display: none;
-  }
+  bottom: calc(var(--credits-bottom) + var(--scene-bar-offset));
 }
 
 /* ── Tablet tactile density (601px+) ─────────────────── */
@@ -679,22 +644,7 @@ html[data-layout="wide"] .quote-action-row .btn:hover {
   border-color: rgba(255, 255, 255, 0.3);
 }
 
-html[data-layout="wide"] .bottom-badges {
-  left: 50%;
-  right: auto;
-  transform: translateX(-50%);
-  bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
-  max-width: calc(100vw - 2rem);
-  justify-content: center;
-  text-align: center;
-  flex-wrap: wrap;
-  font-size: 0.58rem;
-  padding: 0.28rem 0.65rem;
-}
 
-html[data-layout="wide"] .bottom-badges.visible {
-  opacity: 0.75;
-}
 
 /* Tablette paysage / petit viewport en wide */
 @media (max-height: 720px) and (min-width: 601px) {

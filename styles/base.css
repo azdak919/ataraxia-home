@@ -26,6 +26,16 @@
     --settings-border: rgba(160, 148, 132, 0.45);
     --quote-fade: 220ms;
     --bg-fade: 900ms;
+
+    /* Credits bar — shared across index + solitaire */
+    --credits-max-width: calc(100vw - 1.25rem);
+    --credits-pad-y: 0.38rem;
+    --credits-pad-x: 0.85rem;
+    --credits-font-size: 0.6rem;
+    --credits-gap: 0.1rem 0.4rem;
+    --credits-bottom: max(0.65rem, env(safe-area-inset-bottom, 0px));
+    --credits-opacity: 0.72;
+    --credits-opacity-visible: 0.78;
   }
 
   /* Dark theme — adapts to OS preference */
@@ -885,23 +895,30 @@
      ═══════════════════════ */
   .bottom-badges {
     position: fixed;
-    bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
-    right: max(1.25rem, env(safe-area-inset-right, 0px));
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    bottom: var(--credits-bottom);
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 0;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--credits-gap);
+    max-width: var(--credits-max-width);
+    box-sizing: border-box;
+    text-align: center;
     opacity: 0;
     transition: opacity 0.6s ease, background 0.3s ease;
     z-index: 1;
     pointer-events: auto;
     font-family: var(--font-body);
-    font-size: 0.65rem;
+    font-size: var(--credits-font-size);
     font-weight: 300;
     color: rgba(255, 255, 255, 0.75);
     text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
     background: rgba(0, 0, 0, 0.22);
-    padding: 0.3rem 0.75rem;
+    padding: var(--credits-pad-y) var(--credits-pad-x);
     border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(12px);
@@ -909,7 +926,7 @@
     letter-spacing: 0.02em;
   }
   .bottom-badges.visible {
-    opacity: 0.72;
+    opacity: var(--credits-opacity-visible);
   }
   .bottom-badges:hover {
     opacity: 1;
@@ -917,8 +934,22 @@
   }
 
   .bottom-badges .credits-divider {
-    margin: 0 0.5rem;
+    margin: 0 0.35rem;
     opacity: 0.4;
+  }
+
+  @media (orientation: portrait) {
+    .bottom-badges .img-credit {
+      flex-basis: 100%;
+      text-align: center;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: unset;
+      max-width: 100%;
+    }
+    .bottom-badges .img-credit + .credits-divider {
+      display: none;
+    }
   }
 
   .img-credit {

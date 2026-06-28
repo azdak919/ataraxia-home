@@ -61,6 +61,17 @@
       --header-h:  56px;
       /* inset for .card-svg to prevent border-radius clipping corner labels */
       --card-svg-inset: 6px;
+
+      /* Credits bar — aligné sur Ataraxia (base.css) */
+      --credits-max-width: calc(100vw - 1.25rem);
+      --credits-pad-y: 0.38rem;
+      --credits-pad-x: 0.85rem;
+      --credits-font-size: 0.6rem;
+      --credits-gap: 0.1rem 0.4rem;
+      --credits-bottom: max(0.65rem, env(safe-area-inset-bottom, 0px));
+      --credits-opacity-visible: 0.78;
+      --sol-toolbar-offset: calc(max(0.45rem, env(safe-area-inset-top, 0px)) + 5.1rem);
+      --credits-bar-offset: 0px;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -134,7 +145,7 @@
       position: relative;
       z-index: 2;
       min-height: 100dvh;
-      padding-top: calc(max(0.45rem, env(safe-area-inset-top, 0px)) + 5.1rem);
+      padding-top: var(--sol-toolbar-offset);
     }
 
     html {
@@ -396,11 +407,14 @@
       padding: var(--board-pad);
       padding-left:  max(var(--board-pad), env(safe-area-inset-left, 0px));
       padding-right: max(var(--board-pad), env(safe-area-inset-right, 0px));
-      padding-bottom: max(calc(var(--card-h) * 0.4 + var(--board-pad)), env(safe-area-inset-bottom, 0px));
+      padding-bottom: max(
+        calc(var(--card-h) * 0.4 + var(--board-pad) + var(--credits-bar-offset)),
+        env(safe-area-inset-bottom, 0px)
+      );
       display: flex;
       flex-direction: column;
       gap: var(--col-gap);
-      min-height: calc(100dvh - 5.5rem);
+      min-height: calc(100dvh - var(--sol-toolbar-offset) - var(--credits-bar-offset));
       user-select: none;
       -webkit-user-select: none;
       touch-action: pan-y;
@@ -808,33 +822,34 @@
       left: 50%;
       right: auto;
       transform: translateX(-50%);
-      bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+      bottom: var(--credits-bottom);
       display: flex;
       flex-direction: row;
       align-items: center;
       justify-content: center;
       flex-wrap: wrap;
-      gap: 0.1rem 0.35rem;
-      max-width: calc(100vw - 2rem);
+      gap: var(--credits-gap);
+      max-width: var(--credits-max-width);
+      box-sizing: border-box;
       opacity: 0;
       transition: opacity 0.6s ease, background 0.3s ease;
       z-index: 10;
       pointer-events: auto;
       font-family: var(--font-body);
-      font-size: 0.58rem;
+      font-size: var(--credits-font-size);
       font-weight: 300;
       text-align: center;
       color: rgba(255, 255, 255, 0.75);
       text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
       background: rgba(0, 0, 0, 0.22);
-      padding: 0.28rem 0.65rem;
+      padding: var(--credits-pad-y) var(--credits-pad-x);
       border-radius: 10px;
       border: 1px solid rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       letter-spacing: 0.02em;
     }
-    .bottom-badges.visible { opacity: 0.75; }
+    .bottom-badges.visible { opacity: var(--credits-opacity-visible); }
     .bottom-badges:hover { opacity: 1; background: rgba(0, 0, 0, 0.36); }
 
     .bottom-badges .credits-divider { margin: 0 0.35rem; opacity: 0.4; }
@@ -874,10 +889,7 @@
        RESPONSIVE CREDITS — portrait (comme Ataraxia)
        ════════════════════════════════════════ */
     @media (orientation: portrait) {
-      .bottom-badges {
-        max-width: calc(100vw - 1.5rem);
-      }
-      .img-credit {
+      .bottom-badges .img-credit {
         flex-basis: 100%;
         text-align: center;
         white-space: normal;
@@ -1900,6 +1912,30 @@ function updateStats() {
 /* ══════════════════════════════════════════════════════════
    CARD SIZE (kept in sync between CSS vars and JS)
    ══════════════════════════════════════════════════════════ */
+function updateLayoutInsets() {
+  const root = document.documentElement;
+  const toolbar = document.querySelector('.game-toolbar');
+  const credits = document.getElementById('bottom-badges');
+  const gap = 10;
+
+  if (toolbar) {
+    root.style.setProperty(
+      '--sol-toolbar-offset',
+      `${toolbar.getBoundingClientRect().bottom + gap}px`
+    );
+  }
+
+  if (credits && credits.classList.contains('visible')) {
+    const top = credits.getBoundingClientRect().top;
+    root.style.setProperty(
+      '--credits-bar-offset',
+      `${Math.max(0, window.innerHeight - top + gap)}px`
+    );
+  } else {
+    root.style.setProperty('--credits-bar-offset', '0px');
+  }
+}
+
 function updateCardSize() {
   const root    = document.documentElement;
   // Use actual board element width for accuracy
@@ -2449,10 +2485,20 @@ let resizeTimer;
 window.addEventListener('resize', () => {
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(() => {
+    updateLayoutInsets();
     updateCardSize();
     render();
   }, 80);
 });
+
+(function watchLayoutInsets() {
+  const toolbar = document.querySelector('.game-toolbar');
+  const credits = document.getElementById('bottom-badges');
+  if (typeof ResizeObserver === 'undefined') return;
+  const ro = new ResizeObserver(() => updateLayoutInsets());
+  if (toolbar) ro.observe(toolbar);
+  if (credits) ro.observe(credits);
+})();
 
 
 /* ═══════════════════════════════════════
@@ -3206,6 +3252,10 @@ function _applyBackground(url, creditText, linkUrl, source, title = '') {
       credit.appendChild(document.createTextNode(`${creditText} · ${source}`));
     }
     document.querySelector('.bottom-badges').classList.add('visible');
+    requestAnimationFrame(() => {
+      updateLayoutInsets();
+      updateCardSize();
+    });
 
     // Once the crossfade completes, promote the incoming layer to the current
     // layer and silently reset the incoming layer for the next transition.
@@ -3262,7 +3312,8 @@ function nextBackground() {
 })();
 
 
-// Start: size cards and deal
+// Start: measure chrome, size cards and deal
+updateLayoutInsets();
 updateCardSize();
 newGame();
 

@@ -785,26 +785,27 @@
     height: 13px;
   }
 
-  /* Settings panel */
+  /* Settings panel — modal unique (widget + plein écran) */
   .pomo-settings {
     display: none;
-    position: absolute;
-    top: calc(100% + 0.65rem);
+    position: fixed;
+    top: 50%;
     bottom: auto;
     left: 50%;
     right: auto;
-    transform: translateX(-50%);
-    width: min(260px, calc(100vw - 2rem));
+    transform: translate(-50%, -50%);
+    width: min(320px, calc(100vw - 1.25rem));
+    max-width: 400px;
     background: var(--settings-bg);
     border: 1px solid var(--settings-border);
     border-radius: 18px;
-    padding: 1.25rem;
+    padding: 1.1rem 1.15rem 1.2rem;
     min-width: 210px;
-    max-height: min(60dvh, 420px);
+    max-height: min(72dvh, 440px);
     overflow-y: auto;
     box-shadow: 0 12px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
     animation: settingsIn 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-    z-index: 520;
+    z-index: 530;
   }
 
   .pomo-settings.open { display: block; }
@@ -864,11 +865,11 @@
   }
 
   @keyframes settingsIn {
-    from { opacity: 0; transform: translateX(-50%) translateY(-6px); }
-    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    from { opacity: 0; transform: translate(-50%, calc(-50% + 8px)); }
+    to   { opacity: 1; transform: translate(-50%, -50%); }
   }
 
-  .pomo-settings h4, .pomo-fp-settings h4 {
+  .pomo-settings h4 {
     font-family: var(--font-body);
     font-size: 0.65rem;
     letter-spacing: 0.15em;
@@ -1208,185 +1209,6 @@
     width: 18px;
     height: 18px;
     fill: currentColor;
-  }
-
-  /* Fullpage radial settings */
-  .pomo-radial-settings {
-    display: none;
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
-
-  .pomo-radial-settings.open {
-    display: block;
-  }
-
-  .radial-item {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%)
-               rotate(var(--angle))
-               translateY(calc(-1 * var(--distance)))
-               rotate(calc(-1 * var(--angle)));
-    pointer-events: auto;
-    opacity: 0;
-    animation: radialIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0s) forwards;
-  }
-
-  .pomo-radial-settings:not(.open) .radial-item {
-    animation: none;
-    opacity: 0;
-  }
-
-  @keyframes radialIn {
-    from { opacity: 0; transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(-0.6 * var(--distance))) rotate(calc(-1 * var(--angle))); }
-    to   { opacity: 1; transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(-1 * var(--distance))) rotate(calc(-1 * var(--angle))); }
-  }
-
-  .radial-item label {
-    display: block;
-    font-family: var(--font-body);
-    font-size: 0.65rem;
-    font-weight: 500;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 0.3rem;
-    text-align: center;
-    white-space: nowrap;
-  }
-
-  .radial-item input[type="number"] {
-    width: 56px;
-    padding: 0.35rem 0.25rem;
-    border-radius: 12px;
-    border: 1px solid var(--settings-border);
-    background: var(--settings-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    color: var(--text-primary);
-    font-family: var(--font-body);
-    font-size: 0.85rem;
-    text-align: center;
-    outline: none;
-    transition: border-color 0.25s, box-shadow 0.25s;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-  }
-
-  .radial-item input[type="number"]:focus {
-    border-color: var(--accent);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.12), 0 0 0 2px var(--accent-glow);
-  }
-
-  .radial-chip .phase-chip {
-    padding: 0.35rem 0.65rem;
-    border-radius: 10px;
-    border: 1px solid var(--settings-border);
-    background: var(--settings-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    color: var(--text-secondary);
-    font-family: var(--font-body);
-    font-size: 0.7rem;
-    font-weight: 400;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.25s ease;
-    white-space: nowrap;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-  }
-
-  .radial-chip .phase-chip:hover {
-    background: var(--bg-glass-hover);
-    color: var(--text-primary);
-    border-color: var(--accent);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .radial-item input[type="number"] { background: rgba(255,255,255,0.06); }
-    .radial-chip .phase-chip { background: rgba(255,255,255,0.06); }
-  }
-
-  @media (max-width: 600px) {
-    .radial-item { --distance: 175px !important; }
-  }
-
-  @media (max-width: 420px) {
-    .radial-item { --distance: clamp(100px, 28vw, 140px) !important; }
-  }
-
-  .pomo-fp-settings-close {
-    display: none;
-  }
-
-  /* Phone-only: replace radial layout with clean grid for fullpage settings */
-  @media (max-width: 600px) and (pointer: coarse) {
-    .pomo-fullpage-overlay .pomo-radial-settings.open {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.2rem 2rem;
-      position: fixed;
-      inset: 0;
-      place-content: center;
-      justify-items: center;
-      z-index: 910;
-      background: var(--bg-glass);
-      backdrop-filter: blur(32px) saturate(1.4);
-      -webkit-backdrop-filter: blur(32px) saturate(1.4);
-      padding: 2rem 2.5rem;
-      pointer-events: auto;
-    }
-
-    .pomo-fullpage-overlay .pomo-radial-settings .radial-item {
-      position: static !important;
-      transform: none !important;
-      animation: none !important;
-      opacity: 1 !important;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .pomo-fullpage-overlay .pomo-radial-settings .radial-item label {
-      margin-bottom: 0.3rem;
-      font-size: 0.7rem;
-    }
-
-    .pomo-fullpage-overlay .pomo-radial-settings .radial-item input[type="number"] {
-      width: 72px;
-      padding: 0.5rem 0.3rem;
-      font-size: 1rem;
-    }
-
-    .pomo-fullpage-overlay .pomo-radial-settings .radial-chip {
-      justify-self: center;
-    }
-
-    .pomo-fullpage-overlay .pomo-radial-settings .radial-chip .phase-chip {
-      padding: 0.5rem 1rem;
-      font-size: 0.8rem;
-    }
-
-    /* Last chip (3rd) spans full width and centers */
-    .pomo-fullpage-overlay .pomo-radial-settings .radial-item:last-child {
-      grid-column: 1 / -1;
-    }
-
-    .pomo-fp-settings-close {
-      display: flex;
-      grid-column: 1 / -1;
-      justify-self: end;
-      width: 36px;
-      height: 36px;
-      margin-bottom: -0.5rem;
-    }
-
-    .pomo-fp-settings-close svg {
-      width: 16px;
-      height: 16px;
-    }
   }
 
   .pomo-ring-wrapper {

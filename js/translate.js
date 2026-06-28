@@ -929,35 +929,11 @@ function applyUIStrings(strings) {
   document.getElementById('chip-break').textContent = strings.break;
   document.getElementById('chip-long').textContent = strings.longBreakLabel;
 
-  // Fullscreen settings panel
-  const fpPanel = document.getElementById('pomo-fp-settings-panel');
-  const fpH4s = fpPanel.querySelectorAll('h4');
-  if (fpH4s[0]) fpH4s[0].textContent = strings.timerSettings;
-  if (fpH4s[1]) fpH4s[1].textContent = strings.jumpToPhase;
-
-  const fpLabels = fpPanel.querySelectorAll('.setting-row label');
-  if (fpLabels[0]) fpLabels[0].textContent = strings.focusMin;
-  if (fpLabels[1]) fpLabels[1].textContent = strings.breakMin;
-  if (fpLabels[2]) fpLabels[2].textContent = strings.longBreak;
-  if (fpLabels[3]) fpLabels[3].textContent = strings.sessions;
-
-  document.getElementById('fp-chip-focus').textContent = strings.focus;
-  document.getElementById('fp-chip-break').textContent = strings.break;
-  document.getElementById('fp-chip-long').textContent = strings.longBreakLabel;
-
   // Focus Deck scene bar
   const sceneTimerLabel = document.getElementById('scene-label-timer');
   const sceneQuoteLabel = document.getElementById('scene-label-quote');
   if (sceneTimerLabel) sceneTimerLabel.textContent = strings.focus;
   if (sceneQuoteLabel) sceneQuoteLabel.textContent = strings.quote;
-
-  // Fullscreen radial input labels
-  const fpRadialLabels = fpPanel.querySelectorAll(':scope > .radial-item:not(.radial-chip) label');
-  if (fpRadialLabels[0]) fpRadialLabels[0].textContent = strings.focus;
-  if (fpRadialLabels[1]) fpRadialLabels[1].textContent = strings.break;
-  if (fpRadialLabels[2]) fpRadialLabels[2].textContent = strings.longBreak;
-  if (fpRadialLabels[3]) fpRadialLabels[3].textContent = strings.sessions;
-
 }
 
 // Patch PomoUI / onSegmentComplete for translated labels and toasts

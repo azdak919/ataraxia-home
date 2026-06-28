@@ -370,9 +370,7 @@ function jumpToPhase(phase) {
   pomo.phaseDuration = pomo.totalSeconds;
   pomo.pausedRemaining = pomo.totalSeconds;
   savePomoState();
-  // Close settings panels
   setPomoSettingsOpen(false);
-  document.getElementById('pomo-fp-settings-panel')?.classList.remove('open');
   _lastPomoRenderKey = null;
   PomoUI();
 }
@@ -406,40 +404,6 @@ function applySettings() {
   PomoUI();
 }
 
-/* Fullpage settings */
-function loadFpSettingsUI() {
-  document.getElementById('fp-setting-work').value = pomo.workMin;
-  document.getElementById('fp-setting-break').value = pomo.breakMin;
-  document.getElementById('fp-setting-long').value = pomo.longBreakMin;
-  document.getElementById('fp-setting-sessions').value = pomo.sessionsBeforeLong;
-}
-
-function applyFpSettings() {
-  const w = parseInt(document.getElementById('fp-setting-work').value) || 25;
-  const b = parseInt(document.getElementById('fp-setting-break').value) || 5;
-  const l = parseInt(document.getElementById('fp-setting-long').value) || 15;
-  const s = parseInt(document.getElementById('fp-setting-sessions').value) || 4;
-
-  pomo.workMin = Math.max(1, Math.min(90, w));
-  pomo.breakMin = Math.max(1, Math.min(30, b));
-  pomo.longBreakMin = Math.max(1, Math.min(60, l));
-  pomo.sessionsBeforeLong = Math.max(1, Math.min(12, s));
-
-  if (!pomo.isRunning && !pomo.isBreak) {
-    pomo.totalSeconds = pomo.workMin * 60;
-    pomo.phaseDuration = pomo.totalSeconds;
-    pomo.pausedRemaining = pomo.totalSeconds;
-  }
-  savePomoState();
-  _lastPomoRenderKey = null;
-  PomoUI();
-}
-
-function useSharedFullscreenSettings() {
-  return typeof window.AtaraxiaLayout !== 'undefined'
-    && window.AtaraxiaLayout.isTouchViewport();
-}
-
 function setPomoSettingsOpen(open) {
   const panel = document.getElementById('pomo-settings-panel');
   const btn = document.getElementById('pomo-settings-btn');
@@ -450,9 +414,6 @@ function setPomoSettingsOpen(open) {
   btn?.setAttribute('aria-expanded', open ? 'true' : 'false');
   fpBtn?.setAttribute('aria-expanded', open ? 'true' : 'false');
   document.body.classList.toggle('pomo-settings-open', open);
-  if (open) {
-    document.getElementById('pomo-fp-settings-panel')?.classList.remove('open');
-  }
 }
 
 function setPomoFullscreenOpen(open) {
@@ -460,11 +421,7 @@ function setPomoFullscreenOpen(open) {
   if (!overlay) return;
   overlay.classList.toggle('open', open);
   document.body.classList.toggle('pomo-fullpage-open', open);
-  if (!open) {
-    document.getElementById('pomo-fp-settings-panel')?.classList.remove('open');
-  } else {
-    setPomoSettingsOpen(false);
-  }
+  setPomoSettingsOpen(false);
 }
 
 function openPomoFullscreen() {
@@ -565,54 +522,20 @@ function initPomoHandlers() {
   });
 
   fpOverlay?.addEventListener('click', (e) => {
-    if (e.target === fpOverlay) {
-      if (settingsPanel?.classList.contains('open') && useSharedFullscreenSettings()) return;
-      if (fpSettingsPanel?.classList.contains('open')) {
-        fpSettingsPanel.classList.remove('open');
-        return;
-      }
-      setPomoFullscreenOpen(false);
-      return;
-    }
-    if (!useSharedFullscreenSettings() && fpSettingsPanel?.classList.contains('open')) {
-      if (!fpSettingsPanel.contains(e.target) && !e.target.closest('#pomo-fp-settings-btn')) {
-        fpSettingsPanel.classList.remove('open');
-      }
-    }
+    if (e.target !== fpOverlay) return;
+    if (settingsPanel?.classList.contains('open')) return;
+    setPomoFullscreenOpen(false);
   });
 
   document.getElementById('pomo-fp-play')?.addEventListener('click', () => { initAudioCtx(); startPomo(); });
   document.getElementById('pomo-fp-pause')?.addEventListener('click', stopPomo);
   document.getElementById('pomo-fp-reset')?.addEventListener('click', resetPomo);
 
-  const fpSettingsPanel = document.getElementById('pomo-fp-settings-panel');
   document.getElementById('pomo-fp-settings-btn')?.addEventListener('click', (e) => {
     e.stopPropagation();
-    if (useSharedFullscreenSettings()) {
-      const open = !settingsPanel?.classList.contains('open');
-      setPomoSettingsOpen(open);
-      if (open) loadSettingsUI();
-      return;
-    }
-    if (!fpSettingsPanel) return;
-    fpSettingsPanel.classList.toggle('open');
-    if (fpSettingsPanel.classList.contains('open')) loadFpSettingsUI();
-  });
-
-  ['fp-setting-work', 'fp-setting-break', 'fp-setting-long', 'fp-setting-sessions'].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.addEventListener('change', applyFpSettings);
-    el.addEventListener('input', applyFpSettings);
-  });
-
-  document.getElementById('fp-chip-focus')?.addEventListener('click', () => jumpToPhase('focus'));
-  document.getElementById('fp-chip-break')?.addEventListener('click', () => jumpToPhase('break'));
-  document.getElementById('fp-chip-long')?.addEventListener('click', () => jumpToPhase('long'));
-
-  document.getElementById('pomo-fp-settings-close')?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    fpSettingsPanel?.classList.remove('open');
+    const open = !settingsPanel?.classList.contains('open');
+    setPomoSettingsOpen(open);
+    if (open) loadSettingsUI();
   });
 
   document.addEventListener('keydown', (e) => {
@@ -621,11 +544,7 @@ function initPomoHandlers() {
       return;
     }
     if (e.key === 'Escape' && fpOverlay?.classList.contains('open')) {
-      if (fpSettingsPanel?.classList.contains('open') && !useSharedFullscreenSettings()) {
-        fpSettingsPanel.classList.remove('open');
-      } else {
-        setPomoFullscreenOpen(false);
-      }
+      setPomoFullscreenOpen(false);
     }
   });
 

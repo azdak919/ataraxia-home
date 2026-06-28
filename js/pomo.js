@@ -1,9 +1,11 @@
 /* Ataraxia — pomodoro timer
- * Depends: pomo-audio.js, storage.js
+ * Depends: pomo-audio.js (AtaraxiaPomoAudio), storage.js
  * Exports: pomo, PomoUI, startPomo, stopPomo, resetPomo, initPomoHandlers, ...
  */
 const CIRCUMFERENCE = 2 * Math.PI * 52; // ~326.73  (r=52 in 120×120 viewBox)
 let pomo = loadPomoState();
+
+const PomoAudio = () => window.AtaraxiaPomoAudio;
 
 function phoneLayoutMax() {
   return window.AtaraxiaLayout?.PHONE_LAYOUT_MAX
@@ -270,9 +272,8 @@ function PomoUI() {
 
 function onSegmentComplete() {
   pomo.isRunning = false;
-  releaseWakeLock();
-  // Don't stop timer audio here — the embedded chime is playing right now.
-  // It will auto-cleanup via its 'ended' event when the chime finishes.
+  PomoAudio()?.releaseWakeLock();
+  // Ne pas stopTimerAudio ici — le chime iOS est dans le WAV ou joué juste après.
   const wasBreak = pomo.isBreak; // capture before phase flip
 
   // Notification — requireInteraction keeps it visible on Android lock screen
@@ -289,8 +290,7 @@ function onSegmentComplete() {
   // Haptic feedback — works even when AudioContext is suspended on mobile
   if (navigator.vibrate) navigator.vibrate(wasBreak ? [150, 80, 150] : [200, 100, 200, 100, 400]);
 
-  // Bell chime — async so AudioContext.resume() is properly awaited on mobile
-  playCompletionChime(wasBreak);
+  PomoAudio()?.playCompletionChime(wasBreak);
 
   if (!pomo.isBreak) {
     pomo.completedSessions++;
@@ -320,9 +320,10 @@ function startPomo() {
   pomo.isRunning = true;
   pomo.phaseJustCompleted = false;
   savePomoState();
-  initAudioCtx(); // ensure AudioContext is live after user gesture
-  startTimerAudio(remaining); // iOS: keepalive audio; all: media session
-  requestWakeLock(); // keep screen on so audio fires reliably
+  const audio = PomoAudio();
+  audio?.initAudioCtx();
+  audio?.startTimerAudio(remaining);
+  audio?.requestWakeLock();
 
   // Request notification permission
   if ('Notification' in window && Notification.permission === 'default') {
@@ -337,8 +338,9 @@ function stopPomo() {
   const full = pomo.phaseDuration || (pomo.isBreak ? pomo.breakMin * 60 : pomo.workMin * 60);
   pomo.pausedRemaining = full;
   pomo.totalSeconds = full;
-  releaseWakeLock();
-  stopTimerAudio();
+  const audio = PomoAudio();
+  audio?.releaseWakeLock();
+  audio?.stopTimerAudio();
   savePomoState();
 }
 
@@ -351,12 +353,14 @@ function resetPomo() {
   pomo.phaseDuration = pomo.totalSeconds;
   pomo.pausedRemaining = pomo.totalSeconds;
   pomo.phaseJustCompleted = false;
-  releaseWakeLock();
-  stopTimerAudio();
+  const audio = PomoAudio();
+  audio?.releaseWakeLock();
+  audio?.stopTimerAudio();
   savePomoState();
 }
 
 function jumpToPhase(phase) {
+  const wasRunning = pomo.isRunning;
   pomo.isRunning = false;
   pomo.startedAt = null;
   pomo.phaseJustCompleted = false;
@@ -375,6 +379,10 @@ function jumpToPhase(phase) {
   }
   pomo.phaseDuration = pomo.totalSeconds;
   pomo.pausedRemaining = pomo.totalSeconds;
+  if (wasRunning) {
+    PomoAudio()?.releaseWakeLock();
+    PomoAudio()?.stopTimerAudio();
+  }
   savePomoState();
   setPomoSettingsOpen(false);
   _lastPomoRenderKey = null;
@@ -556,6 +564,17 @@ function openPomoFullscreen() {
 }
 
 function initPomoHandlers() {
+  PomoAudio()?.init({
+    getPomoState: () => pomo,
+    getRemaining,
+    formatMinutes,
+    onPlay: () => {
+      PomoAudio()?.initAudioCtx();
+      startPomo();
+    },
+    onPause: stopPomo,
+  });
+
   const pomoContainer = document.querySelector('.pomo-container');
   if (pomoContainer) {
     pomoContainer.addEventListener('animationend', () => {
@@ -563,7 +582,10 @@ function initPomoHandlers() {
     }, { once: true });
   }
 
-  document.getElementById('pomo-play')?.addEventListener('click', () => { initAudioCtx(); startPomo(); });
+  document.getElementById('pomo-play')?.addEventListener('click', () => {
+    PomoAudio()?.initAudioCtx();
+    startPomo();
+  });
   document.getElementById('pomo-pause')?.addEventListener('click', stopPomo);
   document.getElementById('pomo-reset')?.addEventListener('click', resetPomo);
 
@@ -611,11 +633,12 @@ function initPomoHandlers() {
 
   setInterval(() => {
     if (pomo.isRunning) {
-      _updateMediaSession();
+      PomoAudio()?.updateMediaSession();
       if (getRemaining() <= 0) {
         const doComplete = () => onSegmentComplete();
-        if (_audioCtx && _audioCtx.state === 'suspended') {
-          _audioCtx.resume().then(doComplete).catch(doComplete);
+        const audio = PomoAudio();
+        if (audio?.isAudioSuspended()) {
+          audio.resumeAudioCtx().then(doComplete).catch(doComplete);
         } else {
           doComplete();
         }
@@ -625,9 +648,9 @@ function initPomoHandlers() {
 
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
-      if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
+      PomoAudio()?.resumeAudioCtx();
       PomoUI();
-      if (pomo.isRunning) requestWakeLock();
+      if (pomo.isRunning) PomoAudio()?.requestWakeLock();
     }
   });
 
@@ -656,7 +679,7 @@ function initPomoHandlers() {
 
   document.getElementById('pomo-fp-play')?.addEventListener('click', (e) => {
     e.stopPropagation();
-    initAudioCtx();
+    PomoAudio()?.initAudioCtx();
     startPomo();
   });
   document.getElementById('pomo-fp-pause')?.addEventListener('click', (e) => {

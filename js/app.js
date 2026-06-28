@@ -8,7 +8,7 @@
  *   quotes-i18n.js     — curated per-language quote translations
  *   quotes.js          — quote display, layout, random selection
  *   toast.js           — toast notifications
- *   pomo-audio.js      — timer keepalive + completion chime (iOS/Android/Desktop)
+ *   pomo-audio.js      — AtaraxiaPomoAudio (keepalive + chime, isolé du timer)
  *   pomo.js            — pomodoro state, UI, fullscreen, settings
  *   translate.js       — auto-translation (quotes + UI strings)
  *   layout.js          — touch/wide layout + Focus Deck scenes

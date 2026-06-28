@@ -54,18 +54,6 @@ A minimalist, open-source browser homepage combining stoic philosophy with a foc
 
 ---
 
-## Versioning
-
-The patch version (`v1.0.X`) is automatically incremented on every merged pull request via GitHub Actions. The version is displayed as a badge in the bottom-right corner of the app.
-
-For minor or major bumps, use the included script:
-
-```bash
-./bump-version.sh v1.1.0
-```
-
----
-
 ## License
 
 [GNU General Public License v2](LICENSE) — Charles Tison

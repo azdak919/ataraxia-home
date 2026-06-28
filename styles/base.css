@@ -927,10 +927,6 @@
     color: rgba(255, 255, 255, 1);
   }
 
-  .version-badge {
-    white-space: nowrap;
-  }
-
   .copyleft-symbol {
     font-size: 0.75rem;
     line-height: 1;

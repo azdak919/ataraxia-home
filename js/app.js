@@ -1,7 +1,6 @@
 /* Ataraxia — bootstrap (sole orchestrator)
  *
  * MODULE MAP (js/):
- *   version.js         — VERSION constant
  *   storage.js         — localStorage keys + legacy migration
  *   backgrounds-data.js— BACKGROUNDS[] image pool
  *   backgrounds.js     — load/switch backgrounds, smart random
@@ -22,10 +21,6 @@ let _quoteCardObserver = null;
 document.addEventListener('DOMContentLoaded', () => {
   if (window.AtaraxiaLayout) window.AtaraxiaLayout.syncLayout();
   migrateLegacyStorage();
-  document.getElementById('version-badge').textContent = VERSION;
-  // Persist version so solitaire.html (and any other sub-pages) can read it
-  try { localStorage.setItem('ataraxia_version', VERSION); } catch(e) {}
-
   // Pomo first — must not depend on quote init (quotes.js may load late or fail)
   initPomoHandlers();
 

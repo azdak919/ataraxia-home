@@ -1,38 +1,62 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <radialGradient id="bg" cx="38%" cy="35%" r="65%">
-      <stop offset="0%" stop-color="#d4b896"/>
-      <stop offset="60%" stop-color="#a8845c"/>
-      <stop offset="100%" stop-color="#6b4f32"/>
+    <!-- Modern 2026 warm neutral palette matching Ataraxia's calm aesthetic -->
+    <radialGradient id="bg" cx="42%" cy="38%" r="68%">
+      <stop offset="0%" stop-color="#e8d9c8"/>
+      <stop offset="52%" stop-color="#b89a7a"/>
+      <stop offset="100%" stop-color="#6f523a"/>
     </radialGradient>
-    <radialGradient id="glow" cx="50%" cy="45%" r="40%">
-      <stop offset="0%" stop-color="#f5f0eb" stop-opacity="0.12"/>
-      <stop offset="100%" stop-color="#f5f0eb" stop-opacity="0"/>
+    
+    <!-- Very subtle contemporary inner light (less 2018 glow, more refined presence) -->
+    <radialGradient id="innerLight" cx="50%" cy="42%" r="48%">
+      <stop offset="0%" stop-color="#f8f3eb" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#f8f3eb" stop-opacity="0"/>
     </radialGradient>
-    <linearGradient id="ring" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#f5f0eb" stop-opacity="0.45"/>
-      <stop offset="50%" stop-color="#f5f0eb" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="#f5f0eb" stop-opacity="0.4"/>
+    
+    <!-- Precise, elegant ring system -->
+    <linearGradient id="ringMain" x1="18%" y1="22%" x2="82%" y2="78%">
+      <stop offset="0%" stop-color="#f8f3eb" stop-opacity="0.55"/>
+      <stop offset="48%" stop-color="#f8f3eb" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#f8f3eb" stop-opacity="0.48"/>
     </linearGradient>
-    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#3a2a18" flood-opacity="0.35"/>
-    </filter>
   </defs>
-  <!-- Background circle with rich gradient -->
+
+  <!-- Main background — calmer, more sophisticated gradient -->
   <circle cx="256" cy="256" r="248" fill="url(#bg)"/>
-  <!-- Subtle inner glow -->
-  <circle cx="256" cy="256" r="248" fill="url(#glow)"/>
-  <!-- Decorative outer ring -->
-  <circle cx="256" cy="256" r="232" fill="none" stroke="url(#ring)" stroke-width="1.5"/>
-  <!-- Inner decorative ring -->
-  <circle cx="256" cy="256" r="192" fill="none" stroke="url(#ring)" stroke-width="2.5" opacity="0.5"/>
-  <!-- Small corner accents on the inner ring (4 dots) -->
-  <circle cx="256" cy="64" r="3" fill="#f5f0eb" opacity="0.35"/>
-  <circle cx="256" cy="448" r="3" fill="#f5f0eb" opacity="0.35"/>
-  <circle cx="64" cy="256" r="3" fill="#f5f0eb" opacity="0.25"/>
-  <circle cx="448" cy="256" r="3" fill="#f5f0eb" opacity="0.25"/>
-  <!-- Letter A with refined styling -->
-  <text x="256" y="300" text-anchor="middle" font-family="'Garamond','Georgia','Times New Roman',serif" font-size="240" font-weight="400" fill="#f5f0eb" letter-spacing="-6" filter="url(#shadow)" opacity="0.92">A</text>
-  <!-- Subtle bottom line accent -->
-  <line x1="196" y1="340" x2="316" y2="340" stroke="#f5f0eb" stroke-width="1.5" opacity="0.2" stroke-linecap="round"/>
+  
+  <!-- Subtle contemporary light bloom (2026 minimalist depth) -->
+  <circle cx="256" cy="256" r="248" fill="url(#innerLight)"/>
+  
+  <!-- Primary precise ring -->
+  <circle 
+    cx="256" cy="256" r="230" 
+    fill="none" 
+    stroke="url(#ringMain)" 
+    stroke-width="1.75" 
+    stroke-linecap="round"/>
+  
+  <!-- Secondary inner ring for quiet hierarchy -->
+  <circle 
+    cx="256" cy="256" r="188" 
+    fill="none" 
+    stroke="#f8f3eb" 
+    stroke-width="1.25" 
+    stroke-opacity="0.18"/>
+  
+  <!-- The "A" — refined 2026 execution: tighter proportions, better optical balance, modern calm serif feel -->
+  <!-- Using system serif stack for reliability + letter-spacing tuned for icon scale -->
+  <text 
+    x="256" 
+    y="295" 
+    text-anchor="middle" 
+    dominant-baseline="middle"
+    font-family="Georgia, 'Times New Roman', serif" 
+    font-size="232" 
+    font-weight="400" 
+    fill="#f8f3eb" 
+    letter-spacing="-9"
+    opacity="0.96">A</text>
+  
+  <!-- Tiny, precise presence mark (the quiet "now" — very 2026 stoic minimalism) -->
+  <circle cx="256" cy="352" r="2.75" fill="#f8f3eb" opacity="0.28"/>
 </svg>

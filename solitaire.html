@@ -3219,21 +3219,49 @@ const SUPPORTED_LANGS = [
 // Solitaire-specific UI strings
 // (SOL_UI_EN is declared early in the STATE section)
 
-const TRANSLATION_CACHE_KEY = 'stoicflow_translations';
-const LANG_PREF_KEY = 'stoicflow_lang';
+const TRANSLATION_CACHE_KEY = 'ataraxia_translations';
+const TRANSLATION_CACHE_KEY_LEGACY = 'stoicflow_translations';
+const LANG_PREF_KEY = 'ataraxia_lang';
+const LANG_PREF_KEY_LEGACY = 'stoicflow_lang';
+const TRANSLATION_CACHE_MAX = 500;
 
 // currentLang and _cachedUIStrings are declared early in the STATE section
 let translationCache = {};
 
+function migrateLegacyStorage() {
+  [
+    [LANG_PREF_KEY_LEGACY, LANG_PREF_KEY],
+    [TRANSLATION_CACHE_KEY_LEGACY, TRANSLATION_CACHE_KEY],
+  ].forEach(([legacy, current]) => {
+    try {
+      const value = localStorage.getItem(legacy);
+      if (value != null && localStorage.getItem(current) == null) {
+        localStorage.setItem(current, value);
+      }
+    } catch(e) {}
+  });
+}
+
+function trimTranslationCache() {
+  const keys = Object.keys(translationCache);
+  if (keys.length <= TRANSLATION_CACHE_MAX) return;
+  keys.slice(0, keys.length - TRANSLATION_CACHE_MAX).forEach((k) => {
+    delete translationCache[k];
+  });
+}
+
 function loadTranslationCache() {
   try {
-    const raw = localStorage.getItem(TRANSLATION_CACHE_KEY);
+    const raw = localStorage.getItem(TRANSLATION_CACHE_KEY)
+      || localStorage.getItem(TRANSLATION_CACHE_KEY_LEGACY);
     if (raw) translationCache = JSON.parse(raw);
+    trimTranslationCache();
   } catch(e) { translationCache = {}; }
 }
 
 function saveTranslationCache() {
   try {
+    trimTranslationCache();
     localStorage.setItem(TRANSLATION_CACHE_KEY, JSON.stringify(translationCache));
   } catch(e) {}
 }
@@ -3248,6 +3276,7 @@ function getCachedTranslation(text, targetLang) {
 
 function setCachedTranslation(text, targetLang, translated) {
   translationCache[getCacheKey(text, targetLang)] = translated;
+  trimTranslationCache();
 }
 
 function _gtLang(lang) {
@@ -3454,6 +3483,7 @@ function buildLangDropdown() {
 }
 
 function initTranslation() {
+  migrateLegacyStorage();
   loadTranslationCache();
   buildLangDropdown();
 
@@ -3469,7 +3499,8 @@ function initTranslation() {
     }
   });
 
-  const saved = localStorage.getItem(LANG_PREF_KEY);
+  const saved = localStorage.getItem(LANG_PREF_KEY)
+    || localStorage.getItem(LANG_PREF_KEY_LEGACY);
   if (saved && saved !== 'en') {
     switchLanguage(saved);
   } else if (!saved) {

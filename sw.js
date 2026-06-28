@@ -7,7 +7,7 @@
      • Anything else same-origin          → stale-while-revalidate
    ═══════════════════════════════════════════════════════ */
 
-const SHELL_CACHE   = 'ataraxia-shell-v2';
+const SHELL_CACHE   = 'ataraxia-shell-v3';
 const FONT_CACHE    = 'ataraxia-fonts-v1';
 const KNOWN_CACHES  = [SHELL_CACHE, FONT_CACHE];
 
@@ -24,6 +24,7 @@ const IMAGE_CDN_HOSTS = new Set([
 const SHELL_ASSETS = [
   './',
   './index.html',
+  './solitaire.html',
   './site.webmanifest',
   './favicon.svg',
   './favicon.ico',

@@ -133,7 +133,7 @@
       position: relative;
       z-index: 2;
       min-height: 100dvh;
-      padding-top: calc(max(0.45rem, env(safe-area-inset-top, 0px)) + 3.35rem);
+      padding-top: calc(max(0.45rem, env(safe-area-inset-top, 0px)) + 5.1rem);
     }
 
     html {
@@ -156,17 +156,22 @@
        TOP TOOLBAR — pastille centrée (miroir Ataraxia)
        ════════════════════════════════════════ */
     .game-toolbar {
+      --tb-font: 0.8rem;
+      --tb-sub-font: 0.7rem;
+      --tb-ls: 0.03em;
       position: fixed;
       top: max(0.45rem, env(safe-area-inset-top, 0px));
       left: 50%;
       transform: translateX(-50%);
       z-index: 100;
       display: flex;
-      align-items: center;
-      gap: 0.15rem;
-      padding: 0.28rem 0.35rem;
-      max-width: calc(100vw - 1.25rem);
-      border-radius: 999px;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      padding: 0.42rem 0.62rem 0.34rem;
+      width: min(calc(100vw - 0.75rem), 760px);
+      max-width: min(calc(100vw - 0.75rem), 760px);
+      border-radius: 20px;
       background: rgba(0, 0, 0, 0.38);
       border: 1px solid rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(22px) saturate(1.3);
@@ -174,17 +179,82 @@
       box-shadow: 0 6px 28px rgba(0, 0, 0, 0.22);
     }
 
-    .toolbar-btn {
+    .game-toolbar-main {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 0.18rem;
+    }
+
+    .game-toolbar-sub {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.34rem;
+      padding-top: 0.34rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .toolbar-stats {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .toolbar-stat {
+      font-family: var(--font-body);
+      font-size: var(--tb-sub-font);
+      font-weight: 400;
+      letter-spacing: var(--tb-ls);
+      line-height: 1.2;
+      color: rgba(255, 255, 255, 0.62);
+      white-space: nowrap;
+    }
+
+    .toolbar-stat-sep {
+      font-size: var(--tb-sub-font);
+      line-height: 1;
+      color: rgba(255, 255, 255, 0.35);
+      display: none;
+    }
+
+    .toolbar-stat--time { display: none; }
+
+    .toolbar-stats.has-moves .toolbar-stat-sep,
+    .toolbar-stats.has-moves .toolbar-stat--time {
+      display: inline;
+    }
+
+    .toolbar-sub-sep {
+      width: 1px;
+      height: 0.85rem;
+      background: rgba(255, 255, 255, 0.14);
+      flex-shrink: 0;
+    }
+
+    .toolbar-links {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.12rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .toolbar-btn,
+    .lang-btn {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 0.35rem;
       font-family: var(--font-body);
-      font-size: 0.78rem;
+      font-size: var(--tb-font);
       font-weight: 400;
-      letter-spacing: 0.03em;
+      letter-spacing: var(--tb-ls);
       line-height: 1.2;
-      padding: 0.4rem 0.7rem;
+      padding: 0.42rem 0.72rem;
       border-radius: 999px;
       border: none;
       background: transparent;
@@ -195,20 +265,22 @@
       flex-shrink: 0;
       transition: background 0.2s ease, color 0.2s ease;
     }
-    .toolbar-btn:hover {
+    .toolbar-btn:hover,
+    .lang-btn:hover {
       background: rgba(255, 255, 255, 0.1);
       color: rgba(255, 255, 255, 0.95);
     }
     .toolbar-btn:active { transform: scale(0.96); }
-    .toolbar-btn svg {
-      width: 17px;
-      height: 17px;
+    .toolbar-btn svg,
+    .lang-btn svg {
+      width: 16px;
+      height: 16px;
       fill: currentColor;
       opacity: 0.88;
       flex-shrink: 0;
     }
     .toolbar-emoji {
-      font-size: 1.1rem;
+      font-size: 1.12em;
       line-height: 1;
       flex-shrink: 0;
     }
@@ -216,35 +288,20 @@
       font-weight: 500;
       color: rgba(255, 255, 255, 0.9);
     }
+    .toolbar-btn--sub {
+      font-size: var(--tb-sub-font);
+      padding: 0.24rem 0.52rem;
+      color: rgba(255, 255, 255, 0.58);
+    }
+    .toolbar-btn--sub:hover { color: rgba(255, 255, 255, 0.88); }
+    .toolbar-btn--sub svg {
+      width: 13px;
+      height: 13px;
+    }
     .toolbar-btn:disabled {
       opacity: 0.32;
       cursor: default;
       pointer-events: none;
-    }
-
-    @media (max-width: 820px) {
-      .game-toolbar {
-        flex-wrap: wrap;
-        justify-content: center;
-        row-gap: 0.2rem;
-        border-radius: 18px;
-        padding: 0.35rem 0.45rem;
-        max-width: min(calc(100vw - 0.75rem), 520px);
-      }
-      .toolbar-btn {
-        padding: 0.32rem 0.55rem;
-        font-size: 0.68rem;
-      }
-      .toolbar-btn svg {
-        width: 15px;
-        height: 15px;
-      }
-      .toolbar-emoji { font-size: 1.05rem; }
-      .lang-btn {
-        padding: 0.32rem 0.55rem;
-        font-size: 0.68rem;
-      }
-      .lang-btn svg { width: 15px; height: 15px; }
     }
 
     /* ════════════════════════════════════════
@@ -255,28 +312,6 @@
       flex-shrink: 0;
     }
 
-    .lang-btn {
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-      font-family: var(--font-body);
-      font-size: 0.78rem;
-      font-weight: 400;
-      letter-spacing: 0.03em;
-      padding: 0.4rem 0.7rem;
-      border-radius: 999px;
-      border: none;
-      background: transparent;
-      color: rgba(255, 255, 255, 0.72);
-      cursor: pointer;
-      transition: background 0.2s ease, color 0.2s ease;
-      white-space: nowrap;
-    }
-    .lang-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.95);
-    }
-    .lang-btn svg { width: 17px; height: 17px; fill: currentColor; opacity: 0.88; flex-shrink: 0; }
     .lang-btn span { max-width: 6rem; overflow: hidden; text-overflow: ellipsis; }
 
     .lang-dropdown {
@@ -639,22 +674,6 @@
     }
 
     /* ════════════════════════════════════════
-       STATS BAR
-       ════════════════════════════════════════ */
-    #stats-bar {
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
-      padding: 0.15rem 1rem 0.35rem;
-      font-size: 0.72rem;
-      letter-spacing: 0.08em;
-      color: rgba(255, 255, 255, 0.55);
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
-      background: transparent;
-      border: none;
-    }
-
-    /* ════════════════════════════════════════
        HINT HIGHLIGHT
        ════════════════════════════════════════ */
     .card--hint {
@@ -863,6 +882,7 @@
 <div class="page-layout">
 <!-- ══════════════════════ TOP TOOLBAR ══════════════════════ -->
 <nav class="game-toolbar" aria-label="Game controls">
+  <div class="game-toolbar-main">
   <a class="toolbar-btn toolbar-btn--back" href="index.html" id="back-pomodoro-link" aria-label="Back to Pomodoro">
     <span class="toolbar-emoji" aria-hidden="true">🍅</span>
     <span id="back-pomodoro-label">Pomodoro</span>
@@ -891,22 +911,6 @@
     </svg>
     <span id="shuffle-bg-label">Background</span>
   </button>
-  <a class="toolbar-btn" id="radar-btn"
-     href="https://azdak919.github.io/radios-etudiantes-qc/"
-     target="_blank" rel="noopener noreferrer" aria-label="Le Radar">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20H9v2h6v-2h-2v-3.08c3.02-.43 5.42-2.78 5.91-5.78.09-.6-.39-1.14-1-1.14z"/>
-    </svg>
-    <span id="radar-btn-label">Le Radar</span>
-  </a>
-  <a class="toolbar-btn" id="coffee-btn"
-     href="https://www.buymeacoffee.com/azdak"
-     target="_blank" rel="noopener" aria-label="Buy me a coffee">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M20 3H4v10c0 3.31 2.69 6 6 6h4c3.31 0 6-2.69 6-6V8h1a1 1 0 000-2h-1V3zm-2 10c0 2.21-1.79 4-4 4h-4c-2.21 0-4-1.79-4-4V5h12v8zm2-7h-1V4h1v2z"/>
-    </svg>
-    <span id="coffee-btn-label">Buy me a coffee</span>
-  </a>
   <div class="lang-selector">
     <button class="lang-btn" id="lang-btn" aria-label="Change language">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0014.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
@@ -915,13 +919,39 @@
     <div class="lang-dropdown" id="lang-dropdown"></div>
     <div class="lang-translating" id="lang-status"></div>
   </div>
+  </div>
+  <div class="game-toolbar-sub">
+    <div class="toolbar-stats" id="toolbar-stats">
+      <span class="toolbar-stat">
+        <span id="stat-moves">0</span>
+        <span id="moves-label">moves</span>
+      </span>
+      <span class="toolbar-stat-sep" aria-hidden="true">·</span>
+      <span class="toolbar-stat toolbar-stat--time">
+        <span id="stat-time">0:00</span>
+      </span>
+    </div>
+    <span class="toolbar-sub-sep" aria-hidden="true"></span>
+    <div class="toolbar-links">
+      <a class="toolbar-btn toolbar-btn--sub" id="radar-btn"
+         href="https://azdak919.github.io/radios-etudiantes-qc/"
+         target="_blank" rel="noopener noreferrer" aria-label="Le Radar">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20H9v2h6v-2h-2v-3.08c3.02-.43 5.42-2.78 5.91-5.78.09-.6-.39-1.14-1-1.14z"/>
+        </svg>
+        <span id="radar-btn-label">Le Radar</span>
+      </a>
+      <a class="toolbar-btn toolbar-btn--sub" id="coffee-btn"
+         href="https://www.buymeacoffee.com/azdak"
+         target="_blank" rel="noopener" aria-label="Buy me a coffee">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20 3H4v10c0 3.31 2.69 6 6 6h4c3.31 0 6-2.69 6-6V8h1a1 1 0 000-2h-1V3zm-2 10c0 2.21-1.79 4-4 4h-4c-2.21 0-4-1.79-4-4V5h12v8zm2-7h-1V4h1v2z"/>
+        </svg>
+        <span id="coffee-btn-label">Buy me a coffee</span>
+      </a>
+    </div>
+  </div>
 </nav>
-
-<!-- ══════════════════════ STATS BAR ══════════════════════ -->
-<div id="stats-bar">
-  <span><span id="stat-moves">0</span> <span id="moves-label">moves</span></span>
-  <span><span id="stat-time">0:00</span></span>
-</div>
 
 <!-- ══════════════════════ AUTO-COMPLETE BANNER ══════════════════════ -->
 <div id="autocomplete-banner" class="hidden" role="complementary">
@@ -1846,8 +1876,10 @@ function updateStats() {
   }
   const movesEl = document.getElementById('stat-moves');
   const timeEl  = document.getElementById('stat-time');
+  const statsWrap = document.getElementById('toolbar-stats');
   if (movesEl) movesEl.textContent = moveCount;
   if (timeEl) timeEl.textContent = startTime ? formatTime(Date.now() - startTime) : '0:00';
+  if (statsWrap) statsWrap.classList.toggle('has-moves', moveCount > 0);
 }
 
 /* ══════════════════════════════════════════════════════════
